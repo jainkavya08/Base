@@ -1,18 +1,28 @@
-import { PomodoroTimer } from "@/components/pomodoro/pomodoro-timer";
-import { PomodoroHistory } from "@/components/pomodoro/pomodoro-history";
+import { WorkspaceTimer } from "@/components/pomodoro/workspace/workspace-timer";
+import { CurrentTask } from "@/components/pomodoro/workspace/current-task";
+import { FocusCalendar } from "@/components/pomodoro/workspace/focus-calendar";
+import { TodaySummary } from "@/components/pomodoro/workspace/today-summary";
+import { FocusMusic } from "@/components/pomodoro/workspace/focus-music";
+import { RecentSessions } from "@/components/pomodoro/workspace/recent-sessions";
 
 export default function PomodoroPage() {
   return (
-    <div className="p-8 max-w-5xl mx-auto h-full flex flex-col gap-12">
-      <div>
-        <h1 className="text-3xl font-medium text-ink">Pomodoro</h1>
-        <p className="text-ink-muted mt-1">Focus sessions and break intervals.</p>
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8 items-start animate-in fade-in duration-500">
+      
+      {/* Left Column - Hero Workspace */}
+      <div className="flex flex-col gap-8">
+        <WorkspaceTimer />
+        <CurrentTask />
+        <FocusMusic />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-        <PomodoroTimer />
-        <PomodoroHistory />
+      {/* Right Column - Today's Context */}
+      <div className="flex flex-col gap-8">
+        <TodaySummary />
+        <FocusCalendar />
+        <RecentSessions />
       </div>
+
     </div>
   );
 }

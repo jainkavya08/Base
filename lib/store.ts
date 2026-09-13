@@ -17,11 +17,22 @@ interface AppState {
   pomodoro: {
     isRunning: boolean;
     timeLeft: number; // in seconds
-    mode: 'focus' | 'break';
+    mode: 'focus' | 'short_break' | 'long_break';
     targetEndTime?: number; // timestamp
     currentTodoId?: string;
+    sessionCount: number; // how many focus sessions completed in this cycle
+    settings: {
+      focusDuration: number; // minutes
+      shortBreakDuration: number;
+      longBreakDuration: number;
+      sessionsBeforeLongBreak: number;
+      autoStartBreaks: boolean;
+      autoStartFocus: boolean;
+      soundNotification: boolean;
+    };
   };
   setPomodoroState: (state: Partial<AppState['pomodoro']>) => void;
+  updatePomodoroSettings: (settings: Partial<AppState['pomodoro']['settings']>) => void;
 
   // Settings
   settings: {
@@ -63,9 +74,25 @@ export const useAppStore = create<AppState>()(
         isRunning: false,
         timeLeft: 25 * 60,
         mode: 'focus',
+        sessionCount: 0,
+        settings: {
+          focusDuration: 25,
+          shortBreakDuration: 5,
+          longBreakDuration: 15,
+          sessionsBeforeLongBreak: 4,
+          autoStartBreaks: false,
+          autoStartFocus: false,
+          soundNotification: true,
+        }
       },
       setPomodoroState: (newState) => set((state) => ({
         pomodoro: { ...state.pomodoro, ...newState }
+      })),
+      updatePomodoroSettings: (newSettings) => set((state) => ({
+        pomodoro: {
+          ...state.pomodoro,
+          settings: { ...state.pomodoro.settings, ...newSettings }
+        }
       })),
 
       settings: {
@@ -89,8 +116,16 @@ export const useAppStore = create<AppState>()(
       name: 'personal-dashboard-storage',
       partialize: (state) => ({ 
         widgets: state.widgets,
-        settings: state.settings 
-      }), // Persist widgets and settings
+        settings: state.settings,
+        pomodoro: {
+          ...state.pomodoro,
+          // Do not persist transient timer state, only settings and sessionCount
+          isRunning: false,
+          targetEndTime: undefined,
+          // We can optionally persist timeLeft/mode if we want them to survive a refresh while paused
+          // Let's persist them so if they reload they don't lose the exact mode
+        }
+      }), // Persist widgets, settings, and pomodoro settings
     }
   )
 );

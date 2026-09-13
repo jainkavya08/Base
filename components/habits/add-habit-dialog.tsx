@@ -115,11 +115,11 @@ export function AddHabitDialog() {
             <div className="flex flex-col gap-2">
               <Label className="text-ink-muted text-xs">Icon</Label>
               <Popover open={iconPickerOpen} onOpenChange={setIconPickerOpen}>
-                <PopoverTrigger asChild>
+                <PopoverTrigger render={
                   <Button variant="outline" className="w-16 bg-canvas border-border text-lg justify-center h-10 px-0 hover:bg-border/50">
                     <HabitIcon icon={icon} className="w-5 h-5 text-ink" />
                   </Button>
-                </PopoverTrigger>
+                } />
                 <PopoverContent align="start" className="w-[320px] bg-surface-card border-border/50 shadow-xl rounded-2xl p-3">
                   <div className="grid grid-cols-7 gap-2">
                     {AVAILABLE_ICONS.map(i => (
@@ -267,6 +267,7 @@ export function AddHabitDialog() {
                 <Select 
                   value={(parseInt(reminderTime.split(":")[0] || "9") % 12 || 12).toString()} 
                   onValueChange={(h) => {
+                    if (!h) return;
                     const m = reminderTime.split(":")[1] || "00";
                     const isPM = parseInt(reminderTime.split(":")[0] || "9") >= 12;
                     let newH = parseInt(h);
@@ -290,6 +291,7 @@ export function AddHabitDialog() {
                 <Select 
                   value={reminderTime.split(":")[1] || "00"} 
                   onValueChange={(m) => {
+                    if (!m) return;
                     const h = reminderTime.split(":")[0] || "09";
                     setReminderTime(`${h}:${m}`);
                   }}
@@ -308,12 +310,13 @@ export function AddHabitDialog() {
                 </Select>
                 <Select 
                   value={parseInt(reminderTime.split(":")[0] || "9") >= 12 ? "PM" : "AM"} 
-                  onValueChange={(ap) => {
-                    const parts = reminderTime.split(":");
-                    let h = parseInt(parts[0] || "9");
-                    const m = parts[1] || "00";
-                    if (ap === "PM" && h < 12) h += 12;
-                    if (ap === "AM" && h >= 12) h -= 12;
+                  onValueChange={(ampm) => {
+                    if (!ampm) return;
+                    const isCurrentlyPM = parseInt(reminderTime.split(":")[0] || "9") >= 12;
+                    let h = parseInt(reminderTime.split(":")[0] || "9");
+                    const m = reminderTime.split(":")[1] || "00";
+                    if (ampm === "PM" && !isCurrentlyPM) h += 12;
+                    if (ampm === "AM" && isCurrentlyPM) h -= 12;
                     setReminderTime(`${h.toString().padStart(2, "0")}:${m}`);
                   }}
                 >

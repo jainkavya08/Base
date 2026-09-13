@@ -29,6 +29,8 @@ export interface PomodoroSession {
   durationMinutes: number;
   completedAt: string; // ISO string
   todoId?: string;
+  type?: "focus" | "short_break" | "long_break";
+  status?: "completed" | "interrupted" | "skipped";
 }
 
 export interface Todo {
@@ -67,6 +69,7 @@ const db = new Dexie('PersonalDashboardDB') as Dexie & {
   financeTransactions: EntityTable<FinanceTransaction, 'id'>;
 };
 
+// V2 mapping
 db.version(2).stores({
   habits: 'id, title, type, createdAt',
   habitCompletions: 'id, habitId, date, [habitId+date]',
@@ -74,6 +77,22 @@ db.version(2).stores({
   todos: 'id, completed, dueDate, priority, projectId',
   reminders: 'id, fireAt',
   financeTransactions: 'id, type, date, category'
+});
+
+// V3 adds type/status to PomodoroSession
+db.version(3).stores({
+  habits: 'id, title, type, createdAt',
+  habitCompletions: 'id, habitId, date, [habitId+date]',
+  pomodoroSessions: 'id, completedAt, todoId, type, status',
+  todos: 'id, completed, dueDate, priority, projectId',
+  reminders: 'id, fireAt',
+  financeTransactions: 'id, type, date, category'
+}).upgrade(async (trans) => {
+  // Update all old sessions to have type="focus" and status="completed"
+  return trans.table('pomodoroSessions').toCollection().modify(session => {
+    session.type = 'focus';
+    session.status = 'completed';
+  });
 });
 
 export { db };
