@@ -1,0 +1,36 @@
+import type { Metadata } from "next";
+import { NavRail } from "@/components/ui/nav-rail";
+import { GlobalHooks } from "@/components/global-hooks";
+import { Inter } from "next/font/google";
+import "./globals.css";
+
+const inter = Inter({
+  variable: "--font-sans",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  title: "Personal Dashboard",
+  description: "Your local-first productivity hub",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html
+      lang="en"
+      className={`${inter.variable} font-sans h-full antialiased`}
+    >
+      <body className="min-h-full flex bg-canvas text-ink">
+        <GlobalHooks />
+        <NavRail />
+        <main className="flex-1 ml-16 md:ml-20 min-h-screen">
+          {children}
+        </main>
+      </body>
+    </html>
+  );
+}
