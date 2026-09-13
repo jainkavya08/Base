@@ -1,0 +1,503 @@
+export async function GET() {
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Legacy Pomodoro</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #111111;
+      color: #f5f5f5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+    .settings-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      font-size: 32px;
+      color: #aaaaaa;
+      cursor: pointer;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .settings-btn:active {
+      opacity: 0.7;
+    }
+    .timer-container {
+      background-color: #1c1c1c;
+      border-radius: 32px;
+      padding: 40px 30px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    }
+    h1 {
+      font-size: 20px;
+      letter-spacing: 4px;
+      margin: 0 0 35px 0;
+      font-weight: 500;
+      color: #f5c542;
+    }
+    .time-display {
+      font-size: 80px;
+      font-weight: 300;
+      margin: 0 0 35px 0;
+      font-family: monospace;
+    }
+    .time-display.pulse {
+      animation: pulse 1.5s ease-in-out 3;
+    }
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.3; }
+      100% { opacity: 1; }
+    }
+    .button {
+      background-color: #f5c542;
+      color: #111111;
+      border: none;
+      border-radius: 50px;
+      padding: 18px 40px;
+      font-size: 22px;
+      font-weight: bold;
+      width: 100%;
+      margin-bottom: 15px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.1s;
+    }
+    .button.outline {
+      background-color: transparent;
+      color: #aaaaaa;
+      border: 2px solid #333333;
+    }
+    .button:active {
+      transform: scale(0.97);
+    }
+    .status {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #aaaaaa;
+    }
+    #msg {
+      color: #f5c542;
+      margin-top: 15px;
+      font-weight: bold;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+    #msg.visible {
+      opacity: 1;
+    }
+    
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open {
+      display: flex;
+    }
+    .modal {
+      background-color: #202020;
+      padding: 30px;
+      border-radius: 24px;
+      width: 85%;
+      max-width: 350px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+      text-align: left;
+    }
+    .modal h2 {
+      margin: 0 0 25px 0;
+      color: #f5f5f5;
+      font-size: 22px;
+      font-weight: 500;
+    }
+    .setting-group {
+      margin-bottom: 20px;
+    }
+    .setting-group label {
+      display: block;
+      color: #aaaaaa;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+    .setting-group input {
+      width: 100%;
+      background: #111111;
+      border: 1px solid #333333;
+      color: #f5f5f5;
+      padding: 15px;
+      border-radius: 12px;
+      font-size: 18px;
+      box-sizing: border-box;
+      -webkit-appearance: none;
+    }
+    .modal-buttons {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+    }
+    .modal-btn {
+      flex: 1;
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.1s;
+    }
+    .modal-btn:active {
+      transform: scale(0.95);
+    }
+    .modal-btn.save {
+      background-color: #f5c542;
+      color: #111111;
+    }
+    .modal-btn.cancel {
+      background-color: transparent;
+      color: #aaaaaa;
+      border: 2px solid #333333;
+    }
+    #settings-error {
+      color: #ff5555;
+      margin-bottom: 15px;
+      font-size: 14px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="settings-btn" id="btn-settings">⚙</div>
+
+  <div class="timer-container">
+    <h1>POMODORO</h1>
+    <div class="time-display" id="time">25:00</div>
+    
+    <button class="button" id="btn-primary">START</button>
+    <button class="button outline" id="btn-reset" style="display: none;">RESET</button>
+    
+    <div class="status" id="status">Focus Session</div>
+    <div id="msg"></div>
+  </div>
+
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <h2>Timer Settings</h2>
+      <div id="settings-error"></div>
+      
+      <div class="setting-group">
+        <label>Focus (minutes)</label>
+        <input type="number" id="input-focus" min="1" max="60" value="25">
+      </div>
+      <div class="setting-group">
+        <label>Short Break (minutes)</label>
+        <input type="number" id="input-short" min="1" max="30" value="5">
+      </div>
+      <div class="setting-group">
+        <label>Long Break (minutes)</label>
+        <input type="number" id="input-long" min="1" max="60" value="15">
+      </div>
+      
+      <div class="modal-buttons">
+        <button class="modal-btn cancel" id="btn-cancel">CANCEL</button>
+        <button class="modal-btn save" id="btn-save">SAVE</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // Defaults
+      var focusDuration = 25;
+      var shortBreak = 5;
+      var longBreak = 15;
+
+      // Load settings from localStorage
+      try {
+        if (window.localStorage) {
+          var sf = localStorage.getItem('pomodoro_focus_duration');
+          if (sf) focusDuration = parseInt(sf, 10);
+          
+          var ss = localStorage.getItem('pomodoro_short_break');
+          if (ss) shortBreak = parseInt(ss, 10);
+          
+          var sl = localStorage.getItem('pomodoro_long_break');
+          if (sl) longBreak = parseInt(sl, 10);
+        }
+      } catch(e) {}
+      
+      var state = 'IDLE'; // IDLE, RUNNING, PAUSED, COMPLETED
+      var endTimestamp = null;
+      var remainingMs = focusDuration * 60 * 1000;
+      var timerInterval = null;
+
+      var timeEl = document.getElementById('time');
+      var btnPrimary = document.getElementById('btn-primary');
+      var btnReset = document.getElementById('btn-reset');
+      var statusEl = document.getElementById('status');
+      var msgEl = document.getElementById('msg');
+      
+      var btnSettings = document.getElementById('btn-settings');
+      var modalOverlay = document.getElementById('modal-overlay');
+      var btnSave = document.getElementById('btn-save');
+      var btnCancel = document.getElementById('btn-cancel');
+      var inputFocus = document.getElementById('input-focus');
+      var inputShort = document.getElementById('input-short');
+      var inputLong = document.getElementById('input-long');
+      var settingsError = document.getElementById('settings-error');
+
+      function updateDisplay(ms) {
+        if (ms < 0) ms = 0;
+        var totalSec = Math.ceil(ms / 1000);
+        var m = Math.floor(totalSec / 60);
+        var s = totalSec % 60;
+        
+        var mStr = m < 10 ? '0' + m : m;
+        var sStr = s < 10 ? '0' + s : s;
+        timeEl.innerText = mStr + ':' + sStr;
+      }
+
+      function logSession() {
+        var request = window.indexedDB.open('PersonalDashboardDB', 3);
+        request.onsuccess = function(event) {
+          var db = event.target.result;
+          try {
+            var transaction = db.transaction(['pomodoroSessions'], 'readwrite');
+            var store = transaction.objectStore('pomodoroSessions');
+            var id = new Date().getTime().toString() + Math.random().toString(36).substring(2);
+            var session = {
+              id: id,
+              durationMinutes: focusDuration,
+              completedAt: new Date().toISOString(),
+              type: 'focus',
+              status: 'completed'
+            };
+            store.add(session);
+            msgEl.innerText = "Focus session completed!";
+            msgEl.className = "visible";
+            timeEl.className = "time-display pulse";
+          } catch(e) {
+            msgEl.innerText = "Session completed. Could not sync.";
+            msgEl.className = "visible";
+          }
+        };
+        request.onerror = function(event) {
+          msgEl.innerText = "Session completed. Could not sync.";
+          msgEl.className = "visible";
+        };
+      }
+
+      function tick() {
+        if (state !== 'RUNNING') return;
+        var now = new Date().getTime();
+        var left = endTimestamp - now;
+        
+        if (left <= 0) {
+          left = 0;
+          state = 'COMPLETED';
+          clearInterval(timerInterval);
+          updateDisplay(0);
+          btnPrimary.innerText = 'START AGAIN';
+          btnReset.style.display = 'none';
+          statusEl.innerText = 'Completed';
+          saveState();
+          logSession();
+          return;
+        }
+        
+        remainingMs = left;
+        updateDisplay(remainingMs);
+        saveState();
+      }
+
+      function startTimer() {
+        endTimestamp = new Date().getTime() + remainingMs;
+        state = 'RUNNING';
+        btnPrimary.innerText = 'PAUSE';
+        btnReset.style.display = 'block';
+        statusEl.innerText = 'Focus Session';
+        msgEl.className = "";
+        timeEl.className = "time-display";
+        saveState();
+        timerInterval = setInterval(tick, 1000);
+      }
+
+      function pauseTimer() {
+        state = 'PAUSED';
+        clearInterval(timerInterval);
+        btnPrimary.innerText = 'RESUME';
+        statusEl.innerText = 'PAUSED';
+        saveState();
+      }
+
+      function resetTimer() {
+        state = 'IDLE';
+        clearInterval(timerInterval);
+        remainingMs = focusDuration * 60 * 1000;
+        endTimestamp = null;
+        updateDisplay(remainingMs);
+        btnPrimary.innerText = 'START';
+        btnReset.style.display = 'none';
+        statusEl.innerText = 'Focus Session';
+        msgEl.className = "";
+        timeEl.className = "time-display";
+        saveState();
+      }
+
+      btnPrimary.onclick = function() {
+        if (state === 'IDLE' || state === 'COMPLETED') {
+          if (state === 'COMPLETED') {
+            remainingMs = focusDuration * 60 * 1000;
+          }
+          startTimer();
+        } else if (state === 'RUNNING') {
+          pauseTimer();
+        } else if (state === 'PAUSED') {
+          startTimer();
+        }
+      };
+
+      btnReset.onclick = resetTimer;
+      
+      // Settings Logic
+      btnSettings.onclick = function() {
+        if (state === 'RUNNING') {
+          settingsError.innerText = "Pause the timer before changing duration.";
+          settingsError.style.display = "block";
+        } else {
+          settingsError.style.display = "none";
+        }
+        
+        inputFocus.value = focusDuration;
+        inputShort.value = shortBreak;
+        inputLong.value = longBreak;
+        modalOverlay.className = "modal-overlay open";
+      };
+      
+      btnCancel.onclick = function() {
+        modalOverlay.className = "modal-overlay";
+      };
+      
+      btnSave.onclick = function() {
+        if (state === 'RUNNING') {
+          settingsError.innerText = "You must pause the timer to save settings.";
+          settingsError.style.display = "block";
+          return;
+        }
+        
+        var newF = parseInt(inputFocus.value, 10);
+        var newS = parseInt(inputShort.value, 10);
+        var newL = parseInt(inputLong.value, 10);
+        
+        if (isNaN(newF) || newF < 1 || newF > 60) newF = 25;
+        if (isNaN(newS) || newS < 1 || newS > 30) newS = 5;
+        if (isNaN(newL) || newL < 1 || newL > 60) newL = 15;
+        
+        focusDuration = newF;
+        shortBreak = newS;
+        longBreak = newL;
+        
+        try {
+          if (window.localStorage) {
+            localStorage.setItem('pomodoro_focus_duration', focusDuration);
+            localStorage.setItem('pomodoro_short_break', shortBreak);
+            localStorage.setItem('pomodoro_long_break', longBreak);
+          }
+        } catch(e) {}
+        
+        // Update timer if we are in IDLE or COMPLETED state
+        if (state === 'IDLE' || state === 'COMPLETED') {
+          remainingMs = focusDuration * 60 * 1000;
+          updateDisplay(remainingMs);
+        }
+        
+        modalOverlay.className = "modal-overlay";
+      };
+
+      function saveState() {
+        try {
+          if (window.localStorage) {
+            localStorage.setItem('legacy_pomodoro', JSON.stringify({
+              state: state,
+              endTimestamp: endTimestamp,
+              remainingMs: remainingMs,
+              focusDuration: focusDuration
+            }));
+          }
+        } catch(e) {}
+      }
+
+      function loadState() {
+        try {
+          if (window.localStorage) {
+            var saved = localStorage.getItem('legacy_pomodoro');
+            if (saved) {
+              var parsed = JSON.parse(saved);
+              // Handle case where settings were changed but state remained
+              if (parsed.focusDuration === focusDuration) {
+                if (parsed.state === 'RUNNING') {
+                  state = 'RUNNING';
+                  endTimestamp = parsed.endTimestamp;
+                  var now = new Date().getTime();
+                  if (endTimestamp > now) {
+                    remainingMs = endTimestamp - now;
+                    startTimer();
+                  } else {
+                    remainingMs = 0;
+                    state = 'COMPLETED';
+                    updateDisplay(0);
+                    btnPrimary.innerText = 'START AGAIN';
+                    statusEl.innerText = 'Completed';
+                  }
+                } else if (parsed.state === 'PAUSED') {
+                  state = 'PAUSED';
+                  remainingMs = parsed.remainingMs;
+                  updateDisplay(remainingMs);
+                  btnPrimary.innerText = 'RESUME';
+                  btnReset.style.display = 'block';
+                  statusEl.innerText = 'PAUSED';
+                }
+              }
+            }
+          }
+        } catch(e) {}
+      }
+
+      loadState();
+      if (state === 'IDLE') {
+        updateDisplay(remainingMs);
+      }
+
+    })();
+  </script>
+</body>
+</html>`;
+
+  return new Response(html, {
+    headers: { 'Content-Type': 'text/html' }
+  });
+}
