@@ -86,7 +86,7 @@ export function ListItem({
 
   return (
     <div 
-      onClick={() => router.push(`/todos/${fileId}/${list.id}`)}
+      onClick={() => router.push(`/todos/view?fileId=${fileId}&listId=${list.id}`)}
       className="bg-surface-card rounded-2xl p-6 shadow-sm border border-border/50 hover:border-accent-blue/50 transition-all group hover:shadow-md cursor-pointer relative h-full min-h-[120px] flex flex-col"
     >
       <div className="flex justify-between items-start mb-3">

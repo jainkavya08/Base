@@ -89,7 +89,7 @@ export function FileItem({
 
   return (
     <div 
-      onClick={() => router.push(`/todos/${file.id}`)}
+      onClick={() => router.push(`/todos/view?fileId=${file.id}`)}
       className="bg-surface-card rounded-2xl p-6 shadow-sm border border-border/50 hover:border-accent-blue/50 transition-all group hover:shadow-md cursor-pointer relative h-full min-h-[160px] flex flex-col"
     >
       <div className="flex justify-between items-start mb-8">

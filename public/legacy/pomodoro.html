@@ -1,5 +1,4 @@
-export async function GET() {
-  const html = `<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -495,9 +494,4 @@ export async function GET() {
     })();
   </script>
 </body>
-</html>`;
-
-  return new Response(html, {
-    headers: { 'Content-Type': 'text/html' }
-  });
-}
+</html>

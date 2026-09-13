@@ -64,7 +64,7 @@ export function TasksDashboard({ fileId, listId }: { fileId: string; listId: str
       <div className="flex items-center text-sm text-ink-muted mb-2">
         <Link href="/todos" className="hover:text-ink transition-colors">Todos</Link>
         <ChevronRight className="w-4 h-4 mx-1" />
-        <Link href={`/todos/${file.id}`} className="hover:text-ink transition-colors">{file.name}</Link>
+        <Link href={`/todos/view?fileId=${file.id}`} className="hover:text-ink transition-colors">{file.name}</Link>
         <ChevronRight className="w-4 h-4 mx-1" />
         <span className="text-ink font-medium">{list.name}</span>
       </div>
