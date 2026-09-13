@@ -59,12 +59,12 @@ export function AddTodoDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger render={
         <Button className="rounded-full bg-accent-yellow text-surface-dark hover:bg-accent-yellow/90">
           <Plus className="w-5 h-5 mr-1" />
           Add Task
         </Button>
-      </DialogTrigger>
+      } />
       <DialogContent className="sm:max-w-[425px] bg-surface-card border-none">
         <DialogHeader>
           <DialogTitle className="text-xl font-medium text-ink">New Task</DialogTitle>
@@ -83,7 +83,7 @@ export function AddTodoDialog() {
           
           <div className="flex flex-col gap-2">
             <Label htmlFor="priority" className="text-ink-muted">Priority</Label>
-            <Select value={priority} onValueChange={(v: "low" | "medium" | "high") => setPriority(v)}>
+            <Select value={priority} onValueChange={(v: any) => setPriority(v)}>
               <SelectTrigger className="bg-canvas border-border text-ink">
                 <SelectValue placeholder="Select priority" />
               </SelectTrigger>
@@ -98,7 +98,7 @@ export function AddTodoDialog() {
           <div className="flex flex-col gap-2">
             <Label className="text-ink-muted">Due Date</Label>
             <Popover>
-              <PopoverTrigger asChild>
+              <PopoverTrigger render={
                 <Button
                   variant={"outline"}
                   className={cn(
@@ -109,13 +109,12 @@ export function AddTodoDialog() {
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
                 </Button>
-              </PopoverTrigger>
+              } />
               <PopoverContent className="w-auto p-0 bg-surface-card border-border">
                 <Calendar
                   mode="single"
                   selected={dueDate}
                   onSelect={setDueDate}
-                  initialFocus
                 />
               </PopoverContent>
             </Popover>

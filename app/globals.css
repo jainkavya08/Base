@@ -16,8 +16,9 @@
   --color-surface-dark: #1B1A18;
   --color-accent-yellow: #F4C94C;
   --color-accent-coral: #F0705C;
+  --color-accent-blue: #30648c;
   --color-ink: #22201C;
-  --color-ink-muted: #8A8577;
+  --color-ink-muted: #5C584C;
 
   /* shadcn/ui mappings */
   --color-sidebar-ring: var(--sidebar-ring);
@@ -67,7 +68,7 @@
   --secondary: #1B1A18;
   --secondary-foreground: #F7F4EC;
   --muted: #E7E1D6;
-  --muted-foreground: #8A8577;
+  --muted-foreground: #5C584C;
   --accent: #F4C94C;
   --accent-foreground: #1B1A18;
   --destructive: #F0705C;

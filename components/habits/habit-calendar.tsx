@@ -1,84 +1,228 @@
 "use client";
 
+import { useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, subMonths } from "date-fns";
-import { db } from "@/lib/db";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, isFuture, startOfDay, addDays } from "date-fns";
+import { db, Habit } from "@/lib/db";
+import { ChevronLeft, ChevronRight, CheckCircle, Circle } from "lucide-react";
+import { getHabitStatusForDate } from "@/lib/habits-logic";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { HabitIcon } from "@/components/ui/habit-icon";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 export function HabitCalendar() {
   const completions = useLiveQuery(() => db.habitCompletions.toArray());
   const habits = useLiveQuery(() => db.habits.toArray());
+  
+  const [currentMonth, setCurrentMonth] = useState(startOfMonth(new Date()));
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
-  const today = new Date();
-  const monthStart = startOfMonth(today);
-  const monthEnd = endOfMonth(today);
+  if (!habits || !completions) return null;
+
+  const today = startOfDay(new Date());
+  const monthStart = startOfMonth(currentMonth);
+  const monthEnd = endOfMonth(currentMonth);
   const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
-  // Get total habits to know if a day was fully completed
-  const totalHabits = habits?.length || 0;
+  const monthsList = [-1, 0, 1, 2].map(offset => addMonths(today, offset));
+
+  const toggleHistoricalCompletion = async (habit: Habit, date: Date) => {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    const existing = completions.find(c => c.habitId === habit.id && c.date === dateStr);
+    
+    if (existing) {
+      await db.habitCompletions.delete(existing.id);
+    } else {
+      await db.habitCompletions.add({
+        id: crypto.randomUUID(),
+        habitId: habit.id,
+        date: dateStr,
+        value: (habit.type === 'numeric' || habit.type === 'duration') ? habit.target : undefined
+      });
+    }
+  };
 
   return (
-    <div className="bg-surface-dark rounded-[24px] p-6 text-surface-card shadow-lg relative overflow-hidden">
-      {/* Background glow per prompt constraint */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-accent-yellow/20 rounded-full blur-[80px] pointer-events-none" />
-      
-      <div className="relative z-10 flex justify-between items-center mb-6">
-        <h2 className="text-xl font-medium">Training Days</h2>
-        <div className="text-sm text-surface-card/70 bg-surface-card/10 px-3 py-1 rounded-full">
-          {format(today, "MMMM")}
-        </div>
-      </div>
-
-      <div className="relative z-10 grid grid-cols-7 gap-y-4 gap-x-2 text-center text-sm">
-        {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, i) => (
-          <div key={`header-${i}`} className="text-surface-card/50 font-medium pb-2">
-            {day}
-          </div>
-        ))}
-        
-        {/* Empty slots for start of month offset */}
-        {Array.from({ length: (monthStart.getDay() + 6) % 7 }).map((_, i) => (
-          <div key={`empty-${i}`} />
-        ))}
-
-        {daysInMonth.map((date) => {
-          const isToday = isSameDay(date, today);
-          const dayCompletions = completions?.filter(c => isSameDay(new Date(c.date), date)) || [];
-          
-          let dayStatus = 'none';
-          if (totalHabits > 0) {
-            if (dayCompletions.length === totalHabits) dayStatus = 'all';
-            else if (dayCompletions.length > 0) dayStatus = 'some';
-          }
-
+    <div className="flex flex-col gap-4">
+      {/* Month Selector Pills */}
+      <div className="flex justify-between gap-2 overflow-x-auto scrollbar-hide">
+        {monthsList.map(m => {
+          const isSelected = m.getMonth() === currentMonth.getMonth() && m.getFullYear() === currentMonth.getFullYear();
           return (
-            <div key={date.toString()} className="flex justify-center items-center h-8">
-              <div 
-                className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors
-                  ${isToday && dayStatus === 'none' ? 'border border-accent-yellow text-accent-yellow' : ''}
-                  ${dayStatus === 'all' ? 'bg-accent-yellow text-surface-dark font-medium' : ''}
-                  ${dayStatus === 'some' ? 'bg-surface-card/20 text-surface-card' : ''}
-                  ${dayStatus === 'none' && !isToday ? 'text-surface-card/40' : ''}
-                `}
-              >
-                {format(date, "d")}
-              </div>
-            </div>
+            <button 
+              key={m.toISOString()}
+              onClick={() => setCurrentMonth(m)}
+              className={cn(
+                "px-6 py-2 rounded-full font-medium transition-colors min-w-[80px]",
+                isSelected ? "bg-accent-blue text-surface-card shadow-md" : "bg-surface-card text-ink hover:bg-canvas"
+              )}
+            >
+              {format(m, "MMM")}
+            </button>
           );
         })}
       </div>
-      
-      <div className="relative z-10 flex items-center gap-4 mt-6 text-xs text-surface-card/60">
-        <div className="flex items-center gap-1">
-          <div className="w-2 h-2 rounded-full border border-accent-yellow" />
-          <span>Current day</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-2 h-2 rounded-full bg-accent-yellow" />
-          <span>Done</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-2 h-2 rounded-full bg-surface-card/20" />
-          <span>Partial</span>
+
+      {/* Calendar Card */}
+      <div className="bg-surface-card rounded-[32px] p-6 shadow-sm border border-border/50">
+        <div className="grid grid-cols-7 gap-y-4 text-center text-sm">
+          {/* Days Header */}
+          {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => {
+            const isTodayDay = today.getDay() === i;
+            return (
+              <div 
+                key={`header-${i}`} 
+                className={cn(
+                  "font-bold pb-4",
+                  isTodayDay ? "text-accent-blue" : "text-ink"
+                )}
+              >
+                {day}
+              </div>
+            );
+          })}
+          
+          {/* Empty slots for start of month */}
+          {Array.from({ length: monthStart.getDay() }).map((_, i) => (
+            <div key={`empty-${i}`} />
+          ))}
+
+          {/* Days */}
+          {daysInMonth.map((date, idx) => {
+            const isToday = isSameDay(date, today);
+            const isFutureDate = isFuture(date) && !isToday;
+            
+            let dayTotal = 0;
+            let dayCompleted = 0;
+            
+            if (!isFutureDate) {
+              habits.forEach(habit => {
+                if (habit.paused) return;
+                const status = getHabitStatusForDate(habit, completions, date);
+                if (status !== 'inactive' && status !== 'future') {
+                  dayTotal++;
+                  if (status === 'completed') dayCompleted++;
+                }
+              });
+            }
+
+            const isAllCompleted = dayTotal > 0 && dayCompleted === dayTotal;
+            const isMissed = dayTotal > 0 && dayCompleted === 0 && !isSameDay(date, today);
+            const isPartial = dayTotal > 0 && dayCompleted > 0 && dayCompleted < dayTotal;
+
+            // Check if adjacent days are also completed to show a continuous background (streak)
+            let prevCompleted = false;
+            let nextCompleted = false;
+            
+            if (isAllCompleted) {
+              const prevDate = addDays(date, -1);
+              const nextDate = addDays(date, 1);
+              
+              if (prevDate.getMonth() === currentMonth.getMonth()) {
+                let prevTotal = 0, prevComp = 0;
+                habits.forEach(habit => {
+                  if (habit.paused) return;
+                  const st = getHabitStatusForDate(habit, completions, prevDate);
+                  if (st !== 'inactive' && st !== 'future') { prevTotal++; if (st === 'completed') prevComp++; }
+                });
+                if (prevTotal > 0 && prevComp === prevTotal) prevCompleted = true;
+              }
+              
+              if (nextDate.getMonth() === currentMonth.getMonth() && (!isFuture(nextDate) || isSameDay(nextDate, today))) {
+                let nextTotal = 0, nextComp = 0;
+                habits.forEach(habit => {
+                  if (habit.paused) return;
+                  const st = getHabitStatusForDate(habit, completions, nextDate);
+                  if (st !== 'inactive' && st !== 'future') { nextTotal++; if (st === 'completed') nextComp++; }
+                });
+                if (nextTotal > 0 && nextComp === nextTotal) nextCompleted = true;
+              }
+            }
+
+            return (
+              <Popover key={date.toString()} open={selectedDate && isSameDay(selectedDate, date) ? true : false} onOpenChange={(v) => !v && setSelectedDate(null)}>
+                <PopoverTrigger render={
+                  <div 
+                    className="relative flex justify-center items-center h-10 w-full group cursor-pointer"
+                    onClick={() => !isFutureDate && setSelectedDate(date)}
+                  >
+                    {/* Connecting background for streaks */}
+                    {isAllCompleted && (prevCompleted || nextCompleted) && (
+                      <div className={cn(
+                        "absolute top-1/2 -translate-y-1/2 h-8 bg-accent-blue/15 z-0",
+                        prevCompleted && nextCompleted ? "w-full left-0" : 
+                        prevCompleted ? "w-1/2 left-0" : 
+                        nextCompleted ? "w-1/2 right-0" : ""
+                      )} />
+                    )}
+
+                    <button 
+                      disabled={isFutureDate}
+                      className={cn(
+                        "w-10 h-10 rounded-full flex items-center justify-center transition-colors text-sm font-medium z-10 relative",
+                        isAllCompleted ? 'bg-accent-blue text-surface-card' : 
+                        isMissed ? 'bg-[repeating-linear-gradient(45deg,var(--color-border),var(--color-border)_2px,transparent_2px,transparent_6px)] text-transparent border border-border/50' :
+                        isPartial ? 'bg-accent-blue/20 text-accent-blue' :
+                        isFutureDate ? 'text-ink-muted/60 cursor-default bg-canvas/30' : 
+                        isToday ? 'border-2 border-accent-blue text-accent-blue' :
+                        'bg-canvas/50 text-ink hover:bg-canvas'
+                      )}
+                    >
+                      {/* For missed days with stripes, we want the text invisible but maybe show it slightly or not at all. The image shows no text for stripes, but let's just make it transparent above */}
+                      <span className={isMissed ? 'invisible' : ''}>{format(date, "d")}</span>
+                    </button>
+                  </div>
+                } />
+                <PopoverContent side="left" align="start" className="w-64 bg-surface-card border-none shadow-xl p-4 z-50">
+                  <div className="flex justify-between items-center mb-4">
+                    <h4 className="font-medium text-ink">{format(date, 'MMMM d')}</h4>
+                    <span className="text-xs text-ink-muted">{dayCompleted} / {dayTotal} completed</span>
+                  </div>
+                  
+                  {dayTotal === 0 ? (
+                    <p className="text-sm text-ink-muted">No habits scheduled for this day.</p>
+                  ) : (
+                    <div className="flex flex-col gap-3">
+                      {habits.filter(h => !h.paused && getHabitStatusForDate(h, completions, date) !== 'inactive' && getHabitStatusForDate(h, completions, date) !== 'future').map(habit => {
+                        const status = getHabitStatusForDate(habit, completions, date);
+                        const isCompleted = status === 'completed';
+                        return (
+                          <div key={habit.id} className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 flex items-center justify-center shrink-0">
+                                <HabitIcon icon={habit.icon} className="w-4 h-4 text-ink" />
+                              </div>
+                              <span className="text-sm font-medium text-ink">{habit.title}</span>
+                            </div>
+                            {(habit.type === 'daily' || habit.type === 'avoid' || habit.type === 'weekly') ? (
+                              <button 
+                                onClick={() => toggleHistoricalCompletion(habit, date)}
+                                className={cn(
+                                  "w-6 h-6 rounded-full flex items-center justify-center transition-colors",
+                                  isCompleted ? "text-accent-blue" : "text-ink-muted hover:text-ink hover:bg-canvas"
+                                )}
+                              >
+                                {isCompleted ? <CheckCircle className="w-5 h-5" /> : <Circle className="w-5 h-5" />}
+                              </button>
+                            ) : (
+                               <span className="text-xs text-ink-muted font-medium bg-canvas px-2 py-0.5 rounded-md">
+                                 {isCompleted ? 'Completed' : 'Pending'}
+                               </span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </PopoverContent>
+              </Popover>
+            );
+          })}
         </div>
       </div>
     </div>

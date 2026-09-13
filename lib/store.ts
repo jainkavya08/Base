@@ -22,6 +22,22 @@ interface AppState {
     currentTodoId?: string;
   };
   setPomodoroState: (state: Partial<AppState['pomodoro']>) => void;
+
+  // Settings
+  settings: {
+    theme: 'light' | 'dark';
+    notifications: {
+      master: boolean;
+      pomodoro: boolean;
+      reminders: boolean;
+      habits: boolean;
+    };
+    profile: {
+      name: string;
+    };
+  };
+  updateSettings: (settings: Partial<AppState['settings']>) => void;
+  resetWidgetLayout: () => void;
 }
 
 const defaultWidgets: WidgetLayout[] = [
@@ -51,10 +67,30 @@ export const useAppStore = create<AppState>()(
       setPomodoroState: (newState) => set((state) => ({
         pomodoro: { ...state.pomodoro, ...newState }
       })),
+
+      settings: {
+        theme: 'light',
+        notifications: {
+          master: true,
+          pomodoro: true,
+          reminders: true,
+          habits: false,
+        },
+        profile: {
+          name: 'Amanda', // Default based on reference image
+        },
+      },
+      updateSettings: (newSettings) => set((state) => ({
+        settings: { ...state.settings, ...newSettings }
+      })),
+      resetWidgetLayout: () => set({ widgets: defaultWidgets }),
     }),
     {
       name: 'personal-dashboard-storage',
-      partialize: (state) => ({ widgets: state.widgets }), // Only persist widget layout
+      partialize: (state) => ({ 
+        widgets: state.widgets,
+        settings: state.settings 
+      }), // Persist widgets and settings
     }
   )
 );

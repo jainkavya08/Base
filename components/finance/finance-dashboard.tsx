@@ -122,7 +122,7 @@ export function FinanceDashboard() {
                   boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
                 }}
                 itemStyle={{ color: 'var(--color-accent-coral)' }}
-                formatter={(value: number) => [`$${value.toFixed(2)}`, 'Expense']}
+                formatter={(value: any) => [`$${value.toFixed(2)}`, 'Expense']}
               />
               <Area 
                 type="monotone" 

@@ -27,7 +27,7 @@ export default function RootLayout({
       <body className="min-h-full flex bg-canvas text-ink">
         <GlobalHooks />
         <NavRail />
-        <main className="flex-1 ml-16 md:ml-20 min-h-screen">
+        <main className="flex-1 pl-28 md:pl-32 min-h-screen">
           {children}
         </main>
       </body>

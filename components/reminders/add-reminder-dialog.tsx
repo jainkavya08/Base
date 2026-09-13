@@ -47,12 +47,12 @@ export function AddReminderDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger render={
         <Button className="rounded-full bg-accent-yellow text-surface-dark hover:bg-accent-yellow/90">
           <Plus className="w-5 h-5 mr-1" />
           Add Reminder
         </Button>
-      </DialogTrigger>
+      } />
       <DialogContent className="sm:max-w-[425px] bg-surface-card border-none">
         <DialogHeader>
           <DialogTitle className="text-xl font-medium text-ink">New Reminder</DialogTitle>

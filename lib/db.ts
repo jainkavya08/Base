@@ -1,10 +1,19 @@
 import Dexie, { type EntityTable } from 'dexie';
 
+export type HabitType = "daily" | "weekly" | "numeric" | "duration" | "avoid";
+
 export interface Habit {
   id: string;
   title: string;
-  frequency: "daily" | "weekly";
-  targetCount: number; // e.g., 1 for daily, 3 for weekly
+  type: HabitType;
+  description?: string;
+  activeDays?: number[]; // 0 (Sun) to 6 (Sat)
+  target?: number; // e.g., 1 for daily, 3 for weekly, 2000 for ml of water, 60 for minutes
+  unit?: string;
+  icon?: string;
+  color?: string;
+  reminderTime?: string;
+  paused?: boolean;
   createdAt: string;
 }
 
@@ -12,6 +21,7 @@ export interface HabitCompletion {
   id: string;
   habitId: string;
   date: string; // YYYY-MM-DD
+  value?: number; // for tracking numeric/duration progress
 }
 
 export interface PomodoroSession {
@@ -57,8 +67,8 @@ const db = new Dexie('PersonalDashboardDB') as Dexie & {
   financeTransactions: EntityTable<FinanceTransaction, 'id'>;
 };
 
-db.version(1).stores({
-  habits: 'id, title, frequency, createdAt',
+db.version(2).stores({
+  habits: 'id, title, type, createdAt',
   habitCompletions: 'id, habitId, date, [habitId+date]',
   pomodoroSessions: 'id, completedAt, todoId',
   todos: 'id, completed, dueDate, priority, projectId',
