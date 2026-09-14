@@ -88,7 +88,7 @@ export function AddAccountDialog() {
         <Plus className="w-5 h-5 mr-1" />
         Add Account
       </Button>
-      <DialogContent className="sm:max-w-[450px] bg-surface-card border-none">
+      <DialogContent className="w-[calc(100%-32px)] sm:w-full sm:max-w-[450px] max-h-[90vh] overflow-y-auto bg-surface-card border-none">
         <DialogHeader>
           <DialogTitle className="text-xl font-medium text-ink flex items-center gap-2">
             <Landmark className="w-5 h-5 text-accent-yellow" /> Add Bank Account
@@ -96,7 +96,7 @@ export function AddAccountDialog() {
         </DialogHeader>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-4">
           
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
               <Label htmlFor="name" className="text-ink-muted text-xs uppercase tracking-wider">Account Name</Label>
               <Input
@@ -121,7 +121,7 @@ export function AddAccountDialog() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
               <Label htmlFor="accountType" className="text-ink-muted text-xs uppercase tracking-wider">Account Type</Label>
               <Select value={accountType} onValueChange={(val: any) => setAccountType(val)}>
@@ -167,7 +167,7 @@ export function AddAccountDialog() {
             />
           </div>
           
-          <div className="grid grid-cols-2 gap-4 items-end">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
             <div className="flex flex-col gap-2">
               <Label className="text-ink-muted text-xs uppercase tracking-wider">Accent Color</Label>
               <div className="flex items-center gap-2 bg-canvas p-2 rounded-md border border-border">

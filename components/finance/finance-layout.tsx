@@ -52,12 +52,12 @@ function FinanceTabs() {
 
   return (
     <>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-medium text-ink">Finance</h1>
           <p className="text-ink-muted mt-1">Track your spending, accounts, investments and financial goals.</p>
         </div>
-        <div className="flex items-center gap-3 flex-wrap justify-end">
+        <div className="flex items-center gap-3 flex-wrap md:justify-end">
           <AddTransferDialog />
           <AddAccountDialog />
           <AddTransactionDialog />
@@ -93,7 +93,7 @@ function FinanceTabs() {
 
 export function FinanceLayout() {
   return (
-    <div className="p-8 max-w-7xl mx-auto h-full flex flex-col gap-8">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto h-full flex flex-col gap-6 md:gap-8">
       <Suspense fallback={<div className="p-8">Loading finance...</div>}>
         <FinanceTabs />
       </Suspense>

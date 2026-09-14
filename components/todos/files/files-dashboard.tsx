@@ -15,7 +15,7 @@ export function FilesDashboard() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <h2 className="text-xl font-medium text-ink">Files</h2>
         <AddFileDialog />
       </div>

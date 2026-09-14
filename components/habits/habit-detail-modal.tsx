@@ -77,7 +77,7 @@ export function HabitDetailModal({ habit, completions, open, onOpenChange }: Hab
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] bg-surface-card border-none shadow-xl">
+      <DialogContent className="w-[calc(100%-32px)] sm:w-full sm:max-w-[500px] max-h-[90vh] overflow-y-auto bg-surface-card border-none shadow-xl">
         <DialogHeader>
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 flex items-center justify-center bg-canvas rounded-xl text-3xl">

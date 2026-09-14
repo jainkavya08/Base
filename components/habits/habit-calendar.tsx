@@ -69,8 +69,8 @@ export function HabitCalendar() {
       </div>
 
       {/* Calendar Card */}
-      <div className="bg-surface-card rounded-[32px] p-6 shadow-sm border border-border/50">
-        <div className="grid grid-cols-7 gap-y-4 text-center text-sm">
+      <div className="bg-surface-card rounded-[32px] p-4 md:p-6 shadow-sm border border-border/50">
+        <div className="grid grid-cols-7 gap-y-4 text-center text-xs md:text-sm">
           {/* Days Header */}
           {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => {
             const isTodayDay = today.getDay() === i;
@@ -78,7 +78,7 @@ export function HabitCalendar() {
               <div 
                 key={`header-${i}`} 
                 className={cn(
-                  "font-bold pb-4",
+                  "font-bold pb-2 md:pb-4",
                   isTodayDay ? "text-accent-blue" : "text-ink"
                 )}
               >
@@ -148,13 +148,13 @@ export function HabitCalendar() {
               <Popover key={date.toString()} open={selectedDate && isSameDay(selectedDate, date) ? true : false} onOpenChange={(v) => !v && setSelectedDate(null)}>
                 <PopoverTrigger render={
                   <div 
-                    className="relative flex justify-center items-center h-10 w-full group cursor-pointer"
+                    className="relative flex justify-center items-center h-8 sm:h-10 w-full group cursor-pointer"
                     onClick={() => !isFutureDate && setSelectedDate(date)}
                   >
                     {/* Connecting background for streaks */}
                     {isAllCompleted && (prevCompleted || nextCompleted) && (
                       <div className={cn(
-                        "absolute top-1/2 -translate-y-1/2 h-8 bg-accent-blue/15 z-0",
+                        "absolute top-1/2 -translate-y-1/2 h-6 sm:h-8 bg-accent-blue/15 z-0",
                         prevCompleted && nextCompleted ? "w-full left-0" : 
                         prevCompleted ? "w-1/2 left-0" : 
                         nextCompleted ? "w-1/2 right-0" : ""
@@ -164,7 +164,7 @@ export function HabitCalendar() {
                     <button 
                       disabled={isFutureDate}
                       className={cn(
-                        "w-10 h-10 rounded-full flex items-center justify-center transition-colors text-sm font-medium z-10 relative",
+                        "w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors text-xs sm:text-sm font-medium z-10 relative",
                         isAllCompleted ? 'bg-accent-blue text-surface-card' : 
                         isMissed ? 'bg-[repeating-linear-gradient(45deg,var(--color-border),var(--color-border)_2px,transparent_2px,transparent_6px)] text-transparent border border-border/50' :
                         isPartial ? 'bg-accent-blue/20 text-accent-blue' :

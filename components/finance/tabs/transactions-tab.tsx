@@ -97,9 +97,9 @@ export function TransactionsTab() {
             />
           </div>
           
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <Select value={filterType} onValueChange={(v: any) => setFilterType(v)}>
-              <SelectTrigger className="w-[140px] bg-canvas border-border text-ink">
+              <SelectTrigger className="w-full sm:w-[140px] bg-canvas border-border text-ink">
                 <Filter className="w-4 h-4 mr-2 text-ink-muted" />
                 <SelectValue placeholder="Type" />
               </SelectTrigger>
@@ -112,7 +112,7 @@ export function TransactionsTab() {
             </Select>
 
             <Select value={filterAccount} onValueChange={(val: any) => setFilterAccount(val)}>
-              <SelectTrigger className="w-[180px] bg-canvas border-border text-ink">
+              <SelectTrigger className="w-full sm:w-[180px] bg-canvas border-border text-ink">
                 <Wallet className="w-4 h-4 mr-2 text-ink-muted" />
                 <SelectValue placeholder="Account" />
               </SelectTrigger>
@@ -133,24 +133,24 @@ export function TransactionsTab() {
             const acc = accounts.find(a => a.id === tx.accountId);
             
             return (
-              <div key={tx.id} className="bg-surface-card p-5 rounded-xl flex items-center justify-between border border-border/50 hover:border-border transition-colors group">
-                <div className="flex items-center gap-5">
+              <div key={tx.id} className="bg-surface-card p-4 md:p-5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-border/50 hover:border-border transition-colors group">
+                <div className="flex items-start sm:items-center gap-4 md:gap-5">
                   <div className={cn(
-                    "w-12 h-12 rounded-full flex items-center justify-center shadow-sm",
+                    "w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center shadow-sm shrink-0",
                     tx.type === 'income' ? 'bg-accent-green/10 text-accent-green border border-accent-green/20' : 
                     tx.type === 'expense' ? 'bg-accent-coral/10 text-accent-coral border border-accent-coral/20' : 
                     'bg-accent-blue/10 text-accent-blue border border-accent-blue/20'
                   )}>
-                    {tx.type === 'income' ? <TrendingUp className="w-6 h-6" /> : 
-                     tx.type === 'expense' ? <TrendingDown className="w-6 h-6" /> : 
-                     <ArrowRightLeft className="w-6 h-6" />}
+                    {tx.type === 'income' ? <TrendingUp className="w-5 h-5 md:w-6 md:h-6" /> : 
+                     tx.type === 'expense' ? <TrendingDown className="w-5 h-5 md:w-6 md:h-6" /> : 
+                     <ArrowRightLeft className="w-5 h-5 md:w-6 md:h-6" />}
                   </div>
                   
                   <div>
-                    <h4 className="text-lg font-medium text-ink mb-1">{tx.title || tx.category}</h4>
-                    <div className="flex items-center gap-3 text-sm text-ink-muted">
+                    <h4 className="text-base md:text-lg font-medium text-ink mb-1">{tx.title || tx.category}</h4>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs md:text-sm text-ink-muted">
                       <span>{format(parseISO(tx.date), "MMM d, yyyy")}</span>
-                      <span>•</span>
+                      <span className="hidden sm:inline">•</span>
                       <span className="flex items-center gap-1">
                         <Wallet className="w-3 h-3" />
                         {tx.isTransfer 
@@ -160,16 +160,16 @@ export function TransactionsTab() {
                       </span>
                       {tx.category !== 'Transfer' && (
                         <>
-                          <span>•</span>
-                          <span className="bg-canvas px-2 py-0.5 rounded-md border border-border/50 text-xs">{tx.category}</span>
+                          <span className="hidden sm:inline">•</span>
+                          <span className="bg-canvas px-2 py-0.5 rounded-md border border-border/50 text-[10px] md:text-xs">{tx.category}</span>
                         </>
                       )}
                     </div>
                   </div>
                 </div>
                 
-                <div className="flex flex-col items-end">
-                  <span className={cn("text-lg font-medium", 
+                <div className="flex flex-col sm:items-end pl-14 sm:pl-0">
+                  <span className={cn("text-base md:text-lg font-medium", 
                     tx.type === 'income' ? 'text-accent-green' : 
                     tx.type === 'expense' ? 'text-ink' : 
                     'text-ink-muted'
@@ -177,7 +177,7 @@ export function TransactionsTab() {
                     {tx.type === 'income' ? '+' : tx.type === 'expense' ? '-' : ''}{formatCurrency(tx.amount)}
                   </span>
                   {tx.notes && (
-                    <span className="text-sm text-ink-muted mt-1 max-w-[200px] truncate">{tx.notes}</span>
+                    <span className="text-xs md:text-sm text-ink-muted mt-1 max-w-[200px] truncate">{tx.notes}</span>
                   )}
                 </div>
               </div>

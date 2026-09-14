@@ -29,7 +29,7 @@ export default function RootLayout({
         <AuthWrapper>
           <GlobalHooks />
           <NavRail />
-          <main className="flex-1 pl-28 md:pl-32 min-h-screen">
+          <main className="flex-1 pb-20 md:pb-0 pl-0 md:pl-32 min-h-screen">
             {children}
           </main>
         </AuthWrapper>

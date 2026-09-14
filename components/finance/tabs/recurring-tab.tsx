@@ -24,7 +24,7 @@ export function RecurringTab() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-medium text-ink">Recurring Payments</h2>
           <p className="text-sm text-ink-muted mt-1">Manage subscriptions and repeating bills.</p>

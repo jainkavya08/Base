@@ -236,7 +236,7 @@ export function WorkspaceTimer() {
       </div>
 
       {/* Large Circular Timer */}
-      <div className="relative flex items-center justify-center mb-12 w-[320px] h-[320px]">
+      <div className="relative flex items-center justify-center mb-8 md:mb-12 w-[240px] h-[240px] sm:w-[280px] sm:h-[280px] md:w-[320px] md:h-[320px]">
         <svg className="w-full h-full -rotate-90 drop-shadow-xl" viewBox="0 0 300 300">
           <circle
             cx="150"
@@ -264,10 +264,10 @@ export function WorkspaceTimer() {
           />
         </svg>
         <div className="absolute flex flex-col items-center">
-          <span className="text-7xl font-light tracking-tighter text-surface-card font-mono tabular-nums">
+          <span className="text-5xl sm:text-6xl md:text-7xl font-light tracking-tighter text-surface-card font-mono tabular-nums">
             {minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
           </span>
-          <span className="text-surface-card/50 text-sm mt-2 uppercase tracking-widest font-medium">
+          <span className="text-surface-card/50 text-[10px] md:text-sm mt-2 uppercase tracking-widest font-medium">
             Session {sessionCount % settings.sessionsBeforeLongBreak + 1} of {settings.sessionsBeforeLongBreak}
           </span>
         </div>

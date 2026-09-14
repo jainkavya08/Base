@@ -18,7 +18,7 @@ export function InvestmentsTab() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-medium text-ink">Investments</h2>
           <p className="text-sm text-ink-muted mt-1">Track your portfolio and assets.</p>

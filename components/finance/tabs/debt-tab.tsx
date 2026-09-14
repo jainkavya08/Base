@@ -21,9 +21,9 @@ export function DebtTab() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-medium text-ink">Debt Tracking</h2>
+          <h2 className="text-2xl font-medium text-ink">Debt & Loans</h2>
           <p className="text-sm text-ink-muted mt-1">Track money you owe and money owed to you.</p>
         </div>
         <AddDebtDialog />

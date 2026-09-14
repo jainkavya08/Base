@@ -169,7 +169,7 @@ export function HabitList() {
             </div>
 
             {/* Bottom Row */}
-            <div className="flex items-end justify-between mt-2">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between mt-2 gap-4 sm:gap-0">
               <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-1.5 text-sm font-medium text-ink">
                   🔥 {current} day streak
