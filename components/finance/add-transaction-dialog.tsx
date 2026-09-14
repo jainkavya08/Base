@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { db } from "@/lib/db";
+import { useLiveQuery } from "dexie-react-hooks";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -25,43 +26,96 @@ export function AddTransactionDialog() {
   const [open, setOpen] = useState(false);
   const [type, setType] = useState<"income" | "expense">("expense");
   const [amount, setAmount] = useState("");
+  const [accountId, setAccountId] = useState("");
+  const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [note, setNote] = useState("");
   const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [error, setError] = useState("");
+
+  const accounts = useLiveQuery(() => db.bankAccounts.toArray());
+
+  // Default to first active account if none selected
+  if (accounts && accounts.length > 0 && !accountId) {
+    const defaultAcc = accounts.find(a => a.isActive);
+    if (defaultAcc) setAccountId(defaultAcc.id);
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!amount || !category || !date) return;
-    
-    await db.financeTransactions.add({
-      id: crypto.randomUUID(),
-      type,
-      amount: parseFloat(amount),
-      category,
-      date,
-      note: note || undefined,
-      createdAt: new Date().toISOString(),
+    setError("");
+
+    if (!amount || !category || !date || !accountId || !title) {
+      setError("Please fill all required fields.");
+      return;
+    }
+
+    const txAmount = parseFloat(amount);
+    if (isNaN(txAmount) || txAmount <= 0) {
+      setError("Please enter a valid amount.");
+      return;
+    }
+
+    const account = await db.bankAccounts.get(accountId);
+    if (!account) {
+      setError("Invalid account selected.");
+      return;
+    }
+
+    const now = new Date().toISOString();
+
+    await db.transaction('rw', db.financeTransactions, db.bankAccounts, async () => {
+      // 1. Create transaction record
+      await db.financeTransactions.add({
+        id: crypto.randomUUID(),
+        accountId,
+        type,
+        amount: txAmount,
+        title,
+        category,
+        date,
+        notes: note || undefined,
+        createdAt: now,
+        updatedAt: now,
+      });
+
+      // 2. Update account balance
+      const newBalance = type === 'income' 
+        ? account.balance + txAmount 
+        : account.balance - txAmount;
+        
+      await db.bankAccounts.update(accountId, {
+        balance: newBalance,
+        updatedAt: now
+      });
     });
     
     setOpen(false);
+    // Reset form
     setAmount("");
+    setTitle("");
     setCategory("");
     setNote("");
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={
-        <Button className="rounded-full bg-accent-yellow text-surface-dark hover:bg-accent-yellow/90">
-          <Plus className="w-5 h-5 mr-1" />
-          Add Transaction
-        </Button>
-      } />
+      <Button className="rounded-full bg-accent-yellow text-surface-dark hover:bg-accent-yellow/90" onClick={() => setOpen(true)}>
+        <Plus className="w-5 h-5 mr-1" />
+        Add Transaction
+      </Button>
       <DialogContent className="sm:max-w-[425px] bg-surface-card border-none">
         <DialogHeader>
           <DialogTitle className="text-xl font-medium text-ink">New Transaction</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-4">
+          
+          {error && (
+            <div className="bg-accent-coral/10 text-accent-coral p-3 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
+
           <div className="flex gap-4 mb-2 bg-canvas p-1 rounded-lg">
             <button
               type="button"
@@ -80,12 +134,28 @@ export function AddTransactionDialog() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label htmlFor="amount" className="text-ink-muted">Amount</Label>
+            <Label className="text-ink-muted text-xs uppercase tracking-wider">Account</Label>
+            <Select value={accountId} onValueChange={(val: any) => setAccountId(val)}>
+              <SelectTrigger className="bg-canvas border-border text-ink">
+                <SelectValue placeholder="Select account" />
+              </SelectTrigger>
+              <SelectContent>
+                {accounts?.filter(a => a.isActive).map(acc => (
+                  <SelectItem key={acc.id} value={acc.id}>
+                    {acc.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="amount" className="text-ink-muted text-xs uppercase tracking-wider">Amount (₹)</Label>
             <Input
               id="amount"
               type="number"
               step="0.01"
-              min="0"
+              min="0.01"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="0.00"
@@ -93,19 +163,30 @@ export function AddTransactionDialog() {
             />
           </div>
           
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="title" className="text-ink-muted text-xs uppercase tracking-wider">Title</Label>
+            <Input
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder={type === 'income' ? "e.g. Salary" : "e.g. Groceries"}
+              className="bg-canvas border-border text-ink"
+            />
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="category" className="text-ink-muted">Category</Label>
+              <Label htmlFor="category" className="text-ink-muted text-xs uppercase tracking-wider">Category</Label>
               <Input
                 id="category"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                placeholder="e.g. Groceries"
+                placeholder="e.g. Food"
                 className="bg-canvas border-border text-ink"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="date" className="text-ink-muted">Date</Label>
+              <Label htmlFor="date" className="text-ink-muted text-xs uppercase tracking-wider">Date</Label>
               <Input
                 id="date"
                 type="date"
@@ -117,7 +198,7 @@ export function AddTransactionDialog() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label htmlFor="note" className="text-ink-muted">Note (Optional)</Label>
+            <Label htmlFor="note" className="text-ink-muted text-xs uppercase tracking-wider">Notes (Optional)</Label>
             <Input
               id="note"
               value={note}
@@ -127,11 +208,11 @@ export function AddTransactionDialog() {
             />
           </div>
           
-          <div className="mt-4 flex justify-end gap-2">
-            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
+          <div className="mt-4 flex justify-end gap-3">
+            <Button type="button" variant="ghost" onClick={() => setOpen(false)} className="text-ink hover:bg-canvas">
               Cancel
             </Button>
-            <Button type="submit" className="bg-accent-yellow text-surface-dark hover:bg-accent-yellow/90">
+            <Button type="submit" className="bg-accent-yellow text-surface-dark hover:bg-accent-yellow/90 font-medium">
               Save Transaction
             </Button>
           </div>

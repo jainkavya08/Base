@@ -1,0 +1,200 @@
+"use client";
+
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "@/lib/db";
+import { Wallet, TrendingUp, TrendingDown, ArrowRightLeft, Search, Filter } from "lucide-react";
+import { formatCurrency } from "@/lib/utils/currency";
+import { format, parseISO } from "date-fns";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+export function TransactionsTab() {
+  const transactions = useLiveQuery(() => db.financeTransactions.toArray());
+  const accounts = useLiveQuery(() => db.bankAccounts.toArray());
+  const transfers = useLiveQuery(() => db.transfers.toArray());
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState<"all" | "income" | "expense" | "transfer">("all");
+  const [filterAccount, setFilterAccount] = useState<string>("all");
+
+  if (!transactions || !accounts || !transfers) return null;
+
+  // Combine transactions and transfers for the list view
+  const allActivity = [
+    ...transactions.map(t => ({
+      ...t,
+      sortDate: t.createdAt,
+      isTransfer: false
+    })),
+    ...transfers.map(t => {
+      const fromAcc = accounts.find(a => a.id === t.fromAccountId);
+      const toAcc = accounts.find(a => a.id === t.toAccountId);
+      return {
+        id: t.id,
+        type: 'transfer' as const,
+        amount: t.amount,
+        title: `Transfer to ${toAcc?.name || 'Account'}`,
+        category: 'Transfer',
+        date: t.date,
+        accountId: t.fromAccountId,
+        notes: t.description,
+        createdAt: t.createdAt,
+        sortDate: t.createdAt,
+        isTransfer: true,
+        fromAcc,
+        toAcc
+      };
+    })
+  ].sort((a, b) => b.sortDate.localeCompare(a.sortDate));
+
+  const filteredActivity = allActivity.filter(item => {
+    // Text search
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      const matchesTitle = item.title?.toLowerCase().includes(term);
+      const matchesCategory = item.category?.toLowerCase().includes(term);
+      const matchesNotes = item.notes?.toLowerCase().includes(term);
+      if (!matchesTitle && !matchesCategory && !matchesNotes) return false;
+    }
+
+    // Type filter
+    if (filterType !== 'all') {
+      if (item.type !== filterType) return false;
+    }
+
+    // Account filter
+    if (filterAccount !== 'all') {
+      if (item.isTransfer) {
+        if (item.accountId !== filterAccount && (item as any).toAcc?.id !== filterAccount) return false;
+      } else {
+        if (item.accountId !== filterAccount) return false;
+      }
+    }
+
+    return true;
+  });
+
+  return (
+    <div className="flex flex-col gap-8">
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-medium text-ink">Transactions</h2>
+          <p className="text-sm text-ink-muted mt-1">View and filter all your financial activity.</p>
+        </div>
+      </div>
+
+      <div className="bg-surface-card rounded-2xl border border-border/50 p-4">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1 relative">
+            <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted" />
+            <Input 
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              placeholder="Search by title, category, or note..." 
+              className="pl-10 bg-canvas border-border text-ink"
+            />
+          </div>
+          
+          <div className="flex gap-4">
+            <Select value={filterType} onValueChange={(v: any) => setFilterType(v)}>
+              <SelectTrigger className="w-[140px] bg-canvas border-border text-ink">
+                <Filter className="w-4 h-4 mr-2 text-ink-muted" />
+                <SelectValue placeholder="Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="income">Income</SelectItem>
+                <SelectItem value="expense">Expenses</SelectItem>
+                <SelectItem value="transfer">Transfers</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={filterAccount} onValueChange={(val: any) => setFilterAccount(val)}>
+              <SelectTrigger className="w-[180px] bg-canvas border-border text-ink">
+                <Wallet className="w-4 h-4 mr-2 text-ink-muted" />
+                <SelectValue placeholder="Account" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Accounts</SelectItem>
+                {accounts.filter(a => a.isActive).map(acc => (
+                  <SelectItem key={acc.id} value={acc.id}>{acc.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-3">
+        {filteredActivity.length > 0 ? (
+          filteredActivity.map((tx) => {
+            const acc = accounts.find(a => a.id === tx.accountId);
+            
+            return (
+              <div key={tx.id} className="bg-surface-card p-5 rounded-xl flex items-center justify-between border border-border/50 hover:border-border transition-colors group">
+                <div className="flex items-center gap-5">
+                  <div className={cn(
+                    "w-12 h-12 rounded-full flex items-center justify-center shadow-sm",
+                    tx.type === 'income' ? 'bg-accent-green/10 text-accent-green border border-accent-green/20' : 
+                    tx.type === 'expense' ? 'bg-accent-coral/10 text-accent-coral border border-accent-coral/20' : 
+                    'bg-accent-blue/10 text-accent-blue border border-accent-blue/20'
+                  )}>
+                    {tx.type === 'income' ? <TrendingUp className="w-6 h-6" /> : 
+                     tx.type === 'expense' ? <TrendingDown className="w-6 h-6" /> : 
+                     <ArrowRightLeft className="w-6 h-6" />}
+                  </div>
+                  
+                  <div>
+                    <h4 className="text-lg font-medium text-ink mb-1">{tx.title || tx.category}</h4>
+                    <div className="flex items-center gap-3 text-sm text-ink-muted">
+                      <span>{format(parseISO(tx.date), "MMM d, yyyy")}</span>
+                      <span>•</span>
+                      <span className="flex items-center gap-1">
+                        <Wallet className="w-3 h-3" />
+                        {tx.isTransfer 
+                          ? `${(tx as any).fromAcc?.name} → ${(tx as any).toAcc?.name}`
+                          : acc?.name || 'Unknown Account'
+                        }
+                      </span>
+                      {tx.category !== 'Transfer' && (
+                        <>
+                          <span>•</span>
+                          <span className="bg-canvas px-2 py-0.5 rounded-md border border-border/50 text-xs">{tx.category}</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex flex-col items-end">
+                  <span className={cn("text-lg font-medium", 
+                    tx.type === 'income' ? 'text-accent-green' : 
+                    tx.type === 'expense' ? 'text-ink' : 
+                    'text-ink-muted'
+                  )}>
+                    {tx.type === 'income' ? '+' : tx.type === 'expense' ? '-' : ''}{formatCurrency(tx.amount)}
+                  </span>
+                  {tx.notes && (
+                    <span className="text-sm text-ink-muted mt-1 max-w-[200px] truncate">{tx.notes}</span>
+                  )}
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          <div className="text-center py-20 bg-surface-card rounded-2xl border border-dashed border-border">
+            <div className="w-16 h-16 rounded-full bg-canvas flex items-center justify-center mx-auto mb-4">
+              <Search className="w-8 h-8 text-ink-muted" />
+            </div>
+            <h3 className="text-lg font-medium text-ink">No transactions found</h3>
+            <p className="text-ink-muted mt-1 max-w-sm mx-auto">
+              Try adjusting your filters or search terms, or add a new transaction.
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

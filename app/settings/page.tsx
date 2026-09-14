@@ -62,6 +62,12 @@ export default function SettingsPage() {
           db.todos.clear(),
           db.reminders.clear(),
           db.financeTransactions.clear(),
+          db.bankAccounts.clear(),
+          db.categories.clear(),
+          db.transfers.clear(),
+          db.recurringPayments.clear(),
+          db.investments.clear(),
+          db.debts.clear(),
         ]);
         alert("All data has been cleared.");
       } catch (error) {
