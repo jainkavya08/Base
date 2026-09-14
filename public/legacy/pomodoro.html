@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -22,6 +23,7 @@
       overflow: hidden;
       position: relative;
     }
+
     .settings-btn {
       position: absolute;
       top: 15px;
@@ -36,9 +38,11 @@
       justify-content: center;
       -webkit-tap-highlight-color: transparent;
     }
+
     .settings-btn:active {
       opacity: 0.7;
     }
+
     .timer-container {
       background-color: #1c1c1c;
       border-radius: 32px;
@@ -46,8 +50,9 @@
       width: 90%;
       max-width: 400px;
       text-align: center;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     }
+
     h1 {
       font-size: 20px;
       letter-spacing: 4px;
@@ -55,22 +60,34 @@
       font-weight: 500;
       color: #f5c542;
     }
+
     .time-display {
       font-size: 80px;
       font-weight: 300;
       margin: 0 0 35px 0;
       font-family: monospace;
     }
+
     .time-display.pulse {
       animation: pulse 1.5s ease-in-out 3;
     }
+
     @keyframes pulse {
-      0% { opacity: 1; }
-      50% { opacity: 0.3; }
-      100% { opacity: 1; }
+      0% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.3;
+      }
+
+      100% {
+        opacity: 1;
+      }
     }
+
     .button {
-      background-color: #f5c542;
+      background-color: #33648b;
       color: #111111;
       border: none;
       border-radius: 50px;
@@ -83,19 +100,23 @@
       -webkit-tap-highlight-color: transparent;
       transition: transform 0.1s;
     }
+
     .button.outline {
       background-color: transparent;
       color: #aaaaaa;
       border: 2px solid #333333;
     }
+
     .button:active {
       transform: scale(0.97);
     }
+
     .status {
       margin-top: 20px;
       font-size: 16px;
       color: #aaaaaa;
     }
+
     #msg {
       color: #f5c542;
       margin-top: 15px;
@@ -103,47 +124,57 @@
       opacity: 0;
       transition: opacity 0.5s;
     }
+
     #msg.visible {
       opacity: 1;
     }
-    
+
     /* Modal */
     .modal-overlay {
       display: none;
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.85);
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
       z-index: 100;
       align-items: center;
       justify-content: center;
     }
+
     .modal-overlay.open {
       display: flex;
     }
+
     .modal {
       background-color: #202020;
       padding: 30px;
       border-radius: 24px;
       width: 85%;
       max-width: 350px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
       text-align: left;
     }
+
     .modal h2 {
       margin: 0 0 25px 0;
       color: #f5f5f5;
       font-size: 22px;
       font-weight: 500;
     }
+
     .setting-group {
       margin-bottom: 20px;
     }
+
     .setting-group label {
       display: block;
       color: #aaaaaa;
       margin-bottom: 8px;
       font-size: 16px;
     }
+
     .setting-group input {
       width: 100%;
       background: #111111;
@@ -155,11 +186,13 @@
       box-sizing: border-box;
       -webkit-appearance: none;
     }
+
     .modal-buttons {
       display: flex;
       gap: 15px;
       margin-top: 30px;
     }
+
     .modal-btn {
       flex: 1;
       padding: 16px;
@@ -171,18 +204,22 @@
       -webkit-tap-highlight-color: transparent;
       transition: transform 0.1s;
     }
+
     .modal-btn:active {
       transform: scale(0.95);
     }
+
     .modal-btn.save {
       background-color: #f5c542;
       color: #111111;
     }
+
     .modal-btn.cancel {
       background-color: transparent;
       color: #aaaaaa;
       border: 2px solid #333333;
     }
+
     #settings-error {
       color: #ff5555;
       margin-bottom: 15px;
@@ -191,6 +228,7 @@
     }
   </style>
 </head>
+
 <body>
 
   <div class="settings-btn" id="btn-settings">⚙</div>
@@ -198,10 +236,10 @@
   <div class="timer-container">
     <h1>POMODORO</h1>
     <div class="time-display" id="time">25:00</div>
-    
+
     <button class="button" id="btn-primary">START</button>
     <button class="button outline" id="btn-reset" style="display: none;">RESET</button>
-    
+
     <div class="status" id="status">Focus Session</div>
     <div id="msg"></div>
   </div>
@@ -210,7 +248,7 @@
     <div class="modal">
       <h2>Timer Settings</h2>
       <div id="settings-error"></div>
-      
+
       <div class="setting-group">
         <label>Focus (minutes)</label>
         <input type="number" id="input-focus" min="1" max="60" value="25">
@@ -223,7 +261,7 @@
         <label>Long Break (minutes)</label>
         <input type="number" id="input-long" min="1" max="60" value="15">
       </div>
-      
+
       <div class="modal-buttons">
         <button class="modal-btn cancel" id="btn-cancel">CANCEL</button>
         <button class="modal-btn save" id="btn-save">SAVE</button>
@@ -232,7 +270,7 @@
   </div>
 
   <script>
-    (function() {
+    (function () {
       // Defaults
       var focusDuration = 25;
       var shortBreak = 5;
@@ -243,15 +281,15 @@
         if (window.localStorage) {
           var sf = localStorage.getItem('pomodoro_focus_duration');
           if (sf) focusDuration = parseInt(sf, 10);
-          
+
           var ss = localStorage.getItem('pomodoro_short_break');
           if (ss) shortBreak = parseInt(ss, 10);
-          
+
           var sl = localStorage.getItem('pomodoro_long_break');
           if (sl) longBreak = parseInt(sl, 10);
         }
-      } catch(e) {}
-      
+      } catch (e) { }
+
       var state = 'IDLE'; // IDLE, RUNNING, PAUSED, COMPLETED
       var endTimestamp = null;
       var remainingMs = focusDuration * 60 * 1000;
@@ -262,7 +300,7 @@
       var btnReset = document.getElementById('btn-reset');
       var statusEl = document.getElementById('status');
       var msgEl = document.getElementById('msg');
-      
+
       var btnSettings = document.getElementById('btn-settings');
       var modalOverlay = document.getElementById('modal-overlay');
       var btnSave = document.getElementById('btn-save');
@@ -277,7 +315,7 @@
         var totalSec = Math.ceil(ms / 1000);
         var m = Math.floor(totalSec / 60);
         var s = totalSec % 60;
-        
+
         var mStr = m < 10 ? '0' + m : m;
         var sStr = s < 10 ? '0' + s : s;
         timeEl.innerText = mStr + ':' + sStr;
@@ -287,14 +325,14 @@
         try {
           var q = localStorage.getItem('legacy_pomodoro_pending_sessions');
           if (q) return JSON.parse(q);
-        } catch(e) {}
+        } catch (e) { }
         return [];
       }
 
       function savePendingQueue(q) {
         try {
           localStorage.setItem('legacy_pomodoro_pending_sessions', JSON.stringify(q));
-        } catch(e) {}
+        } catch (e) { }
       }
 
       function addPendingSession(session) {
@@ -316,16 +354,16 @@
       function processPendingQueue() {
         var q = getPendingQueue();
         if (q.length === 0) return;
-        
+
         var session = q[0];
-        
+
         var xhr = new XMLHttpRequest();
         xhr.open('POST', '/api/pomodoro/session.php', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
-        
+
         xhr.onreadystatechange = function () {
           if (xhr.readyState !== 4) return;
-          
+
           if (xhr.status === 200) {
             try {
               var response = JSON.parse(xhr.responseText);
@@ -333,25 +371,25 @@
                 removePendingSession(session.id);
                 setTimeout(processPendingQueue, 500);
               }
-            } catch(e) {}
+            } catch (e) { }
           }
         };
-        
+
         try {
           xhr.send(JSON.stringify(session));
-        } catch(e) {}
+        } catch (e) { }
       }
 
       function syncSession(session) {
         addPendingSession(session);
-        
+
         var xhr = new XMLHttpRequest();
         xhr.open('POST', '/api/pomodoro/session.php', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
-        
+
         xhr.onreadystatechange = function () {
           if (xhr.readyState !== 4) return;
-          
+
           if (xhr.status === 200) {
             try {
               var response = JSON.parse(xhr.responseText);
@@ -362,7 +400,7 @@
               } else {
                 throw new Error("Sync failed");
               }
-            } catch(e) {
+            } catch (e) {
               msgEl.innerText = "Session completed. Sync pending.";
               msgEl.className = "visible";
             }
@@ -374,10 +412,10 @@
             msgEl.className = "visible";
           }
         };
-        
+
         try {
           xhr.send(JSON.stringify(session));
-        } catch(e) {
+        } catch (e) {
           msgEl.innerText = "Session completed. Sync pending.";
           msgEl.className = "visible";
         }
@@ -393,11 +431,11 @@
           status: 'completed',
           task_id: null
         };
-        
+
         timeEl.className = "time-display pulse";
         msgEl.innerText = "Saving session...";
         msgEl.className = "visible";
-        
+
         syncSession(session);
       }
 
@@ -405,7 +443,7 @@
         if (state !== 'RUNNING') return;
         var now = new Date().getTime();
         var left = endTimestamp - now;
-        
+
         if (left <= 0) {
           left = 0;
           state = 'COMPLETED';
@@ -418,7 +456,7 @@
           logSession();
           return;
         }
-        
+
         remainingMs = left;
         updateDisplay(remainingMs);
         saveState();
@@ -458,7 +496,7 @@
         saveState();
       }
 
-      btnPrimary.onclick = function() {
+      btnPrimary.onclick = function () {
         if (state === 'IDLE' || state === 'COMPLETED') {
           if (state === 'COMPLETED') {
             remainingMs = focusDuration * 60 * 1000;
@@ -472,59 +510,59 @@
       };
 
       btnReset.onclick = resetTimer;
-      
+
       // Settings Logic
-      btnSettings.onclick = function() {
+      btnSettings.onclick = function () {
         if (state === 'RUNNING') {
           settingsError.innerText = "Pause the timer before changing duration.";
           settingsError.style.display = "block";
         } else {
           settingsError.style.display = "none";
         }
-        
+
         inputFocus.value = focusDuration;
         inputShort.value = shortBreak;
         inputLong.value = longBreak;
         modalOverlay.className = "modal-overlay open";
       };
-      
-      btnCancel.onclick = function() {
+
+      btnCancel.onclick = function () {
         modalOverlay.className = "modal-overlay";
       };
-      
-      btnSave.onclick = function() {
+
+      btnSave.onclick = function () {
         if (state === 'RUNNING') {
           settingsError.innerText = "You must pause the timer to save settings.";
           settingsError.style.display = "block";
           return;
         }
-        
+
         var newF = parseInt(inputFocus.value, 10);
         var newS = parseInt(inputShort.value, 10);
         var newL = parseInt(inputLong.value, 10);
-        
+
         if (isNaN(newF) || newF < 1 || newF > 60) newF = 25;
         if (isNaN(newS) || newS < 1 || newS > 30) newS = 5;
         if (isNaN(newL) || newL < 1 || newL > 60) newL = 15;
-        
+
         focusDuration = newF;
         shortBreak = newS;
         longBreak = newL;
-        
+
         try {
           if (window.localStorage) {
             localStorage.setItem('pomodoro_focus_duration', focusDuration);
             localStorage.setItem('pomodoro_short_break', shortBreak);
             localStorage.setItem('pomodoro_long_break', longBreak);
           }
-        } catch(e) {}
-        
+        } catch (e) { }
+
         // Update timer if we are in IDLE or COMPLETED state
         if (state === 'IDLE' || state === 'COMPLETED') {
           remainingMs = focusDuration * 60 * 1000;
           updateDisplay(remainingMs);
         }
-        
+
         modalOverlay.className = "modal-overlay";
       };
 
@@ -538,7 +576,7 @@
               focusDuration: focusDuration
             }));
           }
-        } catch(e) {}
+        } catch (e) { }
       }
 
       function loadState() {
@@ -574,18 +612,19 @@
               }
             }
           }
-        } catch(e) {}
+        } catch (e) { }
       }
 
       loadState();
       if (state === 'IDLE') {
         updateDisplay(remainingMs);
       }
-      
+
       // Attempt to flush pending sessions on load
       processPendingQueue();
 
     })();
   </script>
 </body>
+
 </html>
