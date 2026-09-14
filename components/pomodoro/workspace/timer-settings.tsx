@@ -17,8 +17,20 @@ export function TimerSettings({
   const { pomodoro, updatePomodoroSettings } = useAppStore();
   const { settings } = pomodoro;
 
-  const handleChange = (key: keyof typeof settings, value: any) => {
+  const handleChange = async (key: keyof typeof settings, value: any) => {
+    const newSettings = { ...settings, [key]: value };
     updatePomodoroSettings({ [key]: value });
+    
+    // Sync to backend
+    try {
+      await fetch('/api/pomodoro/settings.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newSettings)
+      });
+    } catch (err) {
+      console.error("Failed to sync settings", err);
+    }
   };
 
   return (

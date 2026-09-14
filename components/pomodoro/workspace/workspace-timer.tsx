@@ -21,6 +21,19 @@ export function WorkspaceTimer() {
     stateRef.current = { isRunning, timeLeft, mode, targetEndTime, currentTodoId, sessionCount, settings };
   }, [isRunning, timeLeft, mode, targetEndTime, currentTodoId, sessionCount, settings]);
 
+  const { updatePomodoroSettings } = useAppStore();
+  
+  useEffect(() => {
+    fetch('/api/pomodoro/settings.php')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.settings) {
+          updatePomodoroSettings(data.settings);
+        }
+      })
+      .catch(console.error);
+  }, [updatePomodoroSettings]);
+
   const getDurationForMode = (m: string, s: any) => {
     if (m === 'focus') return s.focusDuration * 60;
     if (m === 'short_break') return s.shortBreakDuration * 60;
