@@ -16,36 +16,60 @@ import { Trash2 } from "lucide-react";
 
 export function StatsDashboard() {
   const [timeRange, setTimeRange] = useState("30"); // days
+  const [dbSessions, setDbSessions] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   const days = parseInt(timeRange);
   const startDate = subDays(startOfDay(new Date()), days);
 
-  const sessions = useLiveQuery(() => 
-    db.pomodoroSessions
-      .where('completedAt')
-      .aboveOrEqual(startDate.toISOString())
-      .toArray()
-  ) || [];
+  const fetchStats = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/pomodoro/stats.php');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          setDbSessions(data.sessions);
+        } else {
+          setError(data.error || "Failed to fetch stats");
+        }
+      } else if (res.status === 401) {
+        setError("Authentication required to view stats.");
+      } else {
+        setError("Server error.");
+      }
+    } catch (err) {
+      console.error("Failed to fetch pomodoro stats", err);
+      setError("Failed to connect to server.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  const focusSessions = sessions.filter(s => s.type === 'focus' && s.status === 'completed');
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const filteredSessions = dbSessions.filter(s => new Date(s.completedAt) >= startDate);
+  const focusSessions = filteredSessions.filter(s => s.type === 'focus' && s.status === 'completed');
   
   const totalMinutes = focusSessions.reduce((acc, curr) => acc + curr.durationMinutes, 0);
   const totalHours = Math.floor(totalMinutes / 60);
   const remainingMins = totalMinutes % 60;
   
-  const avgPerDay = days > 0 ? (focusSessions.length / days).toFixed(1) : 0;
+  const avgPerDay = days > 0 ? (focusSessions.length / days).toFixed(1) : "0.0";
 
-  // Compute a simple streak based on focus sessions
-  const streak = calculateFocusStreak(focusSessions);
+  const streak = calculateFocusStreak(dbSessions.filter(s => s.type === 'focus' && s.status === 'completed'));
 
-  useEffect(() => {
-    // One-time wipe of the demo data
-    if (typeof window !== "undefined" && !localStorage.getItem("wiped_demo_data")) {
-      db.pomodoroSessions.clear().then(() => {
-        localStorage.setItem("wiped_demo_data", "true");
-      });
-    }
-  }, []);
+  if (isLoading) {
+    return <div className="text-ink-muted p-8 text-center">Loading statistics...</div>;
+  }
+
+  if (error) {
+    return <div className="text-accent-coral p-8 text-center">{error}</div>;
+  }
 
   return (
     <div className="flex flex-col gap-8">
@@ -57,7 +81,7 @@ export function StatsDashboard() {
         </div>
         <div className="flex items-center gap-3">
 
-          <LogSessionDialog />
+          <LogSessionDialog onSessionAdded={fetchStats} />
           <Select value={timeRange} onValueChange={(val) => val && setTimeRange(val)}>
           <SelectTrigger className="w-40 bg-surface-card border-none shadow-sm rounded-xl">
             <SelectValue placeholder="Last 30 Days" />
@@ -89,7 +113,7 @@ export function StatsDashboard() {
       
       <FocusInsights sessions={focusSessions} />
       
-      <RecentSessions sessions={focusSessions} />
+      <RecentSessions sessions={focusSessions} onSessionDeleted={fetchStats} />
 
     </div>
   );
@@ -131,7 +155,7 @@ function calculateFocusStreak(sessions: any[]) {
   return current;
 }
 
-function RecentSessions({ sessions }: { sessions: any[] }) {
+function RecentSessions({ sessions, onSessionDeleted }: { sessions: any[], onSessionDeleted: () => void }) {
   // Sort descending by completion time and show last 10
   const recent = [...sessions]
     .sort((a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime())
@@ -139,7 +163,18 @@ function RecentSessions({ sessions }: { sessions: any[] }) {
 
   const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this session?")) {
-      await db.pomodoroSessions.delete(id);
+      try {
+        const res = await fetch('/api/pomodoro/delete.php', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id })
+        });
+        if (res.ok) {
+          onSessionDeleted();
+        }
+      } catch (err) {
+        console.error(err);
+      }
     }
   };
 

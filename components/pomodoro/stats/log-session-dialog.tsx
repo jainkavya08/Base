@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { db } from "@/lib/db";
 
-export function LogSessionDialog() {
+export function LogSessionDialog({ onSessionAdded }: { onSessionAdded?: () => void }) {
   const [open, setOpen] = useState(false);
   const [duration, setDuration] = useState("25");
 
@@ -17,13 +17,24 @@ export function LogSessionDialog() {
     const mins = parseInt(duration);
     if (!mins || mins <= 0) return;
 
-    await db.pomodoroSessions.add({
-      id: crypto.randomUUID(),
-      durationMinutes: mins,
-      completedAt: new Date().toISOString(),
-      type: 'focus' as const,
-      status: 'completed' as const
-    });
+    try {
+      const res = await fetch('/api/pomodoro/session.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: crypto.randomUUID(),
+          duration_minutes: mins,
+          completed_at: new Date().toISOString(),
+          type: 'focus',
+          status: 'completed'
+        })
+      });
+      if (res.ok && onSessionAdded) {
+        onSessionAdded();
+      }
+    } catch(err) {
+      console.error(err);
+    }
 
     setOpen(false);
     setDuration("25");
