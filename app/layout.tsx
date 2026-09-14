@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { NavRail } from "@/components/ui/nav-rail";
 import { GlobalHooks } from "@/components/global-hooks";
+import { AuthWrapper } from "@/components/auth/auth-wrapper";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
@@ -25,11 +26,13 @@ export default function RootLayout({
       className={`${inter.variable} font-sans h-full antialiased`}
     >
       <body className="min-h-full flex bg-canvas text-ink">
-        <GlobalHooks />
-        <NavRail />
-        <main className="flex-1 pl-28 md:pl-32 min-h-screen">
-          {children}
-        </main>
+        <AuthWrapper>
+          <GlobalHooks />
+          <NavRail />
+          <main className="flex-1 pl-28 md:pl-32 min-h-screen">
+            {children}
+          </main>
+        </AuthWrapper>
       </body>
     </html>
   );

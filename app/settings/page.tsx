@@ -3,15 +3,17 @@
 import { useRef } from "react";
 import { db } from "@/lib/db";
 import { useAppStore } from "@/lib/store";
+import { useAuth } from "@/components/auth/auth-wrapper";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Download, Upload, Trash2, Moon, Sun, LayoutGrid } from "lucide-react";
+import { Download, Upload, Trash2, Moon, Sun, LayoutGrid, LogOut } from "lucide-react";
 // Dynamic import of dexie-export-import used inside handlers
 
 export default function SettingsPage() {
   const { settings, updateSettings, resetWidgetLayout } = useAppStore();
+  const { user, logout } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleExport = async () => {
@@ -89,6 +91,31 @@ export default function SettingsPage() {
         {/* Left Column */}
         <div className="flex flex-col gap-10">
           
+          {/* Account Profile */}
+          <section className="flex flex-col gap-6">
+            <h2 className="text-xl font-medium text-ink pb-2 border-b border-border">Account</h2>
+            <div className="flex flex-col gap-4 bg-surface-card p-5 rounded-2xl border border-border/50">
+              {user ? (
+                <>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm font-medium text-ink-muted">Logged in as</span>
+                    <span className="text-lg font-medium text-ink">{user.name}</span>
+                    <span className="text-sm text-ink-muted">{user.email}</span>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    onClick={logout} 
+                    className="w-full text-accent-coral border-accent-coral/20 hover:bg-accent-coral/10 hover:text-accent-coral mt-2"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" /> Logout
+                  </Button>
+                </>
+              ) : (
+                <div className="text-sm text-ink-muted">Not logged in.</div>
+              )}
+            </div>
+          </section>
+
           {/* Account & Data */}
           <section className="flex flex-col gap-6">
             <h2 className="text-xl font-medium text-ink pb-2 border-b border-border">Account & Data</h2>
