@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Legacy Pomodoro Login</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #111111;
+      color: #f5f5f5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+    .login-container {
+      background-color: #1c1c1c;
+      border-radius: 32px;
+      padding: 40px 30px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      box-sizing: border-box;
+    }
+    h1 {
+      font-size: 20px;
+      letter-spacing: 4px;
+      margin: 0 0 35px 0;
+      font-weight: 500;
+      color: #f5c542;
+    }
+    .input-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .input-group label {
+      display: block;
+      color: #aaaaaa;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+    .input-group input {
+      width: 100%;
+      background: #111111;
+      border: 1px solid #333333;
+      color: #f5f5f5;
+      padding: 15px;
+      border-radius: 12px;
+      font-size: 18px;
+      box-sizing: border-box;
+      -webkit-appearance: none;
+    }
+    .input-group input:focus {
+      outline: none;
+      border-color: #f5c542;
+    }
+    .button {
+      background-color: #f5c542;
+      color: #111111;
+      border: none;
+      border-radius: 50px;
+      padding: 18px 40px;
+      font-size: 22px;
+      font-weight: bold;
+      width: 100%;
+      margin-top: 15px;
+      margin-bottom: 15px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.1s;
+    }
+    .button:active {
+      transform: scale(0.97);
+    }
+    .button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    #msg {
+      margin-top: 15px;
+      font-weight: bold;
+      opacity: 0;
+      transition: opacity 0.5s;
+      font-size: 16px;
+    }
+    #msg.visible {
+      opacity: 1;
+    }
+    #msg.error {
+      color: #ff5555;
+    }
+    #msg.success {
+      color: #f5c542;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <h1>POMODORO</h1>
+    
+    <div class="input-group">
+      <label>Email</label>
+      <input type="email" id="input-email" autocomplete="email" placeholder="jane@example.com">
+    </div>
+    
+    <div class="input-group">
+      <label>Password</label>
+      <input type="password" id="input-password" autocomplete="current-password" placeholder="••••••••">
+    </div>
+    
+    <button class="button" id="btn-login">LOGIN</button>
+    
+    <div id="msg"></div>
+  </div>
+
+  <script>
+    (function() {
+      var emailEl = document.getElementById('input-email');
+      var passwordEl = document.getElementById('input-password');
+      var btnLogin = document.getElementById('btn-login');
+      var msgEl = document.getElementById('msg');
+      var loading = false;
+
+      function showMessage(msg, isError) {
+        msgEl.innerText = msg;
+        msgEl.className = isError ? "visible error" : "visible success";
+      }
+
+      function hideMessage() {
+        msgEl.className = "";
+      }
+
+      function verifySessionAndRedirect() {
+        showMessage("Verifying session...", false);
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/api/auth/session.php', true);
+        
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState !== 4) return;
+          
+          if (xhr.status === 200) {
+            try {
+              var response = JSON.parse(xhr.responseText);
+              if (response.authenticated) {
+                showMessage("Login successful.", false);
+                setTimeout(function() {
+                  window.location.href = '/legacy/pomodoro.html';
+                }, 500);
+              } else {
+                showMessage("Login succeeded, but the session could not be established.", true);
+                loading = false;
+                btnLogin.disabled = false;
+              }
+            } catch(e) {
+              showMessage("Login succeeded, but the session could not be established.", true);
+              loading = false;
+              btnLogin.disabled = false;
+            }
+          } else {
+            showMessage("Login succeeded, but the session could not be established.", true);
+            loading = false;
+            btnLogin.disabled = false;
+          }
+        };
+        
+        xhr.send();
+      }
+
+      function performLogin() {
+        if (loading) return;
+        
+        var email = emailEl.value.replace(/^\s+|\s+$/g, '');
+        var password = passwordEl.value;
+        
+        if (!email || !password) {
+          showMessage("Please enter your email and password.", true);
+          return;
+        }
+        
+        loading = true;
+        btnLogin.disabled = true;
+        hideMessage();
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/api/auth/login.php', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState !== 4) return;
+          
+          if (xhr.status === 200) {
+            try {
+              var response = JSON.parse(xhr.responseText);
+              if (response.success) {
+                verifySessionAndRedirect();
+                return; // don't reset loading state yet
+              } else {
+                showMessage("Invalid email or password.", true);
+              }
+            } catch(e) {
+              showMessage("Server error. Please try again.", true);
+            }
+          } else if (xhr.status === 400 || xhr.status === 401) {
+            showMessage("Invalid email or password.", true);
+          } else if (xhr.status === 500) {
+            showMessage("Server error. Please try again.", true);
+          } else {
+            showMessage("Unable to connect. Please try again.", true);
+          }
+          
+          loading = false;
+          btnLogin.disabled = false;
+        };
+        
+        try {
+          xhr.send(JSON.stringify({
+            email: email,
+            password: password
+          }));
+        } catch(e) {
+          showMessage("Unable to connect. Please try again.", true);
+          loading = false;
+          btnLogin.disabled = false;
+        }
+      }
+
+      btnLogin.onclick = performLogin;
+
+      passwordEl.onkeyup = function(e) {
+        var key = e.which || e.keyCode;
+        if (key === 13) {
+          performLogin();
+        }
+      };
+      emailEl.onkeyup = function(e) {
+        var key = e.which || e.keyCode;
+        if (key === 13) {
+          passwordEl.focus();
+        }
+      };
+      
+    })();
+  </script>
+</body>
+</html>
