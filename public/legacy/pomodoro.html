@@ -280,34 +280,122 @@
         timeEl.innerText = mStr + ':' + sStr;
       }
 
-      function logSession() {
-        var request = window.indexedDB.open('PersonalDashboardDB', 3);
-        request.onsuccess = function(event) {
-          var db = event.target.result;
-          try {
-            var transaction = db.transaction(['pomodoroSessions'], 'readwrite');
-            var store = transaction.objectStore('pomodoroSessions');
-            var id = new Date().getTime().toString() + Math.random().toString(36).substring(2);
-            var session = {
-              id: id,
-              durationMinutes: focusDuration,
-              completedAt: new Date().toISOString(),
-              type: 'focus',
-              status: 'completed'
-            };
-            store.add(session);
-            msgEl.innerText = "Focus session completed!";
+      function getPendingQueue() {
+        try {
+          var q = localStorage.getItem('legacy_pomodoro_pending_sessions');
+          if (q) return JSON.parse(q);
+        } catch(e) {}
+        return [];
+      }
+
+      function savePendingQueue(q) {
+        try {
+          localStorage.setItem('legacy_pomodoro_pending_sessions', JSON.stringify(q));
+        } catch(e) {}
+      }
+
+      function addPendingSession(session) {
+        var q = getPendingQueue();
+        session.syncStatus = 'pending';
+        q.push(session);
+        savePendingQueue(q);
+      }
+
+      function removePendingSession(id) {
+        var q = getPendingQueue();
+        var newQ = [];
+        for (var i = 0; i < q.length; i++) {
+          if (q[i].id !== id) newQ.push(q[i]);
+        }
+        savePendingQueue(newQ);
+      }
+
+      function processPendingQueue() {
+        var q = getPendingQueue();
+        if (q.length === 0) return;
+        
+        var session = q[0];
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/api/pomodoro/session.php', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState !== 4) return;
+          
+          if (xhr.status === 200) {
+            try {
+              var response = JSON.parse(xhr.responseText);
+              if (response.success && response.synced) {
+                removePendingSession(session.id);
+                setTimeout(processPendingQueue, 500);
+              }
+            } catch(e) {}
+          }
+        };
+        
+        try {
+          xhr.send(JSON.stringify(session));
+        } catch(e) {}
+      }
+
+      function syncSession(session) {
+        addPendingSession(session);
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/api/pomodoro/session.php', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState !== 4) return;
+          
+          if (xhr.status === 200) {
+            try {
+              var response = JSON.parse(xhr.responseText);
+              if (response.success && response.synced) {
+                removePendingSession(session.id);
+                msgEl.innerText = "Session synced.";
+                msgEl.className = "visible";
+              } else {
+                throw new Error("Sync failed");
+              }
+            } catch(e) {
+              msgEl.innerText = "Session completed. Sync pending.";
+              msgEl.className = "visible";
+            }
+          } else if (xhr.status === 401) {
+            msgEl.innerText = "Please log in to sync your session.";
             msgEl.className = "visible";
-            timeEl.className = "time-display pulse";
-          } catch(e) {
-            msgEl.innerText = "Session completed. Could not sync.";
+          } else {
+            msgEl.innerText = "Session saved locally. Sync will retry later.";
             msgEl.className = "visible";
           }
         };
-        request.onerror = function(event) {
-          msgEl.innerText = "Session completed. Could not sync.";
+        
+        try {
+          xhr.send(JSON.stringify(session));
+        } catch(e) {
+          msgEl.innerText = "Session completed. Sync pending.";
           msgEl.className = "visible";
+        }
+      }
+
+      function logSession() {
+        var id = new Date().getTime().toString() + Math.random().toString(36).substring(2);
+        var session = {
+          id: id,
+          duration_minutes: focusDuration,
+          completed_at: new Date().toISOString(),
+          type: 'focus',
+          status: 'completed',
+          task_id: null
         };
+        
+        timeEl.className = "time-display pulse";
+        msgEl.innerText = "Saving session...";
+        msgEl.className = "visible";
+        
+        syncSession(session);
       }
 
       function tick() {
@@ -490,6 +578,9 @@
       if (state === 'IDLE') {
         updateDisplay(remainingMs);
       }
+      
+      // Attempt to flush pending sessions on load
+      processPendingQueue();
 
     })();
   </script>
