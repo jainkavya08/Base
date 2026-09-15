@@ -7,7 +7,8 @@ import { SubtaskItem } from "./subtask-item";
 import { TaskMenu } from "./task-menu";
 import { MoveTaskDialog } from "./move-task-dialog";
 import { Button } from "@/components/ui/button";
-import { db } from "@/lib/db";
+import { fetchApi } from "@/lib/api";
+import { useSWRConfig } from "swr";
 import type { Todo } from "@/lib/db";
 
 export function TaskItem({ 
@@ -22,6 +23,7 @@ export function TaskItem({
   const [isExpanded, setIsExpanded] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(task.title);
+  const { mutate } = useSWRConfig();
   
   const [showMoveDialog, setShowMoveDialog] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -33,40 +35,49 @@ export function TaskItem({
 
   const handleSaveEdit = async () => {
     if (editTitle.trim() && editTitle.trim() !== task.title) {
-      await db.todos.update(task.id, { 
-        title: editTitle.trim(),
-        updatedAt: new Date().toISOString() 
+      await fetchApi('/api/todos/tasks.php', {
+        method: 'PUT',
+        body: JSON.stringify({
+          id: task.id,
+          title: editTitle.trim()
+        })
       });
+      mutate('/api/todos/tasks.php');
     }
     setIsEditing(false);
   };
 
   const handleDuplicate = async () => {
-    const now = new Date().toISOString();
     const newParentId = crypto.randomUUID();
     
     // Create new parent
-    await db.todos.add({
-      ...task,
-      id: newParentId,
-      title: `${task.title} (Copy)`,
-      completed: false,
-      createdAt: now,
-      updatedAt: now,
+    await fetchApi('/api/todos/tasks.php', {
+      method: 'POST',
+      body: JSON.stringify({
+        ...task,
+        id: newParentId,
+        title: `${task.title} (Copy)`,
+        completed: false
+      })
     });
     
     // Create new subtasks
     if (subtasks.length > 0) {
-      const newSubtasks = subtasks.map(st => ({
-        ...st,
-        id: crypto.randomUUID(),
-        parentTaskId: newParentId,
-        completed: false,
-        createdAt: now,
-        updatedAt: now,
-      }));
-      await db.todos.bulkAdd(newSubtasks);
+      // Loop over subtasks (we can run promises in parallel)
+      await Promise.all(subtasks.map(st => 
+        fetchApi('/api/todos/tasks.php', {
+          method: 'POST',
+          body: JSON.stringify({
+            ...st,
+            id: crypto.randomUUID(),
+            parentTaskId: newParentId,
+            completed: false
+          })
+        })
+      ));
     }
+
+    mutate('/api/todos/tasks.php');
   };
 
   const handleDelete = async () => {
@@ -75,10 +86,13 @@ export function TaskItem({
       return;
     }
     
-    // Delete parent and all subtasks
-    const keysToDelete = subtasks.map(st => st.id);
-    keysToDelete.push(task.id);
-    await db.todos.bulkDelete(keysToDelete);
+    // Delete parent (subtasks cascade in MySQL)
+    await fetchApi('/api/todos/tasks.php', {
+      method: 'DELETE',
+      body: JSON.stringify({ id: task.id })
+    });
+    
+    mutate('/api/todos/tasks.php');
     setShowDeleteConfirm(false);
   };
 

@@ -1,18 +1,24 @@
 "use client";
 
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/lib/db";
+import useSWR from "swr";
+import { fetcher } from "@/lib/api";
 import { ListTodo, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { AddListDialog } from "./add-list-dialog";
 import { ListItem } from "./list-item";
 
 export function ListsDashboard({ fileId }: { fileId: string }) {
-  const file = useLiveQuery(() => db.todoFiles.get(fileId), [fileId]);
-  const lists = useLiveQuery(() => db.todoLists.where("fileId").equals(fileId).toArray(), [fileId]);
-  const tasks = useLiveQuery(() => db.todos.toArray()); // In a real app we'd query more specifically, but Dexie can be tricky with IN queries
+  const { data: filesData, isLoading: filesLoading } = useSWR('/api/todos/files.php', fetcher);
+  const { data: listsData } = useSWR('/api/todos/lists.php', fetcher);
+  const { data: tasksData } = useSWR('/api/todos/tasks.php', fetcher);
 
-  if (!file || !lists) return null;
+  if (filesLoading) return <div className="text-center p-8 text-ink-muted">Loading...</div>;
+
+  const file = filesData?.files?.find((f: any) => f.id === fileId);
+  const lists = listsData?.lists?.filter((l: any) => l.fileId === fileId) || [];
+  const tasks = tasksData?.tasks || [];
+
+  if (!file) return null;
 
   return (
     <div className="flex flex-col gap-6">
@@ -37,8 +43,8 @@ export function ListsDashboard({ fileId }: { fileId: string }) {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {lists.map((list) => {
-            const listTasks = tasks?.filter(t => t.listId === list.id) || [];
+          {lists.map((list: any) => {
+            const listTasks = tasks?.filter((t: any) => t.listId === list.id) || [];
             return (
               <ListItem 
                 key={list.id} 

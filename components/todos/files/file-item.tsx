@@ -4,7 +4,8 @@ import { useState } from "react";
 import { Folder } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { db } from "@/lib/db";
+import { useSWRConfig } from "swr";
+import { fetchApi } from "@/lib/api";
 import type { TodoFile, TodoList, Todo } from "@/lib/db";
 import { CardMenu } from "@/components/todos/card-menu";
 import { Button } from "@/components/ui/button";
@@ -23,24 +24,34 @@ export function FileItem({
   const [editName, setEditName] = useState(file.name);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleSave = async () => {
+  const { mutate } = useSWRConfig();
+
+  const handleSave = async (e?: React.MouseEvent) => {
+    e?.stopPropagation();
     if (editName.trim() && editName.trim() !== file.name) {
-      await db.todoFiles.update(file.id, {
-        name: editName.trim(),
-        updatedAt: new Date().toISOString()
+      await fetchApi('/api/todos/files.php', {
+        method: 'PUT',
+        body: JSON.stringify({
+          id: file.id,
+          name: editName.trim()
+        })
       });
+      mutate('/api/todos/files.php');
     }
     setIsEditing(false);
   };
 
   const handleDelete = async () => {
-    const listIds = fileLists.map(l => l.id);
-    const taskIds = fileTasks.map(t => t.id);
-    
     // Delete tasks, lists, and the file
-    if (taskIds.length > 0) await db.todos.bulkDelete(taskIds);
-    if (listIds.length > 0) await db.todoLists.bulkDelete(listIds);
-    await db.todoFiles.delete(file.id);
+    // Ideally this cascading happens in the backend or we send requests, but for safety we can just tell the backend to delete the file. The backend schema uses ON DELETE CASCADE for files -> todo_lists -> tasks. So just deleting the file is enough.
+    await fetchApi('/api/todos/files.php', {
+      method: 'DELETE',
+      body: JSON.stringify({ id: file.id })
+    });
+    
+    mutate('/api/todos/files.php');
+    mutate('/api/todos/lists.php');
+    mutate('/api/todos/tasks.php');
     
     setIsDeleting(false);
   };
@@ -53,8 +64,8 @@ export function FileItem({
           This will delete {fileLists.length} lists and {fileTasks.length} tasks.
         </p>
         <div className="flex gap-2 mt-2">
-          <Button variant="outline" size="sm" onClick={() => setIsDeleting(false)}>Cancel</Button>
-          <Button variant="destructive" size="sm" onClick={handleDelete} className="bg-red-500 text-white">Delete</Button>
+          <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); setIsDeleting(false); }}>Cancel</Button>
+          <Button variant="destructive" size="sm" onClick={(e) => { e.stopPropagation(); handleDelete(); }} className="bg-red-500 text-white">Delete</Button>
         </div>
       </div>
     );
@@ -68,6 +79,7 @@ export function FileItem({
         </div>
         <input
           value={editName}
+          onClick={(e) => e.stopPropagation()}
           onChange={(e) => setEditName(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") handleSave();
@@ -80,7 +92,7 @@ export function FileItem({
           autoFocus
         />
         <div className="flex gap-2 justify-end mt-auto">
-          <Button variant="outline" size="sm" onClick={() => { setEditName(file.name); setIsEditing(false); }}>Cancel</Button>
+          <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); setEditName(file.name); setIsEditing(false); }}>Cancel</Button>
           <Button size="sm" onClick={handleSave} className="bg-accent-blue text-surface-card">Save</Button>
         </div>
       </div>
@@ -96,8 +108,9 @@ export function FileItem({
         <Folder className="w-8 h-8 text-accent-blue group-hover:scale-110 transition-transform" />
         <div className="opacity-0 group-hover:opacity-100 transition-opacity">
           <CardMenu 
-            onEdit={() => setIsEditing(true)} 
-            onDelete={() => {
+            onEdit={(e) => { e?.stopPropagation(); setIsEditing(true); }} 
+            onDelete={(e) => {
+              e?.stopPropagation();
               if (fileLists.length > 0 || fileTasks.length > 0) {
                 setIsDeleting(true);
               } else {

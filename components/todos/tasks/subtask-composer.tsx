@@ -3,7 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { db } from "@/lib/db";
+import { fetchApi } from "@/lib/api";
+import { useSWRConfig } from "swr";
 import { cn } from "cn";
 import { parseMultiLineTasks } from "@/lib/utils/tasks";
 
@@ -18,7 +19,9 @@ export function SubtaskComposer({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [text, setText] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { mutate } = useSWRConfig();
 
   // Auto-resize textarea
   useEffect(() => {
@@ -38,25 +41,34 @@ export function SubtaskComposer({
   const tasksToCreate = parseMultiLineTasks(text);
 
   const handleSubmit = async () => {
-    if (tasksToCreate.length === 0) return;
+    if (tasksToCreate.length === 0 || isSubmitting) return;
 
-    const now = new Date().toISOString();
-    
-    const newTasks = tasksToCreate.map(title => ({
-      id: crypto.randomUUID(),
-      listId,
-      title,
-      completed: false,
-      priority: "medium" as const,
-      parentTaskId,
-      createdAt: now,
-      updatedAt: now,
-    }));
+    setIsSubmitting(true);
+    try {
+      await Promise.all(
+        tasksToCreate.map((title) =>
+          fetchApi("/api/todos/tasks.php", {
+            method: "POST",
+            body: JSON.stringify({
+              listId,
+              parentTaskId,
+              title,
+              completed: false,
+              priority: "medium",
+            }),
+          })
+        )
+      );
 
-    await db.todos.bulkAdd(newTasks);
-    
-    setText("");
-    // Keep it open for quickly adding another subtask
+      mutate('/api/todos/tasks.php');
+      
+      setText("");
+      // Keep it open for quickly adding another subtask
+    } catch (error) {
+      console.error("Failed to create subtasks:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -113,7 +125,7 @@ export function SubtaskComposer({
                 <Button 
                   size="sm"
                   onClick={handleSubmit}
-                  disabled={tasksToCreate.length === 0}
+                  disabled={tasksToCreate.length === 0 || isSubmitting}
                   className="bg-accent-blue text-surface-card hover:bg-accent-blue/90 h-7 text-xs"
                 >
                   {tasksToCreate.length > 1 ? `Add ${tasksToCreate.length} Subtasks` : "Add"}

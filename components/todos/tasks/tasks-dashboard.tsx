@@ -1,7 +1,7 @@
 "use client";
 
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/lib/db";
+import useSWR, { useSWRConfig } from "swr";
+import { fetcher, fetchApi } from "@/lib/api";
 import { CheckCircle2, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { TaskComposer } from "./task-composer";
@@ -11,9 +11,15 @@ import { Button } from "@/components/ui/button";
 import type { Todo } from "@/lib/db";
 
 export function TasksDashboard({ fileId, listId }: { fileId: string; listId: string }) {
-  const file = useLiveQuery(() => db.todoFiles.get(fileId), [fileId]);
-  const list = useLiveQuery(() => db.todoLists.get(listId), [listId]);
-  const tasks = useLiveQuery(() => db.todos.where("listId").equals(listId).toArray(), [listId]);
+  const { mutate } = useSWRConfig();
+  const { data: filesData, isLoading: filesLoading } = useSWR('/api/todos/files.php', fetcher);
+  const { data: listsData } = useSWR('/api/todos/lists.php', fetcher);
+  const { data: tasksData } = useSWR('/api/todos/tasks.php', fetcher);
+
+  const file = filesData?.files?.find((f: any) => f.id === fileId);
+  const list = listsData?.lists?.find((l: any) => l.id === listId);
+  const allTasks = tasksData?.tasks || [];
+  const tasks = allTasks.filter((t: any) => t.listId === listId);
   
   const [view, setView] = useState<"list" | "board" | "compact">("list");
 
@@ -24,10 +30,10 @@ export function TasksDashboard({ fileId, listId }: { fileId: string; listId: str
     }
   }, [list?.defaultView]);
 
-  if (!file || !list || !tasks) return null;
+  if (filesLoading || !file || !list) return null;
 
-  const completed = tasks.filter(t => !t.parentTaskId && t.completed).length;
-  const topLevelTasks = tasks.filter(t => !t.parentTaskId);
+  const completed = tasks.filter((t: any) => !t.parentTaskId && t.completed).length;
+  const topLevelTasks = tasks.filter((t: any) => !t.parentTaskId);
 
   const handleToggle = async (taskId: string, currentStatus: boolean, isParent?: boolean, subtasks?: Todo[], parentTask?: Todo) => {
     const newStatus = !currentStatus;
@@ -37,26 +43,25 @@ export function TasksDashboard({ fileId, listId }: { fileId: string; listId: str
       // Toggle parent and all its subtasks
       const updates = subtasks.map(st => ({ key: st.id, changes: { completed: newStatus, updatedAt: now } }));
       updates.push({ key: taskId, changes: { completed: newStatus, updatedAt: now } });
-      await db.todos.bulkUpdate(updates);
+      await fetchApi('/api/todos/tasks.php', { method: 'POST', body: JSON.stringify({ bulk: true, updates }) });
     } else if (!isParent && parentTask && subtasks) {
       // Toggle subtask
-      await db.todos.update(taskId, { completed: newStatus, updatedAt: now });
+      await fetchApi('/api/todos/tasks.php', { method: 'PUT', body: JSON.stringify({ id: taskId, completed: newStatus }) });
       
       // Check if parent should be completed/uncompleted
       const otherSubtasks = subtasks.filter(t => t.id !== taskId);
       const allOthersCompleted = otherSubtasks.every(t => t.completed);
       
       if (newStatus && allOthersCompleted) {
-        // All subtasks are now completed, complete parent
-        await db.todos.update(parentTask.id, { completed: true, updatedAt: now });
+        await fetchApi('/api/todos/tasks.php', { method: 'PUT', body: JSON.stringify({ id: parentTask.id, completed: true }) });
       } else if (!newStatus && parentTask.completed) {
-        // A subtask was unchecked, uncheck parent
-        await db.todos.update(parentTask.id, { completed: false, updatedAt: now });
+        await fetchApi('/api/todos/tasks.php', { method: 'PUT', body: JSON.stringify({ id: parentTask.id, completed: false }) });
       }
     } else {
       // Standard toggle
-      await db.todos.update(taskId, { completed: newStatus, updatedAt: now });
+      await fetchApi('/api/todos/tasks.php', { method: 'PUT', body: JSON.stringify({ id: taskId, completed: newStatus }) });
     }
+    mutate('/api/todos/tasks.php');
   };
 
   return (
@@ -120,7 +125,7 @@ export function TasksDashboard({ fileId, listId }: { fileId: string; listId: str
         <div className="mt-4">
           {view === "list" && (
             <div className="flex flex-col gap-3">
-              {topLevelTasks.map(task => (
+              {topLevelTasks.map((task: any) => (
                 <TaskItem key={task.id} task={task} allTasks={tasks} onToggle={handleToggle} />
               ))}
             </div>
@@ -131,7 +136,7 @@ export function TasksDashboard({ fileId, listId }: { fileId: string; listId: str
               <div className="bg-canvas border border-border/50 rounded-2xl p-4">
                 <h3 className="font-medium text-ink mb-4 border-b border-border pb-2">To Do</h3>
                 <div className="flex flex-col gap-3">
-                  {topLevelTasks.filter(t => !t.completed).map(task => (
+                  {topLevelTasks.filter((t: any) => !t.completed).map((task: any) => (
                     <TaskItem key={task.id} task={task} allTasks={tasks} onToggle={handleToggle} />
                   ))}
                 </div>
@@ -139,7 +144,7 @@ export function TasksDashboard({ fileId, listId }: { fileId: string; listId: str
               <div className="bg-canvas border border-border/50 rounded-2xl p-4">
                 <h3 className="font-medium text-ink mb-4 border-b border-border pb-2">Completed</h3>
                 <div className="flex flex-col gap-3">
-                  {topLevelTasks.filter(t => t.completed).map(task => (
+                  {topLevelTasks.filter((t: any) => t.completed).map((task: any) => (
                     <TaskItem key={task.id} task={task} allTasks={tasks} onToggle={handleToggle} />
                   ))}
                 </div>
@@ -149,7 +154,7 @@ export function TasksDashboard({ fileId, listId }: { fileId: string; listId: str
 
           {view === "compact" && (
             <div className="bg-surface-card border border-border/50 rounded-2xl overflow-hidden">
-              {topLevelTasks.map((task, index) => (
+              {topLevelTasks.map((task: any, index: number) => (
                 <div 
                   key={task.id} 
                   className={`flex items-center gap-3 px-4 py-3 ${index !== topLevelTasks.length - 1 ? 'border-b border-border/50' : ''}`}

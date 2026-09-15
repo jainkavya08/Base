@@ -1,17 +1,21 @@
 "use client";
 
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/lib/db";
+import useSWR from "swr";
+import { fetcher } from "@/lib/api";
 import { Folder } from "lucide-react";
 import { AddFileDialog } from "./add-file-dialog";
 import { FileItem } from "./file-item";
 
 export function FilesDashboard() {
-  const files = useLiveQuery(() => db.todoFiles.toArray());
-  const lists = useLiveQuery(() => db.todoLists.toArray());
-  const tasks = useLiveQuery(() => db.todos.toArray());
+  const { data: filesData, isLoading: filesLoading } = useSWR('/api/todos/files.php', fetcher);
+  const { data: listsData } = useSWR('/api/todos/lists.php', fetcher);
+  const { data: tasksData } = useSWR('/api/todos/tasks.php', fetcher);
 
-  if (!files) return null;
+  if (filesLoading) return <div className="text-center p-8 text-ink-muted">Loading files...</div>;
+  
+  const files = filesData?.files || [];
+  const lists = listsData?.lists || [];
+  const tasks = tasksData?.tasks || [];
 
   return (
     <div className="flex flex-col gap-6">
@@ -30,10 +34,10 @@ export function FilesDashboard() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {files.map((file) => {
-            const fileLists = lists?.filter(l => l.fileId === file.id) || [];
-            const listIds = fileLists.map(l => l.id);
-            const fileTasks = tasks?.filter(t => listIds.includes(t.listId)) || [];
+          {files.map((file: any) => {
+            const fileLists = lists?.filter((l: any) => l.fileId === file.id) || [];
+            const listIds = fileLists.map((l: any) => l.id);
+            const fileTasks = tasks?.filter((t: any) => listIds.includes(t.listId)) || [];
             
             return (
               <FileItem 

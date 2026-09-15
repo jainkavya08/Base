@@ -3,14 +3,17 @@
 import { useState, useRef, useEffect } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { db } from "@/lib/db";
+import { fetchApi } from "@/lib/api";
+import { useSWRConfig } from "swr";
 import { cn } from "cn";
 import { parseMultiLineTasks } from "@/lib/utils/tasks";
 
 export function TaskComposer({ listId }: { listId: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [text, setText] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { mutate } = useSWRConfig();
 
   // Auto-resize textarea
   useEffect(() => {
@@ -23,24 +26,37 @@ export function TaskComposer({ listId }: { listId: string }) {
   const tasksToCreate = parseMultiLineTasks(text);
 
   const handleSubmit = async () => {
-    if (tasksToCreate.length === 0) return;
+    if (tasksToCreate.length === 0 || isSubmitting) return;
 
-    const now = new Date().toISOString();
-    
-    const newTasks = tasksToCreate.map(title => ({
-      id: crypto.randomUUID(),
-      listId,
-      title,
-      completed: false,
-      priority: "medium" as const,
-      createdAt: now,
-      updatedAt: now,
-    }));
+    setIsSubmitting(true);
+    try {
+      // In a real production app we'd create a bulk endpoint, but for this migration
+      // creating sequentially or parallel via promises is fine, or we can use our POST bulk
+      // Wait, our POST endpoint doesn't support bulk creation, but we can easily add it or just loop.
+      // Let's just loop for now, it's fast enough.
+      await Promise.all(
+        tasksToCreate.map((title) =>
+          fetchApi("/api/todos/tasks.php", {
+            method: "POST",
+            body: JSON.stringify({
+              listId,
+              title,
+              completed: false,
+              priority: "medium",
+            }),
+          })
+        )
+      );
 
-    await db.todos.bulkAdd(newTasks);
-    
-    setText("");
-    setIsOpen(false);
+      mutate('/api/todos/tasks.php');
+      
+      setText("");
+      setIsOpen(false);
+    } catch (error) {
+      console.error("Failed to create tasks:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -95,7 +111,7 @@ export function TaskComposer({ listId }: { listId: string }) {
                 </Button>
                 <Button 
                   onClick={handleSubmit}
-                  disabled={tasksToCreate.length === 0}
+                  disabled={tasksToCreate.length === 0 || isSubmitting}
                   className="bg-accent-blue text-surface-card hover:bg-accent-blue/90"
                 >
                   {tasksToCreate.length > 1 ? `Add ${tasksToCreate.length} Tasks` : "Add Task"}

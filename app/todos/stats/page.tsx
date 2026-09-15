@@ -1,25 +1,29 @@
 "use client";
 
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/lib/db";
+import useSWR from "swr";
+import { fetcher } from "@/lib/api";
 import { BarChart3 } from "lucide-react";
 
 export default function TodosStatsPage() {
-  const allTasks = useLiveQuery(() => db.todos.toArray());
-  const lists = useLiveQuery(() => db.todoLists.toArray());
-  const files = useLiveQuery(() => db.todoFiles.toArray());
+  const { data: filesData, isLoading: filesLoading } = useSWR('/api/todos/files.php', fetcher);
+  const { data: listsData } = useSWR('/api/todos/lists.php', fetcher);
+  const { data: tasksData, isLoading: tasksLoading } = useSWR('/api/todos/tasks.php', fetcher);
 
-  if (!allTasks || !lists || !files) return null;
+  const allTasks = tasksData?.tasks;
+  const lists = listsData?.lists;
+  const files = filesData?.files;
 
-  const topLevelTasks = allTasks.filter(t => !t.parentTaskId);
-  const subtasks = allTasks.filter(t => t.parentTaskId);
+  if (filesLoading || tasksLoading || !allTasks || !lists || !files) return null;
+
+  const topLevelTasks = allTasks.filter((t: any) => !t.parentTaskId);
+  const subtasks = allTasks.filter((t: any) => t.parentTaskId);
 
   const totalTasks = topLevelTasks.length;
-  const completedTasks = topLevelTasks.filter(t => t.completed).length;
+  const completedTasks = topLevelTasks.filter((t: any) => t.completed).length;
   const completionRate = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
 
   const totalSubtasks = subtasks.length;
-  const completedSubtasks = subtasks.filter(t => t.completed).length;
+  const completedSubtasks = subtasks.filter((t: any) => t.completed).length;
 
   return (
     <div className="flex flex-col gap-6">

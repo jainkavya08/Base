@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus } from "lucide-react";
+import { useSWRConfig } from "swr";
 import {
   Dialog,
   DialogContent,
@@ -12,29 +13,39 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { db } from "@/lib/db";
+import { fetchApi } from "@/lib/api";
 
 export function AddFileDialog() {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { mutate } = useSWRConfig();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim() || isSubmitting) return;
 
-    const now = new Date().toISOString();
-    await db.todoFiles.add({
-      id: crypto.randomUUID(),
-      name: name.trim(),
-      description: description.trim(),
-      createdAt: now,
-      updatedAt: now,
-    });
+    setIsSubmitting(true);
+    try {
+      await fetchApi('/api/todos/files.php', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: name.trim(),
+          description: description.trim() || undefined,
+        }),
+      });
 
-    setName("");
-    setDescription("");
-    setOpen(false);
+      mutate('/api/todos/files.php');
+
+      setOpen(false);
+      setName("");
+      setDescription("");
+    } catch (error) {
+      console.error("Failed to create file:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

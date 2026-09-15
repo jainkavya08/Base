@@ -12,7 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { db } from "@/lib/db";
+import { fetchApi } from "@/lib/api";
+import { useSWRConfig } from "swr";
 
 export function AddListDialog({ fileId }: { fileId: string }) {
   const [open, setOpen] = useState(false);
@@ -20,25 +21,36 @@ export function AddListDialog({ fileId }: { fileId: string }) {
   const [description, setDescription] = useState("");
   const [view, setView] = useState<"list" | "board" | "compact">("list");
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { mutate } = useSWRConfig();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim() || isSubmitting) return;
 
-    const now = new Date().toISOString();
-    await db.todoLists.add({
-      id: crypto.randomUUID(),
-      fileId,
-      name: name.trim(),
-      description: description.trim(),
-      defaultView: view,
-      createdAt: now,
-      updatedAt: now,
-    });
+    setIsSubmitting(true);
+    try {
+      await fetchApi('/api/todos/lists.php', {
+        method: 'POST',
+        body: JSON.stringify({
+          fileId,
+          name: name.trim(),
+          description: description.trim() || undefined,
+          defaultView: view
+        })
+      });
 
-    setName("");
-    setDescription("");
-    setView("list");
-    setOpen(false);
+      mutate('/api/todos/lists.php');
+
+      setName("");
+      setDescription("");
+      setView("list");
+      setOpen(false);
+    } catch (error) {
+      console.error("Failed to create list:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

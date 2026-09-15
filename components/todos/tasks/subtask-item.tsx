@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { db } from "@/lib/db";
+import { fetchApi } from "@/lib/api";
+import { useSWRConfig } from "swr";
 import type { Todo } from "@/lib/db";
 import { TaskMenu } from "./task-menu";
 import { Button } from "@/components/ui/button";
@@ -19,31 +20,41 @@ export function SubtaskItem({
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(subtask.title);
+  const { mutate } = useSWRConfig();
 
   const handleSave = async () => {
     if (editTitle.trim() && editTitle.trim() !== subtask.title) {
-      await db.todos.update(subtask.id, { 
-        title: editTitle.trim(),
-        updatedAt: new Date().toISOString()
+      await fetchApi('/api/todos/tasks.php', {
+        method: 'PUT',
+        body: JSON.stringify({
+          id: subtask.id,
+          title: editTitle.trim()
+        })
       });
+      mutate('/api/todos/tasks.php');
     }
     setIsEditing(false);
   };
 
   const handleDuplicate = async () => {
-    const now = new Date().toISOString();
-    await db.todos.add({
-      ...subtask,
-      id: crypto.randomUUID(),
-      title: `${subtask.title} (Copy)`,
-      completed: false,
-      createdAt: now,
-      updatedAt: now,
+    await fetchApi('/api/todos/tasks.php', {
+      method: 'POST',
+      body: JSON.stringify({
+        ...subtask,
+        id: crypto.randomUUID(),
+        title: `${subtask.title} (Copy)`,
+        completed: false
+      })
     });
+    mutate('/api/todos/tasks.php');
   };
 
   const handleDelete = async () => {
-    await db.todos.delete(subtask.id);
+    await fetchApi('/api/todos/tasks.php', {
+      method: 'DELETE',
+      body: JSON.stringify({ id: subtask.id })
+    });
+    mutate('/api/todos/tasks.php');
   };
 
   return (

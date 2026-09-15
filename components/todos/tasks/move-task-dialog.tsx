@@ -8,8 +8,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { db } from "@/lib/db";
-import { useLiveQuery } from "dexie-react-hooks";
+import { fetchApi } from "@/lib/api";
+import useSWR, { useSWRConfig } from "swr";
+import { fetcher } from "@/lib/api";
 import { Folder } from "lucide-react";
 
 export function MoveTaskDialog({
@@ -23,23 +24,32 @@ export function MoveTaskDialog({
   taskId: string;
   currentListId: string;
 }) {
-  const files = useLiveQuery(() => db.todoFiles.toArray());
-  const lists = useLiveQuery(() => db.todoLists.toArray());
+  const { data: filesData } = useSWR('/api/todos/files.php', fetcher);
+  const { data: listsData } = useSWR('/api/todos/lists.php', fetcher);
+  const { data: tasksData } = useSWR('/api/todos/tasks.php', fetcher);
+  const { mutate } = useSWRConfig();
+  
+  const files = filesData?.files;
+  const lists = listsData?.lists;
+  const allTasks = tasksData?.tasks || [];
 
   const handleMove = async (newListId: string) => {
-    const now = new Date().toISOString();
-    
     // Get task and its subtasks
-    const task = await db.todos.get(taskId);
+    const task = allTasks.find((t: any) => t.id === taskId);
     if (!task) return;
     
-    const subtasks = await db.todos.where("parentTaskId").equals(taskId).toArray();
+    const subtasks = allTasks.filter((t: any) => t.parentTaskId === taskId);
     
     // Update listId for task and subtasks
-    const updates = subtasks.map(st => ({ key: st.id, changes: { listId: newListId, updatedAt: now } }));
-    updates.push({ key: taskId, changes: { listId: newListId, updatedAt: now } });
+    const updates = subtasks.map((st: any) => ({ key: st.id, changes: { listId: newListId } }));
+    updates.push({ key: taskId, changes: { listId: newListId } });
     
-    await db.todos.bulkUpdate(updates);
+    await fetchApi('/api/todos/tasks.php', {
+      method: 'POST',
+      body: JSON.stringify({ bulk: true, updates })
+    });
+    
+    mutate('/api/todos/tasks.php');
     onClose();
   };
 
@@ -52,8 +62,8 @@ export function MoveTaskDialog({
           <DialogTitle className="text-ink">Move Task</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-4 py-4 max-h-[60vh] overflow-y-auto">
-          {files.map(file => {
-            const fileLists = lists.filter(l => l.fileId === file.id);
+          {files.map((file: any) => {
+            const fileLists = lists.filter((l: any) => l.fileId === file.id);
             if (fileLists.length === 0) return null;
             
             return (
@@ -62,7 +72,7 @@ export function MoveTaskDialog({
                   <Folder className="w-4 h-4" />
                   {file.name}
                 </div>
-                {fileLists.map(list => (
+                {fileLists.map((list: any) => (
                   <button
                     key={list.id}
                     onClick={() => handleMove(list.id)}

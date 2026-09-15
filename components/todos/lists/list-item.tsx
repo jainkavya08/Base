@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { db } from "@/lib/db";
+import { fetchApi } from "@/lib/api";
+import { useSWRConfig } from "swr";
 import type { TodoList, Todo } from "@/lib/db";
 import { CardMenu } from "@/components/todos/card-menu";
 import { Button } from "@/components/ui/button";
@@ -21,26 +22,35 @@ export function ListItem({
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(list.name);
   const [isDeleting, setIsDeleting] = useState(false);
+  const { mutate } = useSWRConfig();
 
   const completed = listTasks.filter(t => !t.parentTaskId && t.completed).length;
   const topLevelTasks = listTasks.filter(t => !t.parentTaskId).length;
 
-  const handleSave = async () => {
+  const handleSave = async (e?: React.MouseEvent) => {
+    e?.stopPropagation();
     if (editName.trim() && editName.trim() !== list.name) {
-      await db.todoLists.update(list.id, {
-        name: editName.trim(),
-        updatedAt: new Date().toISOString()
+      await fetchApi('/api/todos/lists.php', {
+        method: 'PUT',
+        body: JSON.stringify({
+          id: list.id,
+          name: editName.trim()
+        })
       });
+      mutate('/api/todos/lists.php');
     }
     setIsEditing(false);
   };
 
   const handleDelete = async () => {
-    const taskIds = listTasks.map(t => t.id);
+    // Delete the list, tasks will cascade in DB
+    await fetchApi('/api/todos/lists.php', {
+      method: 'DELETE',
+      body: JSON.stringify({ id: list.id })
+    });
     
-    // Delete tasks and the list
-    if (taskIds.length > 0) await db.todos.bulkDelete(taskIds);
-    await db.todoLists.delete(list.id);
+    mutate('/api/todos/lists.php');
+    mutate('/api/todos/tasks.php');
     
     setIsDeleting(false);
   };
@@ -53,8 +63,8 @@ export function ListItem({
           This will delete {listTasks.length} tasks and subtasks.
         </p>
         <div className="flex gap-2 mt-2">
-          <Button variant="outline" size="sm" onClick={() => setIsDeleting(false)}>Cancel</Button>
-          <Button variant="destructive" size="sm" onClick={handleDelete} className="bg-red-500 text-white">Delete</Button>
+          <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); setIsDeleting(false); }}>Cancel</Button>
+          <Button variant="destructive" size="sm" onClick={(e) => { e.stopPropagation(); handleDelete(); }} className="bg-red-500 text-white">Delete</Button>
         </div>
       </div>
     );
@@ -65,6 +75,7 @@ export function ListItem({
       <div className="bg-surface-card rounded-2xl p-6 shadow-sm border border-accent-blue/50 flex flex-col gap-3 h-full min-h-[120px]">
         <input
           value={editName}
+          onClick={(e) => e.stopPropagation()}
           onChange={(e) => setEditName(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") handleSave();
@@ -77,7 +88,7 @@ export function ListItem({
           autoFocus
         />
         <div className="flex gap-2 justify-end mt-auto">
-          <Button variant="outline" size="sm" onClick={() => { setEditName(list.name); setIsEditing(false); }}>Cancel</Button>
+          <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); setEditName(list.name); setIsEditing(false); }}>Cancel</Button>
           <Button size="sm" onClick={handleSave} className="bg-accent-blue text-surface-card">Save</Button>
         </div>
       </div>
@@ -93,8 +104,9 @@ export function ListItem({
         <h3 className="text-lg font-medium text-ink flex-1 pr-4">{list.name}</h3>
         <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute right-4 top-4">
           <CardMenu 
-            onEdit={() => setIsEditing(true)} 
-            onDelete={() => {
+            onEdit={(e) => { e?.stopPropagation(); setIsEditing(true); }} 
+            onDelete={(e) => {
+              e?.stopPropagation();
               if (listTasks.length > 0) {
                 setIsDeleting(true);
               } else {
