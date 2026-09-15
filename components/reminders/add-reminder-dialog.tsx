@@ -20,34 +20,45 @@ export function AddReminderDialog() {
   const [title, setTitle] = useState("");
   const [time, setTime] = useState("");
   const [date, setDate] = useState("");
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !time || !date) return;
+    setError("");
     
-    // Combine date and time to ISO string
-    const fireAt = new Date(`${date}T${time}`).toISOString();
-
-    await fetchApi('/api/reminders/reminders.php', {
-      method: 'POST',
-      body: JSON.stringify({
-        id: crypto.randomUUID(),
-        title,
-        fireAt,
-        createdAt: new Date().toISOString(),
-      })
-    });
-    mutate('/api/reminders/reminders.php');
-    
-    // Request notification permission if not granted
-    if (Notification.permission === "default") {
-      Notification.requestPermission();
+    if (!title || !time || !date) {
+      setError("Please fill out all fields.");
+      return;
     }
     
-    setOpen(false);
-    setTitle("");
-    setTime("");
-    setDate("");
+    try {
+      // Combine date and time to ISO string
+      const fireAt = new Date(`${date}T${time}`).toISOString();
+
+      await fetchApi('/api/reminders/reminders.php', {
+        method: 'POST',
+        body: JSON.stringify({
+          id: crypto.randomUUID(),
+          title,
+          fireAt,
+          createdAt: new Date().toISOString(),
+        })
+      });
+      mutate('/api/reminders/reminders.php');
+      
+      // Request notification permission if not granted
+      if (Notification.permission === "default") {
+        Notification.requestPermission();
+      }
+      
+      setOpen(false);
+      setTitle("");
+      setTime("");
+      setDate("");
+    } catch (err) {
+      console.error(err);
+      setError("Unable to save reminder. Please try again.");
+    }
   };
 
   return (
@@ -63,6 +74,8 @@ export function AddReminderDialog() {
           <DialogTitle className="text-xl font-medium text-ink">New Reminder</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-4">
+          {error && <div className="text-sm text-accent-coral bg-accent-coral/10 p-3 rounded-lg">{error}</div>}
+          
           <div className="flex flex-col gap-2">
             <Label htmlFor="title" className="text-ink-muted">Reminder</Label>
             <Input
@@ -71,6 +84,7 @@ export function AddReminderDialog() {
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Drink water"
               className="bg-canvas border-border text-ink"
+              required
             />
           </div>
           
@@ -83,6 +97,7 @@ export function AddReminderDialog() {
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 className="bg-canvas border-border text-ink"
+                required
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -93,6 +108,7 @@ export function AddReminderDialog() {
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
                 className="bg-canvas border-border text-ink"
+                required
               />
             </div>
           </div>
