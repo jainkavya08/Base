@@ -1,8 +1,8 @@
 "use client";
 
-import { useLiveQuery } from "dexie-react-hooks";
+import useSWR, { mutate } from "swr";
 import { format, isPast, isToday, isTomorrow, isThisWeek } from "date-fns";
-import { db, Reminder } from "@/lib/db";
+import { fetcher, fetchApi } from "@/lib/api";
 import { Bell, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -15,22 +15,24 @@ function getRelativeTimeLabel(date: Date) {
 }
 
 export function ReminderList() {
-  const reminders = useLiveQuery(() => db.reminders.toArray());
+  const { data } = useSWR('/api/reminders/reminders.php', fetcher);
+  const reminders = data?.reminders;
 
   if (!reminders) return null;
 
   // Sort by fireAt ascending
-  const sortedReminders = [...reminders].sort((a, b) => 
+  const sortedReminders = [...reminders].sort((a: any, b: any) => 
     new Date(a.fireAt).getTime() - new Date(b.fireAt).getTime()
   );
 
   const deleteReminder = async (id: string) => {
-    await db.reminders.delete(id);
+    await fetchApi(`/api/reminders/reminders.php?id=${id}`, { method: 'DELETE' });
+    mutate('/api/reminders/reminders.php');
   };
 
   return (
     <div className="flex flex-col gap-3">
-      {sortedReminders.map((reminder) => {
+      {sortedReminders.map((reminder: any) => {
         const fireAt = new Date(reminder.fireAt);
         const overdue = isPast(fireAt);
         

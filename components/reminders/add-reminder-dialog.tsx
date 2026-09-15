@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { Plus, Clock } from "lucide-react";
-import { db } from "@/lib/db";
+import { fetchApi } from "@/lib/api";
+import { mutate } from "swr";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -27,12 +28,16 @@ export function AddReminderDialog() {
     // Combine date and time to ISO string
     const fireAt = new Date(`${date}T${time}`).toISOString();
 
-    await db.reminders.add({
-      id: crypto.randomUUID(),
-      title,
-      fireAt,
-      createdAt: new Date().toISOString(),
+    await fetchApi('/api/reminders/reminders.php', {
+      method: 'POST',
+      body: JSON.stringify({
+        id: crypto.randomUUID(),
+        title,
+        fireAt,
+        createdAt: new Date().toISOString(),
+      })
     });
+    mutate('/api/reminders/reminders.php');
     
     // Request notification permission if not granted
     if (Notification.permission === "default") {

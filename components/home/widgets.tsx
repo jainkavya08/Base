@@ -140,7 +140,8 @@ export function WidgetTodos({ size }: { size: 'small' | 'large' }) {
 }
 
 export function WidgetReminders({ size }: { size: 'small' | 'large' }) {
-  const reminders = useLiveQuery(() => db.reminders.toArray());
+  const { data } = useSWR('/api/reminders/reminders.php', fetcher);
+  const reminders = data?.reminders;
   
   if (!reminders) return null;
   
