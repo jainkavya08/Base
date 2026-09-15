@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Moon, Sun, LayoutGrid, LogOut } from "lucide-react";
-import { fetchApi } from "@/lib/api";
+import { Moon, Sun, LayoutGrid, LogOut, Database, HardDrive, Server, ExternalLink } from "lucide-react";
+import { fetchApi, fetcher } from "@/lib/api";
+import useSWR from "swr";
 
 export default function SettingsPage() {
   const { settings, updateSettings, resetWidgetLayout } = useAppStore();
@@ -34,6 +35,11 @@ export default function SettingsPage() {
       setIsSaving(false);
     }
   };
+
+  const { data: hostingStats, error: hostingError, isLoading: hostingLoading } = useSWR(
+    user ? '/api/settings/hosting-stats.php' : null, 
+    fetcher
+  );
 
   return (
     <div className="p-8 max-w-4xl mx-auto h-full flex flex-col gap-10">
@@ -112,6 +118,102 @@ export default function SettingsPage() {
                   <li>Improved multi-device synchronization.</li>
                   <li>Enhanced Pomodoro and Finance sections.</li>
                 </ul>
+              </div>
+            </div>
+          </section>
+
+          {/* Hosting & Storage */}
+          <section className="flex flex-col gap-6">
+            <div>
+              <h2 className="text-xl font-medium text-ink pb-2 border-b border-border">Hosting & Storage</h2>
+              <p className="text-sm text-ink-muted mt-2">Monitor your Base application storage and hosting resources.</p>
+            </div>
+            
+            <div className="flex flex-col gap-4">
+              {/* Application Storage Card */}
+              <div className="bg-surface-card p-5 rounded-2xl border border-border/50">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-full bg-canvas flex items-center justify-center text-ink">
+                    <Database className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-ink">Application Storage</h3>
+                    <p className="text-sm text-ink-muted">Data owned by you</p>
+                  </div>
+                </div>
+
+                {hostingLoading ? (
+                  <div className="animate-pulse space-y-3">
+                    <div className="h-4 bg-canvas rounded w-1/2"></div>
+                    <div className="h-4 bg-canvas rounded w-2/3"></div>
+                    <div className="h-4 bg-canvas rounded w-1/3"></div>
+                  </div>
+                ) : hostingError ? (
+                  <div className="text-sm text-accent-coral">
+                    Unable to load storage information.
+                    <Button variant="ghost" size="sm" onClick={() => window.location.reload()} className="ml-2 h-6 text-xs text-accent-coral">Retry</Button>
+                  </div>
+                ) : hostingStats ? (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs font-medium text-ink-muted uppercase tracking-wider">Files</span>
+                      <span className="text-lg font-medium text-ink">{hostingStats.files?.count || 0} files</span>
+                      <span className="text-xs text-ink-muted">File storage: Not available</span>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs font-medium text-ink-muted uppercase tracking-wider">Database</span>
+                      <span className="text-lg font-medium text-ink">{hostingStats.database?.tables || 0} tables</span>
+                      <span className="text-xs text-ink-muted">{hostingStats.database?.size_mb ? `${hostingStats.database.size_mb} MB` : 'Size unavailable'}</span>
+                    </div>
+                    <div className="flex flex-col gap-1 col-span-2 mt-2 pt-2 border-t border-border">
+                      <span className="text-xs font-medium text-ink-muted uppercase tracking-wider">Records</span>
+                      <span className="text-lg font-medium text-ink">{hostingStats.database?.user_records?.toLocaleString() || 0} records</span>
+                      <span className="text-xs text-ink-muted">Data points stored for your account</span>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+
+              {/* InfinityFree Hosting Card */}
+              <div className="bg-surface-card p-5 rounded-2xl border border-border/50">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-full bg-canvas flex items-center justify-center text-ink">
+                    <Server className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-ink">InfinityFree Hosting</h3>
+                    <p className="text-sm text-ink-muted">base.rf.gd</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mb-5">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs font-medium text-ink-muted uppercase tracking-wider">Status</span>
+                    <span className="text-sm font-medium text-ink flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-green-500"></span> Online
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs font-medium text-ink-muted uppercase tracking-wider">Daily Hits</span>
+                    <span className="text-sm font-medium text-ink">Available in InfinityFree</span>
+                  </div>
+                  <div className="flex flex-col gap-1 col-span-2">
+                    <span className="text-xs font-medium text-ink-muted uppercase tracking-wider">Hosting Storage</span>
+                    <span className="text-sm font-medium text-ink">Available in InfinityFree</span>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-border flex items-center justify-between">
+                  <span className="text-xs text-ink-muted">Base statistics: Updated just now</span>
+                  <a 
+                    href="https://app.infinityfree.net/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 border-border bg-background hover:bg-muted hover:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50 h-9 px-4 py-2"
+                  >
+                    View Hosting Statistics <ExternalLink className="w-4 h-4 ml-2" />
+                  </a>
+                </div>
               </div>
             </div>
           </section>
