@@ -1,81 +1,37 @@
 "use client";
 
-import { useRef } from "react";
-import { db } from "@/lib/db";
+import { useState } from "react";
 import { useAppStore } from "@/lib/store";
 import { useAuth } from "@/components/auth/auth-wrapper";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Download, Upload, Trash2, Moon, Sun, LayoutGrid, LogOut } from "lucide-react";
-// Dynamic import of dexie-export-import used inside handlers
+import { Moon, Sun, LayoutGrid, LogOut } from "lucide-react";
+import { fetchApi } from "@/lib/api";
 
 export default function SettingsPage() {
   const { settings, updateSettings, resetWidgetLayout } = useAppStore();
-  const { user, logout } = useAuth();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { user, logout, refreshSession } = useAuth();
+  
+  const [profileName, setProfileName] = useState(settings?.profile?.name || user?.name || "");
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleExport = async () => {
+  const handleSaveProfile = async () => {
+    if (!profileName || profileName === user?.name) return;
+    setIsSaving(true);
     try {
-      const { exportDB } = await import("dexie-export-import");
-      const blob = await exportDB(db);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `productivity-backup-${new Date().toISOString().split('T')[0]}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Export failed", error);
-      alert("Failed to export data.");
-    }
-  };
-
-  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (confirm("Importing data will merge with your current data. Do you want to proceed?")) {
-      try {
-        const { importInto } = await import("dexie-export-import");
-        await importInto(db, file);
-        alert("Data imported successfully! The page will now reload.");
-        window.location.reload();
-      } catch (error) {
-        console.error("Import failed", error);
-        alert("Failed to import data.");
-      }
-    }
-    
-    // Reset file input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
-
-  const handleClearData = async () => {
-    if (confirm("Are you ABSOLUTELY sure? This will delete all your local data across all modules. This action cannot be undone.")) {
-      try {
-        await Promise.all([
-          db.habits.clear(),
-          db.habitCompletions.clear(),
-          db.pomodoroSessions.clear(),
-          db.todos.clear(),
-          db.reminders.clear(),
-          db.financeTransactions.clear(),
-          db.bankAccounts.clear(),
-          db.categories.clear(),
-          db.transfers.clear(),
-          db.recurringPayments.clear(),
-          db.investments.clear(),
-          db.debts.clear(),
-        ]);
-        alert("All data has been cleared.");
-      } catch (error) {
-        console.error("Failed to clear data", error);
-        alert("Failed to clear data.");
-      }
+      await fetchApi('/api/auth/profile.php', {
+        method: 'POST',
+        body: JSON.stringify({ name: profileName })
+      });
+      updateSettings({ profile: { ...settings.profile, name: profileName } });
+      await refreshSession(); // Revalidate auth session
+    } catch (err) {
+      console.error("Failed to save profile", err);
+      alert("Failed to update profile name.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -118,56 +74,26 @@ export default function SettingsPage() {
 
           {/* Account & Data */}
           <section className="flex flex-col gap-6">
-            <h2 className="text-xl font-medium text-ink pb-2 border-b border-border">Account & Data</h2>
+            <h2 className="text-xl font-medium text-ink pb-2 border-b border-border">Account Profile</h2>
             
             <div className="flex flex-col gap-3">
               <Label htmlFor="name" className="text-ink">Display Name</Label>
-              <Input 
-                id="name"
-                value={settings?.profile?.name || ''} 
-                onChange={(e) => updateSettings({ profile: { ...settings.profile, name: e.target.value } })}
-                className="bg-canvas border-border text-ink max-w-sm"
-              />
-              <p className="text-sm text-ink-muted">Mainly used for personalized greetings.</p>
-            </div>
-
-            <div className="flex flex-col gap-4 bg-surface-card p-5 rounded-2xl border border-border/50">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-medium text-ink">Export Data</h3>
-                  <p className="text-sm text-ink-muted">Download a backup of all your local data.</p>
-                </div>
-                <Button variant="outline" size="sm" onClick={handleExport} className="border-border hover:bg-canvas">
-                  <Download className="w-4 h-4 mr-2" /> Export JSON
-                </Button>
-              </div>
-
-              <div className="flex items-center justify-between border-t border-border pt-4">
-                <div>
-                  <h3 className="font-medium text-ink">Import Data</h3>
-                  <p className="text-sm text-ink-muted">Restore data from a backup file.</p>
-                </div>
-                <input 
-                  type="file" 
-                  accept=".json" 
-                  className="hidden" 
-                  ref={fileInputRef} 
-                  onChange={handleImport} 
+              <div className="flex gap-2 max-w-sm">
+                <Input 
+                  id="name"
+                  value={profileName} 
+                  onChange={(e) => setProfileName(e.target.value)}
+                  className="bg-canvas border-border text-ink"
                 />
-                <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="border-border hover:bg-canvas">
-                  <Upload className="w-4 h-4 mr-2" /> Import JSON
+                <Button 
+                  onClick={handleSaveProfile} 
+                  disabled={isSaving || profileName === user?.name}
+                  className="bg-accent-blue text-white hover:bg-accent-blue/90"
+                >
+                  Save
                 </Button>
               </div>
-            </div>
-
-            <div>
-              <Button 
-                variant="outline" 
-                onClick={handleClearData} 
-                className="w-full text-accent-coral border-accent-coral/20 hover:bg-accent-coral/10 hover:text-accent-coral"
-              >
-                <Trash2 className="w-4 h-4 mr-2" /> Clear All App Data
-              </Button>
+              <p className="text-sm text-ink-muted">Mainly used for personalized greetings.</p>
             </div>
           </section>
 
@@ -181,10 +107,10 @@ export default function SettingsPage() {
               <div className="mt-4 pt-4 border-t border-border">
                 <p className="text-sm text-ink font-medium mb-2">Recent Changes:</p>
                 <ul className="list-disc list-inside text-sm text-ink-muted space-y-1">
-                  <li>Added local-first Dexie DB persistence.</li>
-                  <li>Implemented drag-and-drop Bento Grid.</li>
-                  <li>Introduced Pomodoro, Finance, and Habit tracking.</li>
-                  <li>Added floating sidebar navigation.</li>
+                  <li>Migrated completely to MySQL single-source of truth.</li>
+                  <li>Removed old local browser storage.</li>
+                  <li>Improved multi-device synchronization.</li>
+                  <li>Enhanced Pomodoro and Finance sections.</li>
                 </ul>
               </div>
             </div>

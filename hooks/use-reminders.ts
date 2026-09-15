@@ -1,18 +1,19 @@
 "use client";
 
 import { useEffect } from "react";
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/lib/db";
+import useSWR, { mutate } from "swr";
+import { fetcher, fetchApi } from "@/lib/api";
 
 export function useReminders() {
-  const reminders = useLiveQuery(() => db.reminders.toArray());
+  const { data } = useSWR('/api/reminders/reminders.php', fetcher);
+  const reminders = data?.reminders;
 
   useEffect(() => {
     if (!reminders) return;
 
     const interval = setInterval(() => {
       const now = new Date();
-      reminders.forEach((reminder) => {
+      reminders.forEach(async (reminder: any) => {
         const fireAt = new Date(reminder.fireAt);
         if (now >= fireAt) {
           // Fire notification
@@ -21,8 +22,16 @@ export function useReminders() {
               body: reminder.title,
             });
           }
-          // Remove from db after firing
-          db.reminders.delete(reminder.id);
+          // Remove from db after firing (or mark completed)
+          try {
+            await fetchApi('/api/reminders/delete.php', {
+              method: 'POST',
+              body: JSON.stringify({ id: reminder.id })
+            });
+            mutate('/api/reminders/reminders.php');
+          } catch (e) {
+            console.error("Failed to delete triggered reminder", e);
+          }
         }
       });
     }, 10000); // Check every 10 seconds

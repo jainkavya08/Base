@@ -161,5 +161,135 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
     exit;
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+    $input = json_decode(file_get_contents('php://input'), true);
+    
+    $id = $input['id'] ?? null;
+    $type = $input['type'] ?? '';
+    $amount = $input['amount'] ?? null;
+    $category_name = $input['category'] ?? '';
+    $account_id = $input['accountId'] ?? '';
+    $date = $input['date'] ?? '';
+    $title = $input['title'] ?? '';
+    $notes = $input['notes'] ?? '';
+    
+    if (!$id) {
+        http_response_code(400);
+        echo json_encode(["success" => false, "error" => "Missing transaction id"]);
+        exit;
+    }
+
+    try {
+        $pdo->beginTransaction();
+
+        // Fetch old transaction to revert balance
+        $stmt = $pdo->prepare("SELECT type, amount, account_id FROM transactions WHERE id = :id AND user_id = :user_id LIMIT 1");
+        $stmt->execute(['id' => $id, 'user_id' => $user_id]);
+        $oldTx = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$oldTx) {
+            $pdo->rollBack();
+            http_response_code(404);
+            echo json_encode(["success" => false, "error" => "Transaction not found"]);
+            exit;
+        }
+
+        // 1. Revert old balance
+        $oldBalanceChange = ($oldTx['type'] === 'income') ? -$oldTx['amount'] : $oldTx['amount'];
+        $stmt = $pdo->prepare("UPDATE bank_accounts SET opening_balance = opening_balance + :change WHERE id = :account_id AND user_id = :user_id");
+        $stmt->execute([
+            'change' => $oldBalanceChange,
+            'account_id' => $oldTx['account_id'],
+            'user_id' => $user_id
+        ]);
+
+        // 2. Resolve new category if provided
+        $category_id = null;
+        if (!empty($category_name)) {
+            $stmt = $pdo->prepare("SELECT id FROM finance_categories WHERE user_id = :user_id AND name = :name LIMIT 1");
+            $stmt->execute(['user_id' => $user_id, 'name' => $category_name]);
+            $category = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($category) {
+                $category_id = $category['id'];
+            } else {
+                $category_id = uniqid();
+                $stmt = $pdo->prepare("INSERT INTO finance_categories (id, user_id, name, type) VALUES (:id, :user_id, :name, :type)");
+                // Use new type or default to expense
+                $catType = empty($type) ? 'expense' : $type;
+                $stmt->execute(['id' => $category_id, 'user_id' => $user_id, 'name' => $category_name, 'type' => $catType]);
+            }
+        }
+
+        // 3. Update transaction
+        $updateFields = [];
+        $params = ['id' => $id, 'user_id' => $user_id];
+
+        if (!empty($type)) {
+            $updateFields[] = "type = :type";
+            $params['type'] = $type;
+        } else {
+            $type = $oldTx['type']; // For balance calculation later
+        }
+
+        if ($amount !== null) {
+            $updateFields[] = "amount = :amount";
+            $params['amount'] = $amount;
+        } else {
+            $amount = $oldTx['amount'];
+        }
+
+        if (!empty($account_id)) {
+            $updateFields[] = "account_id = :account_id";
+            $params['account_id'] = $account_id;
+        } else {
+            $account_id = $oldTx['account_id'];
+        }
+
+        if ($category_id !== null) {
+            $updateFields[] = "category_id = :category_id";
+            $params['category_id'] = $category_id;
+        }
+
+        if (!empty($date)) {
+            $updateFields[] = "date = :date";
+            $params['date'] = date('Y-m-d', strtotime($date));
+        }
+
+        if (isset($input['title'])) { // allow empty title
+            $updateFields[] = "title = :title";
+            $params['title'] = $input['title'];
+        }
+
+        if (array_key_exists('notes', $input)) {
+            $updateFields[] = "notes = :notes";
+            $params['notes'] = $input['notes'];
+        }
+
+        if (count($updateFields) > 0) {
+            $sql = "UPDATE transactions SET " . implode(", ", $updateFields) . " WHERE id = :id AND user_id = :user_id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($params);
+        }
+
+        // 4. Apply new balance
+        $newBalanceChange = ($type === 'income') ? $amount : -$amount;
+        $stmt = $pdo->prepare("UPDATE bank_accounts SET opening_balance = opening_balance + :change WHERE id = :account_id AND user_id = :user_id");
+        $stmt->execute([
+            'change' => $newBalanceChange,
+            'account_id' => $account_id,
+            'user_id' => $user_id
+        ]);
+
+        $pdo->commit();
+        echo json_encode(["success" => true]);
+    } catch (PDOException $e) {
+        $pdo->rollBack();
+        http_response_code(500);
+        echo json_encode(["success" => false, "error" => "Database error"]);
+    }
+    exit;
+}
+
 http_response_code(405);
 echo json_encode(["success" => false, "error" => "Method not allowed"]);

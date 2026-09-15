@@ -1,7 +1,6 @@
 "use client";
 
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/lib/db";
+
 import { Wallet, TrendingUp, TrendingDown, ArrowRightLeft, Search, Filter } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/currency";
 import { format, parseISO } from "date-fns";
@@ -9,8 +8,15 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import useSWR from "swr";
-import { fetcher } from "@/lib/api";
+import useSWR, { mutate } from "swr";
+import { fetcher, fetchApi } from "@/lib/api";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+import { EditTransactionDialog } from "../dialogs/edit-transaction-dialog";
 
 export function TransactionsTab() {
   const { data: txData } = useSWR('/api/finance/transactions.php', fetcher);
@@ -24,8 +30,21 @@ export function TransactionsTab() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<"all" | "income" | "expense" | "transfer">("all");
   const [filterAccount, setFilterAccount] = useState<string>("all");
+  const [transactionToEdit, setTransactionToEdit] = useState<any>(null);
 
   if (!transactions || !accounts || !transfers) return null;
+
+  const handleDeleteTransaction = async (id: string) => {
+    if (confirm("Are you sure you want to delete this transaction? This will update your account balance accordingly.")) {
+      try {
+        await fetchApi(`/api/finance/transactions.php?id=${id}`, { method: 'DELETE' });
+        mutate('/api/finance/transactions.php');
+        mutate('/api/finance/accounts.php');
+      } catch (err) {
+        alert("Failed to delete transaction. Please try again.");
+      }
+    }
+  };
 
   // Combine transactions and transfers for the list view
   const allActivity = [
@@ -174,16 +193,46 @@ export function TransactionsTab() {
                   </div>
                 </div>
                 
-                <div className="flex flex-col sm:items-end pl-14 sm:pl-0">
-                  <span className={cn("text-base md:text-lg font-medium", 
-                    tx.type === 'income' ? 'text-accent-green' : 
-                    tx.type === 'expense' ? 'text-ink' : 
-                    'text-ink-muted'
-                  )}>
-                    {tx.type === 'income' ? '+' : tx.type === 'expense' ? '-' : ''}{formatCurrency(tx.amount)}
-                  </span>
-                  {tx.notes && (
-                    <span className="text-xs md:text-sm text-ink-muted mt-1 max-w-[200px] truncate">{tx.notes}</span>
+                <div className="flex items-center gap-4 pl-14 sm:pl-0">
+                  <div className="flex flex-col sm:items-end">
+                    <span className={cn("text-base md:text-lg font-medium", 
+                      tx.type === 'income' ? 'text-accent-green' : 
+                      tx.type === 'expense' ? 'text-ink' : 
+                      'text-ink-muted'
+                    )}>
+                      {tx.type === 'income' ? '+' : tx.type === 'expense' ? '-' : ''}{formatCurrency(tx.amount)}
+                    </span>
+                    {tx.notes && (
+                      <span className="text-xs md:text-sm text-ink-muted mt-1 max-w-[200px] truncate">{tx.notes}</span>
+                    )}
+                  </div>
+                  {!tx.isTransfer && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger>
+                        <button className="p-2 -mr-2 rounded-lg hover:bg-canvas text-ink-muted hover:text-ink transition-colors opacity-0 group-hover:opacity-100 sm:opacity-100">
+                          <span className="sr-only">Open menu</span>
+                          <div className="w-5 h-5 flex items-center justify-center">
+                            <span className="w-1 h-1 bg-current rounded-full mx-[1px]" />
+                            <span className="w-1 h-1 bg-current rounded-full mx-[1px]" />
+                            <span className="w-1 h-1 bg-current rounded-full mx-[1px]" />
+                          </div>
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-40 bg-surface-card border-border">
+                        <DropdownMenuItem 
+                          onClick={() => setTransactionToEdit(tx)}
+                          className="cursor-pointer text-ink hover:text-ink hover:bg-canvas focus:bg-canvas"
+                        >
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => handleDeleteTransaction(tx.id)}
+                          className="cursor-pointer text-accent-coral hover:text-accent-coral hover:bg-accent-coral/10 focus:bg-accent-coral/10 focus:text-accent-coral"
+                        >
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   )}
                 </div>
               </div>
@@ -201,6 +250,16 @@ export function TransactionsTab() {
           </div>
         )}
       </div>
+
+      {transactionToEdit && (
+        <EditTransactionDialog
+          transaction={transactionToEdit}
+          open={!!transactionToEdit}
+          onOpenChange={(isOpen) => {
+            if (!isOpen) setTransactionToEdit(null);
+          }}
+        />
+      )}
     </div>
   );
 }

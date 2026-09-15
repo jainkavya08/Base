@@ -1,20 +1,24 @@
 "use client";
 
 import { useMemo } from "react";
+import useSWR from "swr";
+import { fetcher } from "@/lib/api";
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/lib/db";
 
 export function TaskProductivityChart({ sessions }: { sessions: any[] }) {
   
-  const todos = useLiveQuery(() => db.todos.toArray()) || [];
+  const { data } = useSWR('/api/todos/tasks.php', fetcher);
+  const todos = data?.tasks || [];
 
-  const data = useMemo(() => {
+  const chartData = useMemo(() => {
     const taskTime: Record<string, number> = {};
     
     sessions.forEach(s => {
-      if (s.todoId) {
-        taskTime[s.todoId] = (taskTime[s.todoId] || 0) + s.durationMinutes;
+      // API uses task_id, previous Dexie model might have used todoId or task_id.
+      // We check for both for safety during migration
+      const id = s.task_id || s.todoId;
+      if (id) {
+        taskTime[id] = (taskTime[id] || 0) + s.durationMinutes;
       } else {
         taskTime['unassigned'] = (taskTime['unassigned'] || 0) + s.durationMinutes;
       }
@@ -23,7 +27,7 @@ export function TaskProductivityChart({ sessions }: { sessions: any[] }) {
     const result = Object.keys(taskTime).map(id => {
       let title = "Unassigned";
       if (id !== 'unassigned') {
-        const todo = todos.find(t => t.id === id);
+        const todo = todos.find((t: any) => t.id === id);
         if (todo) title = todo.title;
       }
       return {
@@ -41,13 +45,13 @@ export function TaskProductivityChart({ sessions }: { sessions: any[] }) {
       <h3 className="text-lg font-medium text-ink mb-6">Focus By Task</h3>
       
       <div className="h-[250px] w-full">
-        {data.length === 0 ? (
+        {chartData.length === 0 ? (
           <div className="w-full h-full flex items-center justify-center text-ink-muted text-sm">
             Associate sessions with tasks to see this chart.
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data} layout="vertical" margin={{ top: 0, right: 10, left: 0, bottom: 0 }}>
+            <BarChart data={chartData} layout="vertical" margin={{ top: 0, right: 10, left: 0, bottom: 0 }}>
               <XAxis 
                 type="number"
                 axisLine={false}

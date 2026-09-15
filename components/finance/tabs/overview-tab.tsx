@@ -1,6 +1,5 @@
 "use client";
 
-import { useLiveQuery } from "dexie-react-hooks";
 import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval, eachDayOfInterval } from "date-fns";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { Wallet, TrendingUp, TrendingDown, PiggyBank } from "lucide-react";

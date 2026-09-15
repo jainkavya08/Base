@@ -1,19 +1,22 @@
 "use client";
 
-import { useState } from "react";
-import { useLiveQuery } from "dexie-react-hooks";
+import useSWR from "swr";
 import { CheckCircle, Circle, Plus, ListTodo } from "lucide-react";
-import { db } from "@/lib/db";
+import { fetcher } from "@/lib/api";
 import { useAppStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 export function CurrentTask() {
-  const todos = useLiveQuery(() => db.todos.filter(t => !t.completed).toArray()) || [];
+  const { data } = useSWR('/api/todos/tasks.php', fetcher);
+  const todos = data?.tasks || [];
+  
+  const incompleteTodos = todos.filter((t: any) => !t.completed);
+  
   const { pomodoro, setPomodoroState } = useAppStore();
   const { currentTodoId } = pomodoro;
 
   // Let's just show top 4 incomplete todos
-  const displayTodos = todos.slice(0, 4);
+  const displayTodos = incompleteTodos.slice(0, 4);
 
   return (
     <div className="bg-surface-card rounded-[32px] p-6 lg:p-8 shadow-sm border border-border/50">
@@ -31,7 +34,7 @@ export function CurrentTask() {
         {displayTodos.length === 0 ? (
           <p className="text-sm text-ink-muted">No pending tasks. You're all caught up!</p>
         ) : (
-          displayTodos.map(todo => {
+          displayTodos.map((todo: any) => {
             const isSelected = currentTodoId === todo.id;
             return (
               <div 

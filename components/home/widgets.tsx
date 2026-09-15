@@ -1,9 +1,7 @@
 "use client";
 
 import useSWR from "swr";
-import { useLiveQuery } from "dexie-react-hooks";
 import { format, isSameDay, startOfMonth, endOfMonth, isWithinInterval, isPast, parseISO } from "date-fns";
-import { db } from "@/lib/db";
 import { fetcher } from "@/lib/api";
 import { useAppStore } from "@/lib/store";
 import { CheckCircle, Timer, ListTodo, Bell, Wallet, Play, Pause } from "lucide-react";
@@ -102,7 +100,8 @@ export function WidgetPomodoro({ size }: { size: 'small' | 'large' }) {
 }
 
 export function WidgetTodos({ size }: { size: 'small' | 'large' }) {
-  const todos = useLiveQuery(() => db.todos.toArray());
+  const { data } = useSWR('/api/todos/tasks.php', fetcher);
+  const todos = data?.tasks;
   
   if (!todos) return null;
   const incompleteTodos = todos.filter((t: any) => !t.completed);
@@ -178,7 +177,8 @@ export function WidgetReminders({ size }: { size: 'small' | 'large' }) {
 }
 
 export function WidgetFinance({ size }: { size: 'small' | 'large' }) {
-  const transactions = useLiveQuery(() => db.financeTransactions.toArray());
+  const { data } = useSWR('/api/finance/transactions.php', fetcher);
+  const transactions = data?.transactions;
   
   if (!transactions) return null;
 
@@ -190,8 +190,8 @@ export function WidgetFinance({ size }: { size: 'small' | 'large' }) {
     return isWithinInterval(txDate, { start: currentMonthStart, end: currentMonthEnd });
   });
 
-  const income = currentMonthTx.filter((t: any) => t.type === 'income').reduce((acc: any, t: any) => acc + t.amount, 0);
-  const expense = currentMonthTx.filter((t: any) => t.type === 'expense').reduce((acc: any, t: any) => acc + t.amount, 0);
+  const income = currentMonthTx.filter((t: any) => t.type === 'income').reduce((acc: any, t: any) => acc + parseFloat(t.amount), 0);
+  const expense = currentMonthTx.filter((t: any) => t.type === 'expense').reduce((acc: any, t: any) => acc + parseFloat(t.amount), 0);
   const net = income - expense;
 
   return (

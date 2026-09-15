@@ -1,8 +1,7 @@
 "use client";
 
-import { useLiveQuery } from "dexie-react-hooks";
 import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval, subMonths, eachDayOfInterval } from "date-fns";
-import { db } from "@/lib/db";
+
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { ArrowDownRight, ArrowUpRight, Wallet } from "lucide-react";
 import useSWR from "swr";
