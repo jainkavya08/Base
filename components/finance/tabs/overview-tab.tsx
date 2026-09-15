@@ -2,17 +2,20 @@
 
 import { useLiveQuery } from "dexie-react-hooks";
 import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval, eachDayOfInterval } from "date-fns";
-import { db } from "@/lib/db";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { Wallet, TrendingUp, TrendingDown, PiggyBank } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/currency";
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import useSWR from "swr";
+import { fetcher } from "@/lib/api";
 
 export function OverviewTab() {
-  const transactions = useLiveQuery(() => db.financeTransactions.toArray());
-  const accounts = useLiveQuery(() => db.bankAccounts.toArray());
+  const { data: txData } = useSWR('/api/finance/transactions.php', fetcher);
+  const { data: accountsData } = useSWR('/api/finance/accounts.php', fetcher);
+  const transactions: any[] = txData?.transactions;
+  const accounts: any[] = accountsData?.accounts;
   
   const [balanceMode, setBalanceMode] = useState<"total" | "account">("total");
 

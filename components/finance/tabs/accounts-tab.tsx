@@ -1,7 +1,7 @@
 "use client";
 
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/lib/db";
+import useSWR, { mutate } from "swr";
+import { fetcher, fetchApi } from "@/lib/api";
 import { Wallet, Landmark, CreditCard, Coins, MoreHorizontal } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/currency";
 import { AddAccountDialog } from "../dialogs/add-account-dialog";
@@ -22,13 +22,18 @@ function AccountCard({ account, accountTx }: { account: any, accountTx: any[] })
     }
     
     if (confirm("Are you sure you want to delete this account? This action cannot be undone.")) {
-      await db.bankAccounts.delete(account.id);
+      await fetchApi(`/api/finance/accounts.php?id=${account.id}`, { method: 'DELETE' });
+      mutate('/api/finance/accounts.php');
       setMenuOpen(false);
     }
   };
 
   const handleDeactivate = async () => {
-    await db.bankAccounts.update(account.id, { isActive: !account.isActive });
+    await fetchApi('/api/finance/accounts.php', {
+      method: 'PUT',
+      body: JSON.stringify({ id: account.id, isActive: !account.isActive })
+    });
+    mutate('/api/finance/accounts.php');
     setMenuOpen(false);
   };
 
@@ -128,8 +133,11 @@ function AccountCard({ account, accountTx }: { account: any, accountTx: any[] })
 }
 
 export function AccountsTab() {
-  const accounts = useLiveQuery(() => db.bankAccounts.toArray());
-  const transactions = useLiveQuery(() => db.financeTransactions.toArray());
+  const { data: accountsData } = useSWR('/api/finance/accounts.php', fetcher);
+  const { data: txData } = useSWR('/api/finance/transactions.php', fetcher);
+  
+  const accounts: any[] = accountsData?.accounts;
+  const transactions: any[] = txData?.transactions;
 
   if (!accounts || !transactions) return null;
 

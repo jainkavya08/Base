@@ -1,17 +1,25 @@
 "use client";
 
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/lib/db";
-import { HandCoins, ArrowDownRight, ArrowUpRight, CheckCircle2, Clock } from "lucide-react";
+import useSWR, { mutate } from "swr";
+import { fetcher, fetchApi } from "@/lib/api";
+import { Landmark, ArrowUpRight, ArrowDownRight, BadgeDollarSign, ShieldAlert, Trash2, HandCoins, Clock } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/currency";
 import { format, parseISO } from "date-fns";
 import { AddDebtDialog } from "../dialogs/add-debt-dialog";
 import { Progress } from "@/components/ui/progress";
 
 export function DebtTab() {
-  const debts = useLiveQuery(() => db.debts.toArray());
+  const { data } = useSWR('/api/finance/debts.php', fetcher);
+  const debts: any[] = data?.debts;
 
   if (!debts) return null;
+
+  const handleDelete = async (id: string) => {
+    if (confirm("Are you sure you want to delete this debt record?")) {
+      await fetchApi(`/api/finance/debts.php?id=${id}`, { method: 'DELETE' });
+      mutate('/api/finance/debts.php');
+    }
+  };
 
   const owedByYou = debts.filter(d => d.type === 'owed_by_you' && d.status !== 'paid');
   const owedToYou = debts.filter(d => d.type === 'owed_to_you' && d.status !== 'paid');

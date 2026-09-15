@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { mutate } from "swr";
+import { fetchApi } from "@/lib/api";
 import { Plus, HandCoins } from "lucide-react";
-import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -51,28 +52,37 @@ export function AddDebtDialog() {
 
     const now = new Date().toISOString();
 
-    await db.debts.add({
-      id: crypto.randomUUID(),
-      type,
-      personOrOrganization,
-      title,
-      originalAmount: origAmt,
-      remainingAmount: remAmt,
-      dueDate: dueDate || undefined,
-      status: remAmt === 0 ? "paid" : "outstanding",
-      notes: notes || undefined,
-      createdAt: now,
-      updatedAt: now,
-    });
-    
-    setOpen(false);
-    // Reset form
-    setTitle("");
-    setPersonOrOrganization("");
-    setOriginalAmount("");
-    setRemainingAmount("");
-    setDueDate("");
-    setNotes("");
+    try {
+      await fetchApi('/api/finance/debts.php', {
+        method: 'POST',
+        body: JSON.stringify({
+          id: crypto.randomUUID(),
+          type,
+          personOrOrganization,
+          title,
+          originalAmount: origAmt,
+          remainingAmount: remAmt,
+          dueDate: dueDate || undefined,
+          status: remAmt === 0 ? "paid" : "outstanding",
+          notes: notes || undefined,
+          createdAt: now,
+          updatedAt: now,
+        }),
+      });
+
+      mutate('/api/finance/debts.php');
+      
+      setOpen(false);
+      // Reset form
+      setTitle("");
+      setPersonOrOrganization("");
+      setOriginalAmount("");
+      setRemainingAmount("");
+      setDueDate("");
+      setNotes("");
+    } catch (err) {
+      setError("Failed to add debt. Please try again.");
+    }
   };
 
   return (

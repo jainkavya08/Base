@@ -1,15 +1,23 @@
 "use client";
 
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/lib/db";
-import { TrendingUp, PieChart, TrendingDown, MoreHorizontal, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import useSWR, { mutate } from "swr";
+import { fetcher, fetchApi } from "@/lib/api";
+import { TrendingUp, LineChart, Shield, ArrowUpRight, ArrowDownRight, Trash2, PieChart, MoreHorizontal } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/currency";
 import { AddInvestmentDialog } from "../dialogs/add-investment-dialog";
 
 export function InvestmentsTab() {
-  const investments = useLiveQuery(() => db.investments.toArray());
+  const { data } = useSWR('/api/finance/investments.php', fetcher);
+  const investments: any[] = data?.investments;
 
   if (!investments) return null;
+
+  const handleDelete = async (id: string) => {
+    if (confirm("Are you sure you want to delete this investment?")) {
+      await fetchApi(`/api/finance/investments.php?id=${id}`, { method: 'DELETE' });
+      mutate('/api/finance/investments.php');
+    }
+  };
 
   const totalInvested = investments.reduce((acc, curr) => acc + curr.investedAmount, 0);
   const totalCurrent = investments.reduce((acc, curr) => acc + curr.currentValue, 0);

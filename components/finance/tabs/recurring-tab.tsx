@@ -1,17 +1,27 @@
 "use client";
 
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/lib/db";
-import { Repeat, Calendar, CheckCircle2, Clock } from "lucide-react";
+import useSWR, { mutate } from "swr";
+import { fetcher, fetchApi } from "@/lib/api";
+import { format, isPast, parseISO } from "date-fns";
+import { Repeat, Calendar, CreditCard, Trash2, Clock } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/currency";
-import { format, parseISO } from "date-fns";
 import { AddRecurringDialog } from "../dialogs/add-recurring-dialog";
 
 export function RecurringTab() {
-  const recurring = useLiveQuery(() => db.recurringPayments.toArray());
-  const accounts = useLiveQuery(() => db.bankAccounts.toArray());
+  const { data: recData } = useSWR('/api/finance/recurring.php', fetcher);
+  const { data: accData } = useSWR('/api/finance/accounts.php', fetcher);
+  
+  const recurring: any[] = recData?.recurring;
+  const accounts: any[] = accData?.accounts;
 
   if (!recurring || !accounts) return null;
+
+  const handleDelete = async (id: string) => {
+    if (confirm("Are you sure you want to delete this recurring payment?")) {
+      await fetchApi(`/api/finance/recurring.php?id=${id}`, { method: 'DELETE' });
+      mutate('/api/finance/recurring.php');
+    }
+  };
 
   const activeRecurring = recurring.filter(r => r.isActive);
   const totalMonthly = activeRecurring.reduce((acc, curr) => {

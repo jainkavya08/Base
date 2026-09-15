@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { mutate } from "swr";
+import { fetchApi } from "@/lib/api";
 import { Plus, TrendingUp } from "lucide-react";
-import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -44,33 +45,36 @@ export function AddInvestmentDialog() {
     const invAmount = parseFloat(investedAmount);
     const currVal = parseFloat(currentValue);
     
-    if (isNaN(invAmount) || isNaN(currVal)) {
+    const curValue = parseFloat(currentValue);
+    
+    if (isNaN(invAmount) || isNaN(curValue)) {
       setError("Please enter valid amounts.");
       return;
     }
 
     const now = new Date().toISOString();
+    try {
+      await fetchApi('/api/finance/investments.php', {
+        method: 'POST',
+        body: JSON.stringify({
+          id: crypto.randomUUID(),
+          name,
+          type,
+          investedAmount: invAmount,
+          currentValue: curValue,
+          createdAt: new Date().toISOString()
+        })
+      });
 
-    await db.investments.add({
-      id: crypto.randomUUID(),
-      name,
-      type,
-      platform: platform || undefined,
-      investedAmount: invAmount,
-      currentValue: currVal,
-      purchaseDate,
-      notes: notes || undefined,
-      createdAt: now,
-      updatedAt: now,
-    });
-    
-    setOpen(false);
-    // Reset form
-    setName("");
-    setInvestedAmount("");
-    setCurrentValue("");
-    setPlatform("");
-    setNotes("");
+      mutate('/api/finance/investments.php');
+      
+      setOpen(false);
+      setName("");
+      setInvestedAmount("");
+      setCurrentValue("");
+    } catch (err) {
+      setError("Failed to add investment. Please try again.");
+    }
   };
 
   return (

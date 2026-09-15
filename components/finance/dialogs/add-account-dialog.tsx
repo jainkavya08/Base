@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { mutate } from "swr";
+import { fetchApi } from "@/lib/api";
 import { Plus, Landmark, Upload, X } from "lucide-react";
-import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -56,30 +57,38 @@ export function AddAccountDialog() {
     
     const now = new Date().toISOString();
     
-    await db.bankAccounts.add({
-      id: crypto.randomUUID(),
-      name,
-      bankName,
-      accountType,
-      accountNumberLast4: last4 || undefined,
-      balance: parseFloat(balance),
-      currency: "INR",
-      color,
-      logo: logoBase64 || undefined,
-      isActive: true,
-      createdAt: now,
-      updatedAt: now,
-    });
-    
-    setOpen(false);
-    // Reset form
-    setName("");
-    setBankName("");
-    setAccountType("Savings Account");
-    setLast4("");
-    setBalance("");
-    setColor("#f5c542");
-    setLogoBase64("");
+    try {
+      await fetchApi('/api/finance/accounts.php', {
+        method: 'POST',
+        body: JSON.stringify({
+          id: crypto.randomUUID(),
+          name,
+          bankName,
+          accountType,
+          accountNumberLast4: last4 || undefined,
+          balance: parseFloat(balance),
+          currency: "INR",
+          color,
+          logo: logoBase64 || undefined,
+          isActive: true,
+          createdAt: now,
+          updatedAt: now,
+        })
+      });
+      mutate('/api/finance/accounts.php');
+      
+      setOpen(false);
+      // Reset form
+      setName("");
+      setBankName("");
+      setAccountType("Savings Account");
+      setLast4("");
+      setBalance("");
+      setColor("#f5c542");
+      setLogoBase64("");
+    } catch (err) {
+      alert("Failed to add account. Please try again.");
+    }
   };
 
   return (

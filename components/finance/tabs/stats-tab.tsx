@@ -1,14 +1,15 @@
 "use client";
 
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/lib/db";
+import useSWR from "swr";
+import { fetcher } from "@/lib/api";
 import { formatCurrency } from "@/lib/utils/currency";
 import { format, parseISO, subMonths, isWithinInterval, startOfMonth, endOfMonth } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell, Legend } from "recharts";
 import { PieChart as RechartsPieChart, Pie, Cell as PieCell } from "recharts";
 
 export function StatsTab() {
-  const transactions = useLiveQuery(() => db.financeTransactions.toArray());
+  const { data } = useSWR('/api/finance/transactions.php', fetcher);
+  const transactions: any[] = data?.transactions;
 
   if (!transactions) return null;
 

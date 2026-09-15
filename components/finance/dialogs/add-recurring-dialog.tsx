@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import useSWR, { mutate } from "swr";
+import { fetcher, fetchApi } from "@/lib/api";
 import { Plus, Repeat } from "lucide-react";
-import { db } from "@/lib/db";
-import { useLiveQuery } from "dexie-react-hooks";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -34,11 +34,12 @@ export function AddRecurringDialog() {
   const [notes, setNotes] = useState("");
   const [error, setError] = useState("");
 
-  const accounts = useLiveQuery(() => db.bankAccounts.toArray());
+  const { data } = useSWR('/api/finance/accounts.php', fetcher);
+  const accounts = data?.accounts;
 
   // Default to first active account if none selected
   if (accounts && accounts.length > 0 && !accountId) {
-    const defaultAcc = accounts.find(a => a.isActive);
+    const defaultAcc = accounts.find((a: any) => a.isActive);
     if (defaultAcc) setAccountId(defaultAcc.id);
   }
 
@@ -58,27 +59,31 @@ export function AddRecurringDialog() {
     }
 
     const now = new Date().toISOString();
+    try {
+      await fetchApi('/api/finance/recurring.php', {
+        method: 'POST',
+        body: JSON.stringify({
+          id: crypto.randomUUID(),
+          name,
+          amount: parseFloat(amount),
+          accountId,
+          categoryId,
+          frequency,
+          startDate: new Date(startDate).toISOString(),
+          nextDueDate: new Date(startDate).toISOString(),
+          isActive: true,
+          createdAt: new Date().toISOString()
+        })
+      });
 
-    await db.recurringPayments.add({
-      id: crypto.randomUUID(),
-      name,
-      accountId,
-      amount: subAmount,
-      categoryId,
-      frequency,
-      startDate,
-      nextDueDate: startDate, // Set next due date to start date initially
-      isActive: true,
-      notes: notes || undefined,
-      createdAt: now,
-      updatedAt: now,
-    });
-    
-    setOpen(false);
-    // Reset form
-    setName("");
-    setAmount("");
-    setCategoryId("Subscriptions");
+      mutate('/api/finance/recurring.php');
+      
+      setOpen(false);
+      setName("");
+      setAmount("");
+    } catch (err) {
+      setError("Failed to add recurring payment. Please try again.");
+    }
     setNotes("");
   };
 
@@ -150,7 +155,7 @@ export function AddRecurringDialog() {
                 <SelectValue placeholder="Select account" />
               </SelectTrigger>
               <SelectContent>
-                {accounts?.filter(a => a.isActive).map(acc => (
+                {accounts?.filter((a: any) => a.isActive).map((acc: any) => (
                   <SelectItem key={acc.id} value={acc.id}>
                     {acc.name} ({formatCurrency(acc.balance)})
                   </SelectItem>

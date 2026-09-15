@@ -9,11 +9,17 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import useSWR from "swr";
+import { fetcher } from "@/lib/api";
 
 export function TransactionsTab() {
-  const transactions = useLiveQuery(() => db.financeTransactions.toArray());
-  const accounts = useLiveQuery(() => db.bankAccounts.toArray());
-  const transfers = useLiveQuery(() => db.transfers.toArray());
+  const { data: txData } = useSWR('/api/finance/transactions.php', fetcher);
+  const { data: accountsData } = useSWR('/api/finance/accounts.php', fetcher);
+  const { data: transfersData } = useSWR('/api/finance/transfers.php', fetcher);
+  
+  const transactions: any[] = txData?.transactions;
+  const accounts: any[] = accountsData?.accounts;
+  const transfers: any[] = transfersData?.transfers;
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<"all" | "income" | "expense" | "transfer">("all");

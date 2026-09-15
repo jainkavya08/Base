@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import useSWR, { mutate } from "swr";
+import { fetcher, fetchApi } from "@/lib/api";
 import { ArrowRightLeft } from "lucide-react";
-import { db } from "@/lib/db";
-import { useLiveQuery } from "dexie-react-hooks";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -32,7 +32,8 @@ export function AddTransferDialog() {
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
 
-  const accounts = useLiveQuery(() => db.bankAccounts.toArray());
+  const { data } = useSWR('/api/finance/accounts.php', fetcher);
+  const accounts = data?.accounts;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,44 +55,32 @@ export function AddTransferDialog() {
       return;
     }
 
-    const fromAccount = await db.bankAccounts.get(fromAccountId);
-    const toAccount = await db.bankAccounts.get(toAccountId);
+    try {
+      await fetchApi('/api/finance/transfers.php', {
+        method: 'POST',
+        body: JSON.stringify({
+          id: crypto.randomUUID(),
+          fromAccountId,
+          toAccountId,
+          amount: transferAmount,
+          date: new Date(date).toISOString(),
+          description: description || undefined,
+          createdAt: new Date().toISOString()
+        })
+      });
 
-    if (!fromAccount || !toAccount) {
-      setError("Invalid account selected.");
-      return;
+      // Update UI state
+      mutate('/api/finance/transfers.php');
+      mutate('/api/finance/accounts.php');
+      mutate('/api/finance/transactions.php');
+      
+      setOpen(false);
+      setAmount("");
+      setDescription("");
+    } catch (error) {
+      console.error("Failed to process transfer:", error);
+      setError("Failed to add transfer. Please try again.");
     }
-
-    const now = new Date().toISOString();
-
-    await db.transaction('rw', db.transfers, db.bankAccounts, async () => {
-      // 1. Create transfer record
-      await db.transfers.add({
-        id: crypto.randomUUID(),
-        fromAccountId,
-        toAccountId,
-        amount: transferAmount,
-        date,
-        description: description || undefined,
-        createdAt: now,
-        updatedAt: now,
-      });
-
-      // 2. Update balances
-      await db.bankAccounts.update(fromAccountId, {
-        balance: fromAccount.balance - transferAmount,
-        updatedAt: now
-      });
-
-      await db.bankAccounts.update(toAccountId, {
-        balance: toAccount.balance + transferAmount,
-        updatedAt: now
-      });
-    });
-
-    setOpen(false);
-    setAmount("");
-    setDescription("");
   };
 
   if (!accounts || accounts.length < 2) {
@@ -126,7 +115,7 @@ export function AddTransferDialog() {
                 <SelectValue placeholder="Select origin account" />
               </SelectTrigger>
               <SelectContent>
-                {accounts.filter(a => a.isActive).map(acc => (
+                {accounts.filter((a: any) => a.isActive).map((acc: any) => (
                   <SelectItem key={acc.id} value={acc.id}>
                     {acc.name} ({formatCurrency(acc.balance)})
                   </SelectItem>
@@ -142,7 +131,7 @@ export function AddTransferDialog() {
                 <SelectValue placeholder="Select destination account" />
               </SelectTrigger>
               <SelectContent>
-                {accounts.filter(a => a.isActive).map(acc => (
+                {accounts.filter((a: any) => a.isActive).map((acc: any) => (
                   <SelectItem key={acc.id} value={acc.id}>
                     {acc.name} ({formatCurrency(acc.balance)})
                   </SelectItem>

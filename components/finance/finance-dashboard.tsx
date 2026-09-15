@@ -5,9 +5,12 @@ import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval, subMonths
 import { db } from "@/lib/db";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { ArrowDownRight, ArrowUpRight, Wallet } from "lucide-react";
+import useSWR from "swr";
+import { fetcher } from "@/lib/api";
 
 export function FinanceDashboard() {
-  const transactions = useLiveQuery(() => db.financeTransactions.toArray());
+  const { data } = useSWR('/api/finance/transactions.php', fetcher);
+  const transactions: any[] = data?.transactions;
 
   if (!transactions) return null;
 

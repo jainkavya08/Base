@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { mutate } from "swr";
+import { fetchApi } from "@/lib/api";
 import { Landmark, Upload, X } from "lucide-react";
 import { db, BankAccount } from "@/lib/db";
 import { Button } from "@/components/ui/button";
@@ -72,18 +74,26 @@ export function EditAccountDialog({
     e.preventDefault();
     if (!name || !bankName || !balance) return;
     
-    await db.bankAccounts.update(account.id, {
-      name,
-      bankName,
-      accountType,
-      accountNumberLast4: last4 || undefined,
-      balance: parseFloat(balance),
-      color,
-      logo: logoBase64 || undefined,
-      updatedAt: new Date().toISOString(),
-    });
-    
-    onOpenChange(false);
+    try {
+      await fetchApi('/api/finance/accounts.php', {
+        method: 'PUT',
+        body: JSON.stringify({
+          id: account.id,
+          name,
+          bankName,
+          accountType,
+          accountNumberLast4: last4 || undefined,
+          balance: parseFloat(balance),
+          color,
+          logo: logoBase64 || undefined,
+          updatedAt: new Date().toISOString(),
+        })
+      });
+      mutate('/api/finance/accounts.php');
+      onOpenChange(false);
+    } catch (err) {
+      alert("Failed to update account. Please try again.");
+    }
   };
 
   return (

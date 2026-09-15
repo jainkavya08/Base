@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import useSWR, { mutate } from "swr";
+import { fetcher, fetchApi } from "@/lib/api";
 import { Plus } from "lucide-react";
-import { db } from "@/lib/db";
-import { useLiveQuery } from "dexie-react-hooks";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -33,11 +33,12 @@ export function AddTransactionDialog() {
   const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [error, setError] = useState("");
 
-  const accounts = useLiveQuery(() => db.bankAccounts.toArray());
+  const { data } = useSWR('/api/finance/accounts.php', fetcher);
+  const accounts = data?.accounts;
 
   // Default to first active account if none selected
   if (accounts && accounts.length > 0 && !accountId) {
-    const defaultAcc = accounts.find(a => a.isActive);
+    const defaultAcc = accounts.find((a: any) => a.isActive);
     if (defaultAcc) setAccountId(defaultAcc.id);
   }
 
@@ -56,46 +57,34 @@ export function AddTransactionDialog() {
       return;
     }
 
-    const account = await db.bankAccounts.get(accountId);
-    if (!account) {
-      setError("Invalid account selected.");
-      return;
+    try {
+      await fetchApi('/api/finance/transactions.php', {
+        method: 'POST',
+        body: JSON.stringify({
+          id: crypto.randomUUID(),
+          type,
+          amount: txAmount,
+          category,
+          accountId,
+          date: new Date(date).toISOString(),
+          title,
+          createdAt: new Date().toISOString()
+        })
+      });
+
+      // Update UI state
+      mutate('/api/finance/transactions.php');
+      mutate('/api/finance/accounts.php');
+      
+      setOpen(false);
+      setAmount("");
+      setTitle("");
+      setCategory("");
+      setNote("");
+    } catch (error) {
+      console.error("Failed to add transaction:", error);
+      setError("Failed to add transaction. Please try again.");
     }
-
-    const now = new Date().toISOString();
-
-    await db.transaction('rw', db.financeTransactions, db.bankAccounts, async () => {
-      // 1. Create transaction record
-      await db.financeTransactions.add({
-        id: crypto.randomUUID(),
-        accountId,
-        type,
-        amount: txAmount,
-        title,
-        category,
-        date,
-        notes: note || undefined,
-        createdAt: now,
-        updatedAt: now,
-      });
-
-      // 2. Update account balance
-      const newBalance = type === 'income' 
-        ? account.balance + txAmount 
-        : account.balance - txAmount;
-        
-      await db.bankAccounts.update(accountId, {
-        balance: newBalance,
-        updatedAt: now
-      });
-    });
-    
-    setOpen(false);
-    // Reset form
-    setAmount("");
-    setTitle("");
-    setCategory("");
-    setNote("");
   };
 
   return (
@@ -140,7 +129,7 @@ export function AddTransactionDialog() {
                 <SelectValue placeholder="Select account" />
               </SelectTrigger>
               <SelectContent>
-                {accounts?.filter(a => a.isActive).map(acc => (
+                {accounts?.filter((a: any) => a.isActive).map((acc: any) => (
                   <SelectItem key={acc.id} value={acc.id}>
                     {acc.name}
                   </SelectItem>
