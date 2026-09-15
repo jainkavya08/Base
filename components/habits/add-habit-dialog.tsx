@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { Plus } from "lucide-react";
-import { db, HabitType } from "@/lib/db";
+import type { HabitType } from "@/lib/db";
+import { fetchApi } from "@/lib/api";
+import { useSWRConfig } from "swr";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -42,6 +44,7 @@ const DAYS = [
 ];
 
 export function AddHabitDialog() {
+  const { mutate } = useSWRConfig();
   const [open, setOpen] = useState(false);
   
   const [title, setTitle] = useState("");
@@ -61,19 +64,22 @@ export function AddHabitDialog() {
     e.preventDefault();
     if (!title) return;
     
-    await db.habits.add({
-      id: crypto.randomUUID(),
-      title,
-      description: description || undefined,
-      type,
-      icon,
-      activeDays: type !== 'weekly' ? activeDays : undefined,
-      target: (type === 'weekly' || type === 'numeric' || type === 'duration') ? (parseFloat(target) || 1) : undefined,
-      unit: (type === 'numeric' || type === 'duration') ? unit : undefined,
-      reminderTime: reminderEnabled && reminderTime ? reminderTime : undefined,
-      paused: false,
-      createdAt: new Date().toISOString(),
+    await fetchApi('/api/habits/habits.php', {
+      method: 'POST',
+      body: JSON.stringify({
+        title,
+        description: description || undefined,
+        type,
+        icon,
+        activeDays: type !== 'weekly' ? activeDays : undefined,
+        target: (type === 'weekly' || type === 'numeric' || type === 'duration') ? (parseFloat(target) || 1) : undefined,
+        unit: (type === 'numeric' || type === 'duration') ? unit : undefined,
+        reminderTime: reminderEnabled && reminderTime ? reminderTime : undefined,
+        paused: false
+      })
     });
+    
+    mutate('/api/habits/habits.php');
     
     setOpen(false);
     resetForm();

@@ -1,14 +1,16 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/lib/db";
+import useSWR from "swr";
+import { fetcher } from "@/lib/api";
 import { getHabitStatusForDate } from "@/lib/habits-logic";
 import { format, startOfDay } from "date-fns";
 
 export function HabitReminders() {
-  const habits = useLiveQuery(() => db.habits.toArray());
-  const completions = useLiveQuery(() => db.habitCompletions.toArray());
+  const { data: habitsData } = useSWR('/api/habits/habits.php', fetcher);
+  const { data: completionsData } = useSWR('/api/habits/completions.php', fetcher);
+  const habits = habitsData?.habits;
+  const completions = completionsData?.completions;
   
   const notifiedHabitsRef = useRef<Set<string>>(new Set());
 
@@ -33,7 +35,7 @@ export function HabitReminders() {
       const today = startOfDay(now);
       const currentTimeString = format(now, "HH:mm");
 
-      habits.forEach(habit => {
+      habits.forEach((habit: any) => {
         if (!habit.reminderTime || habit.paused) return;
 
         // Ensure this habit is supposed to be done today and hasn't been completed

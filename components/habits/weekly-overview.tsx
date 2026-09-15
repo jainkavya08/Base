@@ -1,16 +1,19 @@
 "use client";
 
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/lib/db";
+import useSWR from "swr";
+import { fetcher } from "@/lib/api";
 import { getHabitStatusForDate } from "@/lib/habits-logic";
 import { format, startOfWeek, addDays, isSameDay, isFuture } from "date-fns";
 import { cn } from "@/lib/utils";
 
 export function WeeklyOverview() {
-  const habits = useLiveQuery(() => db.habits.toArray());
-  const completions = useLiveQuery(() => db.habitCompletions.toArray());
+  const { data: habitsData, isLoading: habitsLoading } = useSWR('/api/habits/habits.php', fetcher);
+  const { data: completionsData, isLoading: completionsLoading } = useSWR('/api/habits/completions.php', fetcher);
 
-  if (!habits || !completions || habits.length === 0) return null;
+  const habits = habitsData?.habits;
+  const completions = completionsData?.completions;
+
+  if (habitsLoading || completionsLoading || !habits || !completions || habits.length === 0) return null;
 
   const today = new Date();
   const weekStart = startOfWeek(today, { weekStartsOn: 1 });
@@ -24,7 +27,7 @@ export function WeeklyOverview() {
     let dayCompleted = 0;
 
     if (!isFuture(date)) {
-      habits.forEach(habit => {
+      habits.forEach((habit: any) => {
         if (habit.paused || habit.type === "weekly") return; // weekly habits don't easily map to specific day dots here globally
         const status = getHabitStatusForDate(habit, completions, date);
         if (status !== "inactive" && status !== "future") {

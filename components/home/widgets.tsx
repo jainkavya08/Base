@@ -1,17 +1,21 @@
 "use client";
 
+import useSWR from "swr";
 import { useLiveQuery } from "dexie-react-hooks";
 import { format, isSameDay, startOfMonth, endOfMonth, isWithinInterval, isPast, parseISO } from "date-fns";
 import { db } from "@/lib/db";
+import { fetcher } from "@/lib/api";
 import { useAppStore } from "@/lib/store";
 import { CheckCircle, Timer, ListTodo, Bell, Wallet, Play, Pause } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function WidgetHabits({ size }: { size: 'small' | 'large' }) {
-  const habits = useLiveQuery(() => db.habits.toArray());
-  const completions = useLiveQuery(() => db.habitCompletions.toArray());
+  const { data: habitsData } = useSWR('/api/habits/habits.php', fetcher);
+  const { data: completionsData } = useSWR('/api/habits/completions.php', fetcher);
+  const habits = habitsData?.habits;
+  const completions = completionsData?.completions;
 
-  const todayCompletions = completions?.filter(c => isSameDay(new Date(c.date), new Date())) || [];
+  const todayCompletions = completions?.filter((c: any) => isSameDay(new Date(c.date), new Date())) || [];
   const completedCount = todayCompletions.length;
   const totalCount = habits?.length || 0;
 
@@ -101,7 +105,7 @@ export function WidgetTodos({ size }: { size: 'small' | 'large' }) {
   const todos = useLiveQuery(() => db.todos.toArray());
   
   if (!todos) return null;
-  const incompleteTodos = todos.filter(t => !t.completed);
+  const incompleteTodos = todos.filter((t: any) => !t.completed);
   const displayCount = size === 'large' ? 4 : 2;
 
   return (
@@ -114,7 +118,7 @@ export function WidgetTodos({ size }: { size: 'small' | 'large' }) {
       </div>
       
       <div className="flex flex-col gap-2 flex-1">
-        {incompleteTodos.slice(0, displayCount).map(todo => (
+        {incompleteTodos.slice(0, displayCount).map((todo: any) => (
           <div key={todo.id} className="flex items-start gap-2 bg-canvas/50 p-2 rounded-lg">
             <div className="w-4 h-4 mt-0.5 rounded-sm border border-ink-muted/50" />
             <p className="text-sm text-ink truncate flex-1">{todo.title}</p>
@@ -141,8 +145,8 @@ export function WidgetReminders({ size }: { size: 'small' | 'large' }) {
   if (!reminders) return null;
   
   const upcoming = reminders
-    .filter(r => !isPast(new Date(r.fireAt)))
-    .sort((a, b) => new Date(a.fireAt).getTime() - new Date(b.fireAt).getTime());
+    .filter((r: any) => !isPast(new Date(r.fireAt)))
+    .sort((a: any, b: any) => new Date(a.fireAt).getTime() - new Date(b.fireAt).getTime());
     
   const displayCount = size === 'large' ? 3 : 1;
 
@@ -156,7 +160,7 @@ export function WidgetReminders({ size }: { size: 'small' | 'large' }) {
       </div>
       
       <div className="flex flex-col gap-3 flex-1">
-        {upcoming.slice(0, displayCount).map(reminder => (
+        {upcoming.slice(0, displayCount).map((reminder: any) => (
           <div key={reminder.id} className="flex flex-col gap-0.5">
             <p className="text-sm font-medium text-ink truncate">{reminder.title}</p>
             <p className="text-xs text-ink-muted">{format(new Date(reminder.fireAt), "MMM d, h:mm a")}</p>
@@ -180,13 +184,13 @@ export function WidgetFinance({ size }: { size: 'small' | 'large' }) {
   const currentMonthStart = startOfMonth(new Date());
   const currentMonthEnd = endOfMonth(new Date());
 
-  const currentMonthTx = transactions.filter(tx => {
+  const currentMonthTx = transactions.filter((tx: any) => {
     const txDate = parseISO(tx.date);
     return isWithinInterval(txDate, { start: currentMonthStart, end: currentMonthEnd });
   });
 
-  const income = currentMonthTx.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0);
-  const expense = currentMonthTx.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0);
+  const income = currentMonthTx.filter((t: any) => t.type === 'income').reduce((acc: any, t: any) => acc + t.amount, 0);
+  const expense = currentMonthTx.filter((t: any) => t.type === 'expense').reduce((acc: any, t: any) => acc + t.amount, 0);
   const net = income - expense;
 
   return (

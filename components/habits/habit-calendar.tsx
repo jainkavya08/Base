@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useLiveQuery } from "dexie-react-hooks";
+import useSWR, { useSWRConfig } from "swr";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, isFuture, startOfDay, addDays } from "date-fns";
-import { db, Habit } from "@/lib/db";
+import { fetchApi, fetcher } from "@/lib/api";
+import type { Habit } from "@/lib/db";
 import { ChevronLeft, ChevronRight, CheckCircle, Circle } from "lucide-react";
 import { getHabitStatusForDate } from "@/lib/habits-logic";
 import {
@@ -16,13 +17,17 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 export function HabitCalendar() {
-  const completions = useLiveQuery(() => db.habitCompletions.toArray());
-  const habits = useLiveQuery(() => db.habits.toArray());
+  const { data: habitsData, isLoading: habitsLoading } = useSWR('/api/habits/habits.php', fetcher);
+  const { data: completionsData, isLoading: completionsLoading } = useSWR('/api/habits/completions.php', fetcher);
+  const { mutate } = useSWRConfig();
+  
+  const habits = habitsData?.habits;
+  const completions = completionsData?.completions;
   
   const [currentMonth, setCurrentMonth] = useState(startOfMonth(new Date()));
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
-  if (!habits || !completions) return null;
+  if (habitsLoading || completionsLoading || !habits || !completions) return null;
 
   const today = startOfDay(new Date());
   const monthStart = startOfMonth(currentMonth);
@@ -33,18 +38,25 @@ export function HabitCalendar() {
 
   const toggleHistoricalCompletion = async (habit: Habit, date: Date) => {
     const dateStr = format(date, 'yyyy-MM-dd');
-    const existing = completions.find(c => c.habitId === habit.id && c.date === dateStr);
+    const existing = completions.find((c: any) => c.habitId === habit.id && c.date === dateStr);
     
     if (existing) {
-      await db.habitCompletions.delete(existing.id);
+      await fetchApi('/api/habits/completions.php', {
+        method: 'DELETE',
+        body: JSON.stringify({ id: existing.id })
+      });
     } else {
-      await db.habitCompletions.add({
-        id: crypto.randomUUID(),
-        habitId: habit.id,
-        date: dateStr,
-        value: (habit.type === 'numeric' || habit.type === 'duration') ? habit.target : undefined
+      await fetchApi('/api/habits/completions.php', {
+        method: 'POST',
+        body: JSON.stringify({
+          id: crypto.randomUUID(),
+          habitId: habit.id,
+          date: dateStr,
+          value: (habit.type === 'numeric' || habit.type === 'duration') ? habit.target : undefined
+        })
       });
     }
+    mutate('/api/habits/completions.php');
   };
 
   return (
@@ -101,7 +113,7 @@ export function HabitCalendar() {
             let dayCompleted = 0;
             
             if (!isFutureDate) {
-              habits.forEach(habit => {
+              habits.forEach((habit: any) => {
                 if (habit.paused) return;
                 const status = getHabitStatusForDate(habit, completions, date);
                 if (status !== 'inactive' && status !== 'future') {
@@ -125,7 +137,7 @@ export function HabitCalendar() {
               
               if (prevDate.getMonth() === currentMonth.getMonth()) {
                 let prevTotal = 0, prevComp = 0;
-                habits.forEach(habit => {
+                habits.forEach((habit: any) => {
                   if (habit.paused) return;
                   const st = getHabitStatusForDate(habit, completions, prevDate);
                   if (st !== 'inactive' && st !== 'future') { prevTotal++; if (st === 'completed') prevComp++; }
@@ -135,7 +147,7 @@ export function HabitCalendar() {
               
               if (nextDate.getMonth() === currentMonth.getMonth() && (!isFuture(nextDate) || isSameDay(nextDate, today))) {
                 let nextTotal = 0, nextComp = 0;
-                habits.forEach(habit => {
+                habits.forEach((habit: any) => {
                   if (habit.paused) return;
                   const st = getHabitStatusForDate(habit, completions, nextDate);
                   if (st !== 'inactive' && st !== 'future') { nextTotal++; if (st === 'completed') nextComp++; }
@@ -188,7 +200,7 @@ export function HabitCalendar() {
                     <p className="text-sm text-ink-muted">No habits scheduled for this day.</p>
                   ) : (
                     <div className="flex flex-col gap-3">
-                      {habits.filter(h => !h.paused && getHabitStatusForDate(h, completions, date) !== 'inactive' && getHabitStatusForDate(h, completions, date) !== 'future').map(habit => {
+                      {habits.filter((h: any) => !h.paused && getHabitStatusForDate(h, completions, date) !== 'inactive' && getHabitStatusForDate(h, completions, date) !== 'future').map((habit: any) => {
                         const status = getHabitStatusForDate(habit, completions, date);
                         const isCompleted = status === 'completed';
                         return (

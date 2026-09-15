@@ -1,6 +1,8 @@
 "use client";
 
-import { Habit, HabitCompletion, db } from "@/lib/db";
+import { fetchApi } from "@/lib/api";
+import { useSWRConfig } from "swr";
+import type { Habit, HabitCompletion } from "@/lib/db";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { calculateStreak } from "@/lib/habits-logic";
 import { format, subDays, startOfDay } from "date-fns";
@@ -16,6 +18,7 @@ interface HabitDetailModalProps {
 }
 
 export function HabitDetailModal({ habit, completions, open, onOpenChange }: HabitDetailModalProps) {
+  const { mutate } = useSWRConfig();
   if (!habit) return null;
 
   const { current, longest } = calculateStreak(habit, completions);
@@ -60,19 +63,22 @@ export function HabitDetailModal({ habit, completions, open, onOpenChange }: Hab
 
   const handleDelete = async () => {
     if (confirm("Are you sure you want to delete this habit? All history will be lost.")) {
-      await db.habits.delete(habit.id);
-      
-      // Delete associated completions
-      const compIds = completions.map(c => c.id);
-      if (compIds.length > 0) {
-        await db.habitCompletions.bulkDelete(compIds);
-      }
+      await fetchApi('/api/habits/habits.php', {
+        method: 'DELETE',
+        body: JSON.stringify({ id: habit.id })
+      });
+      mutate('/api/habits/habits.php');
+      mutate('/api/habits/completions.php');
       onOpenChange(false);
     }
   };
 
   const togglePause = async () => {
-    await db.habits.update(habit.id, { paused: !habit.paused });
+    await fetchApi('/api/habits/habits.php', {
+      method: 'PUT',
+      body: JSON.stringify({ id: habit.id, paused: !habit.paused })
+    });
+    mutate('/api/habits/habits.php');
   };
 
   return (

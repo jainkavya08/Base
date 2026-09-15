@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useLiveQuery } from "dexie-react-hooks";
+import useSWR, { useSWRConfig } from "swr";
 import { format, subDays, startOfWeek, addDays, isSameDay, startOfDay } from "date-fns";
-import { db, Habit, HabitCompletion } from "@/lib/db";
+import { fetchApi, fetcher } from "@/lib/api";
+import type { Habit, HabitCompletion } from "@/lib/db";
 import { CheckCircle, Circle, Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { calculateStreak, getHabitStatusForDate } from "@/lib/habits-logic";
@@ -13,11 +14,15 @@ import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 
 export function HabitList() {
-  const habits = useLiveQuery(() => db.habits.toArray());
-  const completions = useLiveQuery(() => db.habitCompletions.toArray());
+  const { data: habitsData, isLoading: habitsLoading } = useSWR('/api/habits/habits.php', fetcher);
+  const { data: completionsData, isLoading: completionsLoading } = useSWR('/api/habits/completions.php', fetcher);
+  const { mutate } = useSWRConfig();
   const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
-
-  if (!habits || !completions) return null;
+  
+  const habits = habitsData?.habits;
+  const completions = completionsData?.completions;
+  
+  if (habitsLoading || completionsLoading || !habits || !completions) return null;
 
   const today = startOfDay(new Date());
   const weekStart = startOfWeek(today, { weekStartsOn: 1 });
@@ -27,50 +32,63 @@ export function HabitList() {
     if (e) e.stopPropagation();
     
     const dateStr = format(date, 'yyyy-MM-dd');
-    const existing = completions.find(c => c.habitId === habit.id && c.date === dateStr);
+    const existing = completions.find((c: any) => c.habitId === habit.id && c.date === dateStr);
     
     if (existing) {
-      // For numeric/duration, if they click the big check, maybe we just clear it or complete it?
-      // Let's just delete the completion to "undo".
-      await db.habitCompletions.delete(existing.id);
+      await fetchApi('/api/habits/completions.php', {
+        method: 'DELETE',
+        body: JSON.stringify({ id: existing.id })
+      });
     } else {
-      await db.habitCompletions.add({
-        id: crypto.randomUUID(),
-        habitId: habit.id,
-        date: dateStr,
-        value: (habit.type === 'numeric' || habit.type === 'duration') ? habit.target : undefined
+      await fetchApi('/api/habits/completions.php', {
+        method: 'POST',
+        body: JSON.stringify({
+          id: crypto.randomUUID(),
+          habitId: habit.id,
+          date: dateStr,
+          value: (habit.type === 'numeric' || habit.type === 'duration') ? habit.target : undefined
+        })
       });
     }
+    mutate('/api/habits/completions.php');
   };
 
   const updateNumericProgress = async (habit: Habit, delta: number, e: React.MouseEvent) => {
     e.stopPropagation();
     const dateStr = format(today, 'yyyy-MM-dd');
-    const existing = completions.find(c => c.habitId === habit.id && c.date === dateStr);
+    const existing = completions.find((c: any) => c.habitId === habit.id && c.date === dateStr);
     
     let newValue = delta;
     if (existing) {
       newValue = Math.max(0, (existing.value || 0) + delta);
       if (newValue === 0) {
-        await db.habitCompletions.delete(existing.id);
+        await fetchApi('/api/habits/completions.php', {
+          method: 'DELETE',
+          body: JSON.stringify({ id: existing.id })
+        });
+        mutate('/api/habits/completions.php');
         return;
       }
-      await db.habitCompletions.update(existing.id, { value: newValue });
     } else {
       if (newValue <= 0) return;
-      await db.habitCompletions.add({
-        id: crypto.randomUUID(),
+    }
+    
+    await fetchApi('/api/habits/completions.php', {
+      method: 'POST',
+      body: JSON.stringify({
+        id: existing ? existing.id : crypto.randomUUID(),
         habitId: habit.id,
         date: dateStr,
         value: newValue
-      });
-    }
+      })
+    });
+    mutate('/api/habits/completions.php');
   };
 
   return (
     <div className="flex flex-col gap-4">
-      {habits.map((habit) => {
-        const habitCompletions = completions.filter(c => c.habitId === habit.id);
+      {habits.map((habit: any) => {
+        const habitCompletions = completions.filter((c: any) => c.habitId === habit.id);
         const { current } = calculateStreak(habit, habitCompletions);
         
         // Compute this week's progress for the mini-calendar
@@ -88,7 +106,7 @@ export function HabitList() {
 
         // Weekly target takes precedence
         if (habit.type === 'weekly') {
-          thisWeekCompletions = habitCompletions.filter(c => {
+          thisWeekCompletions = habitCompletions.filter((c: any) => {
              const d = startOfDay(new Date(c.date));
              return d >= weekStart && d < addDays(weekStart, 7);
           }).length;
@@ -101,7 +119,7 @@ export function HabitList() {
         const isCompletedToday = todayStatus === 'completed';
         
         // Numeric value today
-        const todayCompletion = habitCompletions.find(c => c.date === format(today, 'yyyy-MM-dd'));
+        const todayCompletion = habitCompletions.find((c: any) => c.date === format(today, 'yyyy-MM-dd'));
         const todayValue = todayCompletion?.value || 0;
 
         return (
@@ -223,7 +241,7 @@ export function HabitList() {
 
       <HabitDetailModal 
         habit={selectedHabit} 
-        completions={completions.filter(c => c.habitId === selectedHabit?.id)} 
+        completions={completions.filter((c: any) => c.habitId === selectedHabit?.id)} 
         open={!!selectedHabit} 
         onOpenChange={(v) => !v && setSelectedHabit(null)} 
       />

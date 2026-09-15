@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/lib/db";
+import useSWR from "swr";
+import { fetcher } from "@/lib/api";
 import { 
   subDays, 
   eachDayOfInterval, 
@@ -26,8 +26,11 @@ import { ConsistencyHeatmap } from "./consistency-heatmap";
 import { HabitIcon } from "@/components/ui/habit-icon";
 
 export function StatsDashboard() {
-  const habits = useLiveQuery(() => db.habits.toArray());
-  const completions = useLiveQuery(() => db.habitCompletions.toArray());
+  const { data: habitsData, isLoading: habitsLoading } = useSWR('/api/habits/habits.php', fetcher);
+  const { data: completionsData, isLoading: completionsLoading } = useSWR('/api/habits/completions.php', fetcher);
+
+  const habits = habitsData?.habits;
+  const completions = completionsData?.completions;
 
   const [daysRange, setDaysRange] = useState("30");
 
@@ -45,7 +48,7 @@ export function StatsDashboard() {
       let dailyTotal = 0;
       let dailyCompleted = 0;
 
-      habits.forEach(habit => {
+      habits.forEach((habit: any) => {
         if (habit.paused || habit.type === "weekly") return;
         const status = getHabitStatusForDate(habit, completions, date);
         if (status !== "inactive" && status !== "future") {
@@ -93,7 +96,7 @@ export function StatsDashboard() {
     let overallCurrentStreakSum = 0;
     let activeHabitCount = 0;
 
-    const habitStats = habits.map(habit => {
+    const habitStats = habits.map((habit: any) => {
       const { current, longest } = calculateStreak(habit, completions);
       
       let habitTotal = 0;
@@ -134,12 +137,12 @@ export function StatsDashboard() {
     const overallRate = globalTotalPossible > 0 ? Math.round((globalTotalCompleted / globalTotalPossible) * 100) : 0;
     
     // Use the max current streak across all active habits as the "Current" streak to display, or avg
-    const bestCurrentStreak = Math.max(...habitStats.map(h => h.currentStreak), 0);
+    const bestCurrentStreak = Math.max(...habitStats.map((h: any) => h.currentStreak), 0);
 
     // 5. Best & Worst Habits
     const sortedHabits = [...habitStats].sort((a, b) => b.completionRate - a.completionRate);
-    const bestHabits = sortedHabits.filter(h => h.completionRate > 0).slice(0, 3);
-    const worstHabits = [...sortedHabits].reverse().filter(h => h.completionRate < 100).slice(0, 3);
+    const bestHabits = sortedHabits.filter((h: any) => h.completionRate > 0).slice(0, 3);
+    const worstHabits = [...sortedHabits].reverse().filter((h: any) => h.completionRate < 100).slice(0, 3);
 
     return {
       trendData,
@@ -154,7 +157,7 @@ export function StatsDashboard() {
     };
   }, [habits, completions, daysRange]);
 
-  if (!habits || !completions) {
+  if (habitsLoading || completionsLoading || !habits || !completions) {
     return null; // Loading
   }
 
@@ -253,7 +256,7 @@ export function StatsDashboard() {
         <div className="bg-surface-card rounded-[32px] p-6 lg:p-8 shadow-sm border border-border/50">
           <h3 className="text-lg font-medium text-ink mb-6">Best Performing</h3>
           <div className="flex flex-col gap-4">
-            {stats.bestHabits.length > 0 ? stats.bestHabits.map(habit => (
+            {stats.bestHabits.length > 0 ? stats.bestHabits.map((habit: any) => (
               <div key={habit.id} className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-canvas flex items-center justify-center shrink-0">
@@ -272,7 +275,7 @@ export function StatsDashboard() {
         <div className="bg-surface-card rounded-[32px] p-6 lg:p-8 shadow-sm border border-border/50">
           <h3 className="text-lg font-medium text-ink mb-6">Needs Attention</h3>
           <div className="flex flex-col gap-4">
-            {stats.worstHabits.length > 0 ? stats.worstHabits.map(habit => (
+            {stats.worstHabits.length > 0 ? stats.worstHabits.map((habit: any) => (
               <div key={habit.id} className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-canvas flex items-center justify-center shrink-0">

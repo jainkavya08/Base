@@ -1,14 +1,17 @@
 "use client";
 
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/lib/db";
+import useSWR from "swr";
+import { fetcher } from "@/lib/api";
 import { getTodayProgress } from "@/lib/habits-logic";
 
 export function TodayProgress() {
-  const habits = useLiveQuery(() => db.habits.toArray());
-  const completions = useLiveQuery(() => db.habitCompletions.toArray());
+  const { data: habitsData, isLoading: habitsLoading } = useSWR('/api/habits/habits.php', fetcher);
+  const { data: completionsData, isLoading: completionsLoading } = useSWR('/api/habits/completions.php', fetcher);
 
-  if (!habits || !completions) return null;
+  const habits = habitsData?.habits;
+  const completions = completionsData?.completions;
+
+  if (habitsLoading || completionsLoading || !habits || !completions) return null;
 
   const { completed, total, percentage } = getTodayProgress(habits, completions);
 
