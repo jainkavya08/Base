@@ -15,42 +15,21 @@ export function TodayProgress() {
 
   const { completed, total, percentage } = getTodayProgress(habits, completions);
 
-  if (total === 0) return null;
-
   return (
-    <div className="bg-surface-card rounded-2xl p-6 shadow-sm border border-transparent flex flex-col sm:flex-row items-center gap-6">
-      <div className="relative w-24 h-24 flex items-center justify-center shrink-0">
-        <svg className="w-full h-full -rotate-90 absolute top-0 left-0" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="40" stroke="var(--color-canvas)" strokeWidth="8" fill="transparent" />
-          <circle 
-            cx="50" 
-            cy="50" 
-            r="40" 
-            stroke="var(--color-accent-blue)" 
-            strokeWidth="8" 
-            fill="transparent" 
-            strokeLinecap="round"
-            strokeDasharray={2 * Math.PI * 40}
-            strokeDashoffset={(2 * Math.PI * 40) * (1 - percentage / 100)}
-            className="transition-all duration-1000 ease-out"
-          />
-        </svg>
-        <div className="text-center flex flex-col items-center">
-          <span className="text-xl font-medium text-ink leading-tight">{percentage}%</span>
-        </div>
+    <div className="bg-surface-card rounded-[22px] p-5 shadow-sm border border-border/50 flex flex-col gap-3">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-medium text-ink">Today's progress</h2>
+        <span className="text-sm text-ink-muted">{completed} / {total} completed</span>
       </div>
       
-      <div className="flex flex-col justify-center">
-        <h2 className="text-2xl font-medium text-ink">Today's Progress</h2>
-        <p className="text-ink-muted mt-1 text-sm">
-          You have completed <span className="text-ink font-medium">{completed}</span> out of <span className="text-ink font-medium">{total}</span> scheduled habits today.
-        </p>
-        
-        {percentage === 100 && (
-          <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 bg-accent-blue/20 text-accent-blue text-xs font-medium rounded-full w-fit">
-            <span>🌟</span> All habits completed!
-          </div>
-        )}
+      <div className="flex items-center gap-3 mt-1">
+        <div className="flex-1 h-3 rounded-full bg-canvas overflow-hidden">
+          <div 
+            className="h-full bg-accent-yellow rounded-full transition-all duration-1000 ease-out" 
+            style={{ width: `${percentage}%` }}
+          />
+        </div>
+        <span className="text-sm font-medium text-ink min-w-[3ch]">{percentage}%</span>
       </div>
     </div>
   );

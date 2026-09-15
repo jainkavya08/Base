@@ -196,25 +196,21 @@ export function StatsDashboard() {
       </div>
 
       {/* Summary Metrics */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard 
-          icon={<TrendingUp className="w-5 h-5 text-accent-blue" />}
-          label="Completion Rate"
+      <div className="bg-surface-card rounded-[24px] md:bg-transparent md:rounded-none p-5 md:p-0 border border-border/50 md:border-none shadow-sm md:shadow-none flex flex-col md:grid md:grid-cols-4 gap-4 md:gap-4 divide-y divide-border/30 md:divide-none">
+        <StatRow 
+          label="Completion rate"
           value={`${stats.overallRate}%`}
         />
-        <StatCard 
-          icon={<Flame className="w-5 h-5 text-accent-coral" />}
-          label="Current Streak"
+        <StatRow 
+          label="Current streak"
           value={`${stats.bestCurrentStreak} days`}
         />
-        <StatCard 
-          icon={<Trophy className="w-5 h-5 text-accent-yellow" />}
-          label="Best Streak"
+        <StatRow 
+          label="Best streak"
           value={`${stats.overallBestStreak} days`}
         />
-        <StatCard 
-          icon={<CheckCircle2 className="w-5 h-5 text-accent-blue" />}
-          label="Total Completions"
+        <StatRow 
+          label="Total completions"
           value={stats.totalCompletions.toString()}
         />
       </div>
@@ -295,14 +291,11 @@ export function StatsDashboard() {
   );
 }
 
-function StatCard({ icon, label, value }: { icon: React.ReactNode, label: string, value: string }) {
+function StatRow({ label, value }: { label: string, value: string }) {
   return (
-    <div className="bg-surface-card rounded-[32px] p-6 shadow-sm border border-border/50 flex flex-col gap-3">
-      <div className="flex items-center gap-2">
-        {icon}
-        <span className="text-sm text-ink-muted font-medium">{label}</span>
-      </div>
-      <span className="text-2xl md:text-3xl font-semibold text-ink">{value}</span>
+    <div className="flex items-center justify-between py-3 md:py-0 md:bg-surface-card md:rounded-[32px] md:p-6 md:shadow-sm md:border md:border-border/50 md:flex-col md:items-start md:gap-3 md:justify-start first:pt-1 last:pb-1 md:first:pt-6 md:last:pb-6">
+      <span className="text-sm text-ink-muted font-medium">{label}</span>
+      <span className="text-lg md:text-2xl lg:text-3xl font-semibold text-ink">{value}</span>
     </div>
   );
 }
