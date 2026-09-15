@@ -57,10 +57,10 @@ export function FocusTimeChart({ sessions, days }: { sessions: any[], days: numb
                   if (active && payload && payload.length) {
                     const data = payload[0].payload;
                     return (
-                      <div className="bg-surface-dark text-surface-card px-4 py-3 rounded-xl shadow-xl text-sm">
+                      <div className="bg-surface-dark text-surface-dark-foreground px-4 py-3 rounded-xl shadow-xl text-sm">
                         <div className="font-medium mb-1">{data.date}</div>
                         <div className="text-accent-blue">{data.minutes} minutes</div>
-                        <div className="text-surface-card/70 text-xs">{data.sessions} sessions</div>
+                        <div className="text-surface-dark-foreground/70 text-xs">{data.sessions} sessions</div>
                       </div>
                     );
                   }

@@ -93,7 +93,7 @@ export function FileItem({
         />
         <div className="flex gap-2 justify-end mt-auto">
           <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); setEditName(file.name); setIsEditing(false); }}>Cancel</Button>
-          <Button size="sm" onClick={handleSave} className="bg-accent-blue text-surface-card">Save</Button>
+          <Button size="sm" onClick={handleSave} className="bg-accent-blue text-surface-dark-foreground">Save</Button>
         </div>
       </div>
     );

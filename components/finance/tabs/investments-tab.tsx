@@ -47,14 +47,14 @@ export function InvestmentsTab() {
           <p className="text-xs text-ink-muted">Total Invested: {formatCurrency(totalInvested)}</p>
         </div>
 
-        <div className="bg-surface-dark text-surface-card rounded-2xl p-6 relative overflow-hidden shadow-lg">
+        <div className="bg-surface-dark text-surface-dark-foreground rounded-2xl p-6 relative overflow-hidden shadow-lg">
           <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-accent-green/20 rounded-full blur-2xl" />
           <div className="relative z-10 flex flex-col h-full justify-between">
             <div>
-              <p className="text-surface-card/60 text-sm font-medium mb-1">Asset Classes</p>
+              <p className="text-surface-dark-foreground/60 text-sm font-medium mb-1">Asset Classes</p>
               <h3 className="text-2xl font-medium">{new Set(investments.map(i => i.type)).size}</h3>
             </div>
-            <div className="mt-4 flex items-center text-xs text-surface-card/80 gap-1">
+            <div className="mt-4 flex items-center text-xs text-surface-dark-foreground/80 gap-1">
               <PieChart className="w-3 h-3" /> Across {investments.length} individual assets
             </div>
           </div>

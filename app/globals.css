@@ -11,14 +11,15 @@
   --font-mono: var(--font-geist-mono);
   
   /* Custom Design System Tokens */
-  --color-canvas: #E7E1D6;
-  --color-surface-card: #F7F4EC;
-  --color-surface-dark: #1B1A18;
-  --color-accent-yellow: #F4C94C;
-  --color-accent-coral: #F0705C;
-  --color-accent-blue: #30648c;
-  --color-ink: #22201C;
-  --color-ink-muted: #5C584C;
+  --color-canvas: var(--canvas);
+  --color-surface-card: var(--surface-card);
+  --color-surface-dark: var(--surface-dark);
+  --color-surface-dark-foreground: var(--surface-dark-foreground);
+  --color-accent-yellow: var(--accent-yellow);
+  --color-accent-coral: var(--accent-coral);
+  --color-accent-blue: var(--accent-blue);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
 
   /* shadcn/ui mappings */
   --color-sidebar-ring: var(--sidebar-ring);
@@ -86,10 +87,21 @@
   --sidebar-accent-foreground: #22201C;
   --sidebar-border: #D0C9B6;
   --sidebar-ring: #F4C94C;
+
+  /* Custom Design Variables */
+  --canvas: #E7E1D6;
+  --surface-card: #F7F4EC;
+  --surface-dark: #1B1A18;
+  --surface-dark-foreground: #F7F4EC;
+  --accent-yellow: #F4C94C;
+  --accent-coral: #F0705C;
+  --accent-blue: #30648c;
+  --ink: #22201C;
+  --ink-muted: #5C584C;
 }
 
 .dark {
-  /* No true dark mode specified in design, keeping consistent or fallback */
+  /* Dark mode with warm charcoal semantics */
   --background: #1B1A18;
   --foreground: #F7F4EC;
   --card: #22201C;
@@ -105,8 +117,8 @@
   --accent: #F4C94C;
   --accent-foreground: #1B1A18;
   --destructive: #F0705C;
-  --border: #2A2825;
-  --input: #2A2825;
+  --border: #3A3833;
+  --input: #3A3833;
   --ring: #F4C94C;
 
   --sidebar: #1B1A18;
@@ -115,8 +127,19 @@
   --sidebar-primary-foreground: #1B1A18;
   --sidebar-accent: #2A2825;
   --sidebar-accent-foreground: #F7F4EC;
-  --sidebar-border: #2A2825;
+  --sidebar-border: #3A3833;
   --sidebar-ring: #F4C94C;
+
+  /* Custom Design Variables for Dark Mode */
+  --canvas: #1B1A18;
+  --surface-card: #22201C;
+  --surface-dark: #141311;
+  --surface-dark-foreground: #F7F4EC;
+  --accent-yellow: #F4C94C;
+  --accent-coral: #F0705C;
+  --accent-blue: #4A90E2;
+  --ink: #F7F4EC;
+  --ink-muted: #8A8577;
 }
 
 @layer base {

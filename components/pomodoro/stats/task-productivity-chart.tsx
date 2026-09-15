@@ -72,8 +72,8 @@ export function TaskProductivityChart({ sessions }: { sessions: any[] }) {
                   if (active && payload && payload.length) {
                     const data = payload[0].payload;
                     return (
-                      <div className="bg-surface-dark text-surface-card px-4 py-3 rounded-xl shadow-xl text-sm">
-                        <div className="font-medium mb-1 truncate max-w-[200px]">{data.title}</div>
+                      <div className="bg-ink text-canvas px-4 py-3 rounded-xl shadow-xl text-sm">
+                        <div className="font-medium mb-1 truncate max-w-[200px] text-canvas">{data.title}</div>
                         <div className="text-accent-coral">{data.minutes} min</div>
                       </div>
                     );

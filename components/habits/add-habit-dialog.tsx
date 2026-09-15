@@ -106,7 +106,7 @@ export function AddHabitDialog() {
   return (
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if(!v) resetForm(); }}>
       <DialogTrigger render={
-        <Button className="rounded-full bg-accent-blue text-surface-card hover:bg-accent-blue/90 transition-transform active:scale-95">
+        <Button className="rounded-full bg-accent-blue text-surface-dark-foreground hover:bg-accent-blue/90 transition-transform active:scale-95">
           <Plus className="w-5 h-5 mr-1" />
           Add New
         </Button>
@@ -137,7 +137,7 @@ export function AddHabitDialog() {
                         }}
                         className={cn(
                           "cursor-pointer w-9 h-9 flex items-center justify-center rounded-lg transition-colors",
-                          icon === i ? "bg-accent-blue text-surface-card shadow-sm" : "hover:bg-canvas text-ink hover:text-accent-blue"
+                          icon === i ? "bg-accent-blue text-surface-dark-foreground shadow-sm" : "hover:bg-canvas text-ink hover:text-accent-blue"
                         )}
                       >
                         <HabitIcon icon={i} className="w-5 h-5" />
@@ -202,7 +202,7 @@ export function AddHabitDialog() {
                       className={cn(
                         "w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-colors",
                         isActive 
-                          ? "bg-accent-blue text-surface-card" 
+                          ? "bg-accent-blue text-surface-dark-foreground" 
                           : "bg-canvas text-ink-muted hover:text-ink hover:bg-border/50"
                       )}
                     >
@@ -342,7 +342,7 @@ export function AddHabitDialog() {
             <Button type="button" variant="ghost" onClick={() => setOpen(false)} className="text-ink-muted hover:text-ink hover:bg-canvas">
               Cancel
             </Button>
-            <Button type="submit" className="bg-accent-blue text-surface-card hover:bg-accent-blue/90">
+            <Button type="submit" className="bg-accent-blue text-surface-dark-foreground hover:bg-accent-blue/90">
               Create Habit
             </Button>
           </div>

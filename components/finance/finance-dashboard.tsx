@@ -52,10 +52,10 @@ export function FinanceDashboard() {
     <div className="flex flex-col gap-8">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-surface-dark text-surface-card rounded-2xl p-6 relative overflow-hidden shadow-lg">
+        <div className="bg-surface-dark text-surface-dark-foreground rounded-2xl p-6 relative overflow-hidden shadow-lg">
           <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-accent-yellow/20 rounded-full blur-2xl" />
           <div className="relative z-10">
-            <p className="text-surface-card/60 text-sm font-medium mb-1">Net Balance</p>
+            <p className="text-surface-dark-foreground/60 text-sm font-medium mb-1">Net Balance</p>
             <h2 className="text-3xl font-medium">${net.toFixed(2)}</h2>
           </div>
         </div>

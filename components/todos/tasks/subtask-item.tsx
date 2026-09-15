@@ -96,7 +96,7 @@ export function SubtaskItem({
             <Button 
               size="sm"
               onClick={handleSave}
-              className="h-6 text-[10px] px-2 bg-accent-blue text-surface-card"
+              className="h-6 text-[10px] px-2 bg-accent-blue text-surface-dark-foreground"
             >
               Save
             </Button>

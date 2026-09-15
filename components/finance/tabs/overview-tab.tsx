@@ -70,14 +70,14 @@ export function OverviewTab() {
       
       {/* 1. Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-surface-dark text-surface-card rounded-2xl p-6 relative overflow-hidden shadow-lg">
+        <div className="bg-surface-dark text-surface-dark-foreground rounded-2xl p-6 relative overflow-hidden shadow-lg">
           <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-accent-yellow/20 rounded-full blur-2xl" />
           <div className="relative z-10 flex flex-col h-full justify-between">
             <div>
-              <p className="text-surface-card/60 text-sm font-medium mb-1">Total Balance</p>
+              <p className="text-surface-dark-foreground/60 text-sm font-medium mb-1">Total Balance</p>
               <h2 className="text-3xl font-medium">{formatCurrency(totalBalance)}</h2>
             </div>
-            <div className="mt-4 flex items-center text-xs text-surface-card/80 gap-1">
+            <div className="mt-4 flex items-center text-xs text-surface-dark-foreground/80 gap-1">
               <Wallet className="w-3 h-3" /> Across {accounts.filter(a => a.isActive).length} accounts
             </div>
           </div>

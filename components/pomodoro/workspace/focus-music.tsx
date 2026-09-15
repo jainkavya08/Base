@@ -48,7 +48,7 @@ export function FocusMusic() {
           
           <button 
             onClick={() => setIsPlaying(!isPlaying)}
-            className="w-10 h-10 flex items-center justify-center rounded-full bg-surface-dark text-surface-card hover:bg-surface-dark/90 transition-colors shadow-sm"
+            className="w-10 h-10 flex items-center justify-center rounded-full bg-surface-dark text-surface-dark-foreground hover:bg-surface-dark/90 transition-colors shadow-sm"
           >
             {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
           </button>

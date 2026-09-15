@@ -24,7 +24,25 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${inter.variable} font-sans h-full antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                const stored = localStorage.getItem('personal-dashboard-storage');
+                if (stored) {
+                  const state = JSON.parse(stored).state;
+                  if (state && state.settings && state.settings.theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                  }
+                }
+              } catch (e) {}
+            `,
+          }}
+        />
+      </head>
       <body className="min-h-full flex bg-canvas text-ink">
         <AuthWrapper>
           <GlobalHooks />

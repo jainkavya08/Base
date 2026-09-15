@@ -156,7 +156,7 @@ export function HabitList() {
                   className={cn(
                     "w-12 h-12 rounded-full flex items-center justify-center transition-all shrink-0 active:scale-90",
                     isCompletedToday 
-                      ? "bg-accent-blue text-surface-card" 
+                      ? "bg-accent-blue text-surface-dark-foreground" 
                       : "bg-canvas text-ink-muted hover:bg-border/50 hover:text-ink"
                   )}
                 >
@@ -178,7 +178,7 @@ export function HabitList() {
                   <button 
                     onClick={(e) => updateNumericProgress(habit, 1, e)}
                     disabled={habit.paused}
-                    className="w-8 h-8 rounded-full bg-accent-blue text-surface-card flex items-center justify-center shadow-sm active:scale-95 transition-transform"
+                    className="w-8 h-8 rounded-full bg-accent-blue text-surface-dark-foreground flex items-center justify-center shadow-sm active:scale-95 transition-transform"
                   >
                     <Plus className="w-4 h-4" />
                   </button>
@@ -200,7 +200,7 @@ export function HabitList() {
                       <span className="text-[10px] text-ink-muted">{format(day, 'ee').charAt(0)}</span>
                       <div className={cn(
                         "w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold transition-colors",
-                        status === 'completed' ? "bg-accent-blue text-surface-card" :
+                        status === 'completed' ? "bg-accent-blue text-surface-dark-foreground" :
                         status === 'inactive' ? "bg-transparent text-transparent" :
                         status === 'missed' ? "bg-canvas text-ink-muted/50" :
                         "bg-canvas text-ink-muted"

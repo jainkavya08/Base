@@ -72,8 +72,8 @@ export function FocusCalendar() {
           let intensityClass = "bg-canvas text-ink-muted";
           if (daySessions.length > 0) {
             if (daySessions.length <= 2) intensityClass = "bg-accent-blue/30 text-ink";
-            else if (daySessions.length <= 5) intensityClass = "bg-accent-blue/60 text-surface-card";
-            else intensityClass = "bg-accent-blue text-surface-card";
+            else if (daySessions.length <= 5) intensityClass = "bg-accent-blue/60 text-surface-dark-foreground";
+            else intensityClass = "bg-accent-blue text-surface-dark-foreground";
           }
 
           return (

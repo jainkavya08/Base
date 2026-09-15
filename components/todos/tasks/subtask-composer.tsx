@@ -126,7 +126,7 @@ export function SubtaskComposer({
                   size="sm"
                   onClick={handleSubmit}
                   disabled={tasksToCreate.length === 0 || isSubmitting}
-                  className="bg-accent-blue text-surface-card hover:bg-accent-blue/90 h-7 text-xs"
+                  className="bg-accent-blue text-surface-dark-foreground hover:bg-accent-blue/90 h-7 text-xs"
                 >
                   {tasksToCreate.length > 1 ? `Add ${tasksToCreate.length} Subtasks` : "Add"}
                 </Button>

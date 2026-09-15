@@ -55,7 +55,7 @@ export function AddListDialog({ fileId }: { fileId: string }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button className="bg-accent-blue text-surface-card hover:bg-accent-blue/90 rounded-full px-6" />}>
+      <DialogTrigger render={<Button className="bg-accent-blue text-surface-dark-foreground hover:bg-accent-blue/90 rounded-full px-6" />}>
         <Plus className="w-4 h-4 mr-2" />
         New Todo List
       </DialogTrigger>
@@ -91,7 +91,7 @@ export function AddListDialog({ fileId }: { fileId: string }) {
               <Button
                 type="button"
                 variant={view === "list" ? "default" : "outline"}
-                className={view === "list" ? "bg-accent-blue text-surface-card" : "border-border text-ink bg-transparent hover:bg-canvas"}
+                className={view === "list" ? "bg-accent-blue text-surface-dark-foreground" : "border-border text-ink bg-transparent hover:bg-canvas"}
                 onClick={() => setView("list")}
               >
                 List
@@ -99,7 +99,7 @@ export function AddListDialog({ fileId }: { fileId: string }) {
               <Button
                 type="button"
                 variant={view === "board" ? "default" : "outline"}
-                className={view === "board" ? "bg-accent-blue text-surface-card" : "border-border text-ink bg-transparent hover:bg-canvas"}
+                className={view === "board" ? "bg-accent-blue text-surface-dark-foreground" : "border-border text-ink bg-transparent hover:bg-canvas"}
                 onClick={() => setView("board")}
               >
                 Board
@@ -107,7 +107,7 @@ export function AddListDialog({ fileId }: { fileId: string }) {
               <Button
                 type="button"
                 variant={view === "compact" ? "default" : "outline"}
-                className={view === "compact" ? "bg-accent-blue text-surface-card" : "border-border text-ink bg-transparent hover:bg-canvas"}
+                className={view === "compact" ? "bg-accent-blue text-surface-dark-foreground" : "border-border text-ink bg-transparent hover:bg-canvas"}
                 onClick={() => setView("compact")}
               >
                 Compact
@@ -126,7 +126,7 @@ export function AddListDialog({ fileId }: { fileId: string }) {
             <Button
               type="submit"
               disabled={!name.trim()}
-              className="bg-accent-blue text-surface-card hover:bg-accent-blue/90"
+              className="bg-accent-blue text-surface-dark-foreground hover:bg-accent-blue/90"
             >
               Create
             </Button>
