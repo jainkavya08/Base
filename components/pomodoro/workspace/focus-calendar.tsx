@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/lib/db";
+
+import useSWR from "swr";
+import { fetcher } from "@/lib/api";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, isToday, startOfDay } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -28,12 +29,12 @@ export function FocusCalendar() {
   
   const days = eachDayOfInterval({ start: startDate, end: endDate });
 
-  const sessions = useLiveQuery(() => 
-    db.pomodoroSessions
-      .where('completedAt')
-      .between(startDate.toISOString(), endDate.toISOString())
-      .toArray()
-  ) || [];
+  const { data: statsData } = useSWR('/api/pomodoro/stats.php', fetcher);
+  
+  const sessions = (statsData?.sessions || []).filter((s: any) => {
+    const d = new Date(s.completedAt);
+    return d >= startDate && d <= endDate;
+  });
 
   const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
   const prevMonth = () => setCurrentDate(subMonths(currentDate, 1));
@@ -66,7 +67,7 @@ export function FocusCalendar() {
       <div className="grid grid-cols-7 gap-1">
         {days.map((day, i) => {
           const isCurrentMonth = day.getMonth() === currentDate.getMonth();
-          const daySessions = sessions.filter(s => s.type === 'focus' && s.status === 'completed' && isSameDay(new Date(s.completedAt), day));
+          const daySessions = sessions.filter((s: any) => s.type === 'focus' && s.status === 'completed' && isSameDay(new Date(s.completedAt), day));
           
           let intensityClass = "bg-canvas text-ink-muted";
           if (daySessions.length > 0) {

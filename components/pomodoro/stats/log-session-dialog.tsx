@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { db } from "@/lib/db";
+import { fetchApi } from "@/lib/api";
 
 export function LogSessionDialog({ onSessionAdded }: { onSessionAdded?: () => void }) {
   const [open, setOpen] = useState(false);
@@ -18,9 +18,8 @@ export function LogSessionDialog({ onSessionAdded }: { onSessionAdded?: () => vo
     if (!mins || mins <= 0) return;
 
     try {
-      const res = await fetch('/api/pomodoro/session.php', {
+      const res = await fetchApi('/api/pomodoro/session.php', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: crypto.randomUUID(),
           duration_minutes: mins,
@@ -29,7 +28,7 @@ export function LogSessionDialog({ onSessionAdded }: { onSessionAdded?: () => vo
           status: 'completed'
         })
       });
-      if (res.ok && onSessionAdded) {
+      if (res.success && onSessionAdded) {
         onSessionAdded();
       }
     } catch(err) {

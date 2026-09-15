@@ -1,18 +1,14 @@
 "use client";
 
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/lib/db";
+import useSWR from "swr";
+import { fetcher } from "@/lib/api";
 import { format, isToday, isYesterday } from "date-fns";
 import { CheckCircle, XCircle } from "lucide-react";
 
 export function RecentSessions() {
-  const sessions = useLiveQuery(() => 
-    db.pomodoroSessions
-      .orderBy('completedAt')
-      .reverse()
-      .limit(5)
-      .toArray()
-  ) || [];
+  const { data: statsData } = useSWR('/api/pomodoro/stats.php', fetcher);
+  
+  const sessions = statsData?.sessions?.slice(0, 5) || [];
 
   if (sessions.length === 0) return null;
 
@@ -28,7 +24,7 @@ export function RecentSessions() {
       <h3 className="text-sm font-medium text-ink-muted mb-4 uppercase tracking-wider">Recent Sessions</h3>
       
       <div className="flex flex-col gap-3">
-        {sessions.map(session => (
+        {sessions.map((session: any) => (
           <div key={session.id} className="flex items-center justify-between py-2 border-b border-border/30 last:border-0">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-canvas flex items-center justify-center shrink-0">

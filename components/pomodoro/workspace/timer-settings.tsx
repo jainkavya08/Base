@@ -5,6 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useAppStore } from "@/lib/store";
 
+import { fetchApi } from "@/lib/api";
+
 export function TimerSettings({ 
   children,
   open,
@@ -23,9 +25,8 @@ export function TimerSettings({
     
     // Sync to backend
     try {
-      await fetch('/api/pomodoro/settings.php', {
+      await fetchApi('/api/pomodoro/settings.php', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newSettings)
       });
     } catch (err) {

@@ -1,43 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import useSWR from "swr";
+import { fetcher } from "@/lib/api";
 import { format, startOfDay } from "date-fns";
 
 export function TodaySummary() {
-  const [dbSessions, setDbSessions] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  const fetchTodayStats = async () => {
-    setIsLoading(true);
-    setError(false);
-    try {
-      const res = await fetch('/api/pomodoro/stats.php');
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success && data.sessions) {
-          setDbSessions(data.sessions);
-        } else {
-          setError(true);
-        }
-      } else {
-        setError(true);
-      }
-    } catch(err) {
-      setError(true);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchTodayStats();
-    
-    // Auto-refresh when returning to tab
-    const handleFocus = () => fetchTodayStats();
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, []);
+  const { data: statsData, isLoading, error } = useSWR('/api/pomodoro/stats.php', fetcher);
+  const dbSessions = statsData?.sessions || [];
 
   const todayMidnight = startOfDay(new Date()).getTime();
 

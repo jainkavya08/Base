@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Play, Pause, RotateCcw, Settings, SkipForward, Maximize, Minimize } from "lucide-react";
 import { useAppStore } from "@/lib/store";
-import { db } from "@/lib/db";
+import { fetchApi } from "@/lib/api";
+import { mutate } from "swr";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { TimerSettings } from "./timer-settings";
@@ -24,8 +25,7 @@ export function WorkspaceTimer() {
   const { updatePomodoroSettings } = useAppStore();
   
   useEffect(() => {
-    fetch('/api/pomodoro/settings.php')
-      .then(res => res.json())
+    fetchApi('/api/pomodoro/settings.php')
       .then(data => {
         if (data.success && data.settings) {
           updatePomodoroSettings(data.settings);
@@ -52,14 +52,19 @@ export function WorkspaceTimer() {
 
     if (s.mode === 'focus') {
       // Record completed session
-      await db.pomodoroSessions.add({
-        id: crypto.randomUUID(),
-        durationMinutes: s.settings.focusDuration,
-        completedAt: new Date().toISOString(),
-        todoId: s.currentTodoId,
-        type: 'focus',
-        status: 'completed'
+      await fetchApi('/api/pomodoro/session.php', {
+        method: 'POST',
+        body: JSON.stringify({
+          id: crypto.randomUUID(),
+          duration_minutes: s.settings.focusDuration,
+          completed_at: new Date().toISOString(),
+          task_id: s.currentTodoId,
+          type: 'focus',
+          status: 'completed'
+        })
       });
+      // Revalidate all pomodoro stats
+      mutate('/api/pomodoro/stats.php');
 
       const newCount = s.sessionCount + 1;
       const needsLongBreak = newCount % s.settings.sessionsBeforeLongBreak === 0;
@@ -138,18 +143,28 @@ export function WorkspaceTimer() {
     });
   };
 
-  const handleSkip = () => {
+  const handleSkip = async () => {
     if (isRunning) {
       // If we skip while running a focus session, it's interrupted
       if (mode === 'focus') {
-        db.pomodoroSessions.add({
-          id: crypto.randomUUID(),
-          durationMinutes: settings.focusDuration - Math.ceil(timeLeft / 60), // partial time
-          completedAt: new Date().toISOString(),
-          todoId: currentTodoId,
-          type: 'focus',
-          status: 'interrupted'
-        });
+        const id = crypto.randomUUID();
+        const durationMinutes = settings.focusDuration - Math.ceil(timeLeft / 60);
+        
+        // Don't record sessions that were barely started (< 1 min)
+        if (durationMinutes > 0) {
+          await fetchApi('/api/pomodoro/session.php', {
+            method: 'POST',
+            body: JSON.stringify({
+              id,
+              duration_minutes: durationMinutes,
+              completed_at: new Date().toISOString(),
+              task_id: currentTodoId,
+              type: 'focus',
+              status: 'interrupted'
+            })
+          });
+          mutate('/api/pomodoro/stats.php');
+        }
       }
     }
     handleSessionComplete(); // This naturally moves to the next phase
