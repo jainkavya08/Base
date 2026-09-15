@@ -106,17 +106,10 @@ export function AddHabitDialog() {
   return (
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if(!v) resetForm(); }}>
       <DialogTrigger render={
-        <div className="inline-flex">
-          {/* Desktop Button */}
-          <Button className="hidden md:flex rounded-full bg-accent-yellow text-surface-dark-foreground hover:bg-accent-yellow/90 transition-transform active:scale-95">
-            <Plus className="w-5 h-5 mr-1" />
-            Add New
-          </Button>
-          {/* Mobile FAB */}
-          <Button className="md:hidden fixed bottom-24 right-6 w-14 h-14 rounded-full bg-accent-yellow text-surface-dark-foreground hover:bg-accent-yellow/90 shadow-lg flex items-center justify-center z-50">
-            <Plus className="w-6 h-6" />
-          </Button>
-        </div>
+        <Button className="rounded-full bg-accent-blue text-surface-dark-foreground hover:bg-accent-blue/90 transition-transform active:scale-95">
+          <Plus className="w-5 h-5 mr-1" />
+          Add New
+        </Button>
       } />
       <DialogContent className="sm:max-w-[450px] bg-surface-card border-none shadow-xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
@@ -345,12 +338,12 @@ export function AddHabitDialog() {
             )}
           </div>
 
-          <div className="mt-4 flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-border/50">
-            <Button type="button" variant="ghost" onClick={() => setOpen(false)} className="order-2 sm:order-1 text-ink-muted hover:text-ink hover:bg-canvas rounded-full h-12 sm:h-10">
+          <div className="mt-2 flex justify-end gap-3">
+            <Button type="button" variant="ghost" onClick={() => setOpen(false)} className="text-ink-muted hover:text-ink hover:bg-canvas">
               Cancel
             </Button>
-            <Button type="submit" className="order-1 sm:order-2 flex-1 rounded-full bg-accent-yellow text-surface-dark-foreground hover:bg-accent-yellow/90 font-medium h-12 sm:h-10">
-              Save Habit
+            <Button type="submit" className="bg-accent-blue text-surface-dark-foreground hover:bg-accent-blue/90">
+              Create Habit
             </Button>
           </div>
         </form>

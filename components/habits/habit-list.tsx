@@ -86,16 +86,33 @@ export function HabitList() {
   };
 
   return (
-    <div className="flex flex-col relative w-full">
-      {/* Subtle vertical timeline line */}
-      {habits.length > 0 && (
-        <div className="absolute left-[26px] top-[30px] bottom-[30px] w-px bg-border/40 border-l border-dashed border-border" />
-      )}
-      
-      <div className="flex flex-col gap-5 w-full">
-      {habits.map((habit: any, index: number) => {
+    <div className="flex flex-col gap-4">
+      {habits.map((habit: any) => {
         const habitCompletions = completions.filter((c: any) => c.habitId === habit.id);
         const { current } = calculateStreak(habit, habitCompletions);
+        
+        // Compute this week's progress for the mini-calendar
+        let thisWeekCompletions = 0;
+        let thisWeekTotal = habit.type === 'weekly' ? habit.target! : 0;
+        
+        const dayStatuses = weekDays.map(day => {
+          const status = getHabitStatusForDate(habit, habitCompletions, day);
+          if (habit.type !== 'weekly' && status !== 'inactive' && status !== 'future') {
+            thisWeekTotal++;
+          }
+          if (status === 'completed') thisWeekCompletions++;
+          return { day, status };
+        });
+
+        // Weekly target takes precedence
+        if (habit.type === 'weekly') {
+          thisWeekCompletions = habitCompletions.filter((c: any) => {
+             const d = startOfDay(new Date(c.date));
+             return d >= weekStart && d < addDays(weekStart, 7);
+          }).length;
+        }
+
+        const pct = thisWeekTotal === 0 ? 0 : Math.round((thisWeekCompletions / thisWeekTotal) * 100);
         
         // Check if completed today
         const todayStatus = getHabitStatusForDate(habit, habitCompletions, today);
@@ -110,94 +127,110 @@ export function HabitList() {
             key={habit.id} 
             onClick={() => setSelectedHabit(habit)}
             className={cn(
-              "flex items-center gap-4 cursor-pointer group relative w-full",
+              "bg-surface-card rounded-2xl p-5 shadow-sm border border-transparent flex flex-col gap-4 cursor-pointer hover:shadow-md transition-all relative overflow-hidden group",
               habit.paused && "opacity-60 grayscale-[0.5]"
             )}
           >
-            {/* LEFT: Completion Control */}
-            <div className="relative z-10 shrink-0 ml-1">
+            {/* Top row */}
+            <div className="flex justify-between items-start">
+              <div className="flex gap-3 items-center">
+                <div className="w-10 h-10 rounded-full bg-canvas flex items-center justify-center text-xl shrink-0">
+                  <HabitIcon icon={habit.icon} className="w-5 h-5 text-ink" />
+                </div>
+                <div className="flex flex-col">
+                  <h3 className="font-medium text-ink flex items-center gap-2">
+                    {habit.title} 
+                    {habit.paused && <span className="text-[10px] uppercase bg-canvas px-2 py-0.5 rounded-full text-ink-muted font-medium">Paused</span>}
+                  </h3>
+                  <p className="text-sm text-ink-muted">
+                    {habit.description || (habit.type === 'daily' ? 'Daily' : habit.type === 'weekly' ? `${habit.target} times per week` : `${habit.target} ${habit.unit} daily`)}
+                  </p>
+                </div>
+              </div>
+
+              {/* Completion button */}
               {(habit.type === 'daily' || habit.type === 'weekly' || habit.type === 'avoid') ? (
                 <button 
                   onClick={(e) => toggleCompletion(habit, today, e)}
                   disabled={habit.paused}
                   className={cn(
-                    "w-11 h-11 rounded-full flex items-center justify-center transition-all active:scale-90",
+                    "w-12 h-12 rounded-full flex items-center justify-center transition-all shrink-0 active:scale-90",
                     isCompletedToday 
-                      ? "bg-accent-yellow text-surface-dark-foreground shadow-sm" 
-                      : "bg-surface-card border border-border text-ink-muted hover:border-accent-yellow/50 hover:text-accent-yellow"
+                      ? "bg-accent-blue text-surface-dark-foreground" 
+                      : "bg-canvas text-ink-muted hover:bg-border/50 hover:text-ink"
                   )}
                 >
-                  {isCompletedToday ? <CheckCircle className="w-5 h-5" /> : <Circle className="w-5 h-5 opacity-40" />}
+                  <CheckCircle className="w-6 h-6" />
                 </button>
               ) : (
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    // If it's a numeric habit, just clicking the circle adds 1, or marks completed if goal reached?
-                    // Let's just make clicking it toggle full completion (reach target) or 0
-                    if (isCompletedToday) {
-                      updateNumericProgress(habit, -habit.target, e);
-                    } else {
-                      updateNumericProgress(habit, habit.target - todayValue, e);
-                    }
-                  }}
-                  disabled={habit.paused}
-                  className={cn(
-                    "w-11 h-11 rounded-full flex items-center justify-center transition-all active:scale-90",
-                    isCompletedToday 
-                      ? "bg-accent-yellow text-surface-dark-foreground shadow-sm" 
-                      : (todayValue > 0 ? "bg-accent-yellow/20 border border-accent-yellow text-accent-yellow" : "bg-surface-card border border-border text-ink-muted hover:border-accent-yellow/50 hover:text-accent-yellow")
-                  )}
-                >
-                  {isCompletedToday ? <CheckCircle className="w-5 h-5" /> : (todayValue > 0 ? <span className="text-xs font-medium">{todayValue}</span> : <Circle className="w-5 h-5 opacity-40" />)}
-                </button>
+                /* Numeric/Duration controls */
+                <div className="flex items-center gap-3 bg-canvas p-1 rounded-full" onClick={e => e.stopPropagation()}>
+                  <button 
+                    onClick={(e) => updateNumericProgress(habit, -1, e)}
+                    disabled={habit.paused}
+                    className="w-8 h-8 rounded-full bg-surface-card flex items-center justify-center text-ink-muted hover:text-ink shadow-sm active:scale-95 transition-transform"
+                  >
+                    <Minus className="w-4 h-4" />
+                  </button>
+                  <span className="text-sm font-medium w-16 text-center tabular-nums">
+                    {todayValue} / {habit.target}
+                  </span>
+                  <button 
+                    onClick={(e) => updateNumericProgress(habit, 1, e)}
+                    disabled={habit.paused}
+                    className="w-8 h-8 rounded-full bg-accent-blue text-surface-dark-foreground flex items-center justify-center shadow-sm active:scale-95 transition-transform"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
               )}
             </div>
 
-            {/* CARD (CENTER & RIGHT) */}
-            <div className={cn(
-              "flex-1 bg-surface-card rounded-[20px] p-4 flex items-center justify-between border shadow-sm transition-all overflow-hidden",
-              isCompletedToday ? "border-transparent bg-canvas/50" : "border-border/60 hover:shadow-md"
-            )}>
-              {/* CENTER: Name & Streak */}
-              <div className="flex items-center gap-3 min-w-0">
-                <div className={cn(
-                  "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
-                  isCompletedToday ? "bg-canvas text-ink-muted" : "bg-canvas text-ink"
-                )}>
-                  <HabitIcon icon={habit.icon} className="w-5 h-5" />
+            {/* Bottom Row */}
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between mt-2 gap-4 sm:gap-0">
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-1.5 text-sm font-medium text-ink">
+                  🔥 {current} day streak
                 </div>
-                <div className="flex flex-col min-w-0">
-                  <h3 className={cn(
-                    "font-medium truncate",
-                    isCompletedToday ? "text-ink-muted" : "text-ink"
-                  )}>
-                    {habit.title}
-                  </h3>
-                  <p className="text-xs text-ink-muted flex items-center gap-1.5 mt-0.5">
-                    Streak {current} days
-                    {habit.paused && <span className="uppercase text-[9px] bg-canvas px-1.5 py-0.5 rounded font-medium ml-1">Paused</span>}
-                  </p>
+                
+                {/* Mini Calendar */}
+                <div className="flex gap-1.5">
+                  {dayStatuses.map(({ day, status }, i) => (
+                    <div key={i} className="flex flex-col items-center gap-1">
+                      <span className="text-[10px] text-ink-muted">{format(day, 'ee').charAt(0)}</span>
+                      <div className={cn(
+                        "w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold transition-colors",
+                        status === 'completed' ? "bg-accent-blue text-surface-dark-foreground" :
+                        status === 'inactive' ? "bg-transparent text-transparent" :
+                        status === 'missed' ? "bg-canvas text-ink-muted/50" :
+                        "bg-canvas text-ink-muted"
+                      )}>
+                        {status === 'completed' ? '✓' : status === 'missed' ? '×' : status === 'inactive' ? '' : '·'}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-
-              {/* RIGHT: Value / Time */}
-              <div className="flex flex-col items-end justify-center shrink-0 ml-3">
-                <div className="text-ink-muted/80 w-5 h-5 flex justify-end">
-                   {habit.type === 'duration' || habit.type === 'numeric' ? (
-                     <span className="text-xs font-medium text-ink tabular-nums">{habit.target} {habit.unit}</span>
-                   ) : habit.type === 'weekly' ? (
-                     <span className="text-xs font-medium text-ink">{habit.target}x/wk</span>
-                   ) : (
-                     <span className="text-[10px] uppercase font-semibold tracking-wider text-ink-muted opacity-60">Daily</span>
-                   )}
-                </div>
+              
+              <div className="flex flex-col items-end gap-1">
+                <span className="text-xs font-medium text-ink">{pct}%</span>
+                <span className="text-[10px] text-ink-muted">{thisWeekCompletions} / {thisWeekTotal} this week</span>
               </div>
             </div>
+            
+            {/* Very subtle background progress bar if not completed */}
+            {!isCompletedToday && habit.type !== 'avoid' && pct > 0 && pct < 100 && (
+              <div 
+                className="absolute bottom-0 left-0 h-1 bg-accent-blue/20 transition-all duration-500" 
+                style={{ width: `${pct}%` }} 
+              />
+            )}
+            {isCompletedToday && (
+              <div className="absolute bottom-0 left-0 h-1 bg-accent-blue w-full" />
+            )}
           </div>
         );
       })}
-      </div>
       
       {habits.length === 0 && (
         <div className="text-center py-16 bg-surface-card rounded-2xl border border-dashed border-border flex flex-col items-center gap-4">

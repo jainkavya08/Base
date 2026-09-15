@@ -53,36 +53,56 @@ export function WeeklyOverview() {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Hidden on mobile if we want a cleaner header, but let's keep the title minimal */}
-      <div className="hidden md:flex items-center justify-between">
+      <div className="flex items-center justify-between">
         <h3 className="font-medium text-ink">This Week</h3>
         <span className="text-sm text-ink-muted bg-surface-card px-3 py-1 rounded-full">
           {globalCompletedDays} / {globalTotalDays} perfect days
         </span>
       </div>
       
-      <div className="flex justify-between items-center gap-1 overflow-x-auto pb-2 scrollbar-hide">
+      <div className="flex justify-between items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
         {dayStats.map((stat, i) => {
           const isToday = isSameDay(stat.date, today);
           
           return (
             <div 
               key={i} 
-              className="flex flex-col items-center justify-center gap-2 min-w-[44px]"
+              className={cn(
+                "flex flex-col items-center justify-between p-2 rounded-full h-[110px] min-w-[60px] transition-all",
+                isToday && stat.isPerfect ? "bg-accent-blue shadow-md border border-transparent" : 
+                isToday ? "bg-surface-card ring-2 ring-inset ring-accent-blue border border-transparent shadow-sm" : 
+                "bg-surface-card border border-border/50"
+              )}
             >
               <span className={cn(
-                "text-[11px] font-medium uppercase tracking-wider",
-                isToday ? "text-accent-yellow" : "text-ink-muted"
+                "text-sm font-medium mt-1",
+                isToday && stat.isPerfect ? "text-surface-dark-foreground" : 
+                isToday ? "text-accent-blue" : "text-ink"
               )}>
-                {format(stat.date, 'EE').substring(0, 3)}
+                {format(stat.date, 'EE').charAt(0)}
               </span>
               
               <div className={cn(
-                "w-10 h-10 rounded-full flex flex-col items-center justify-center text-sm font-semibold transition-colors",
-                isToday ? "bg-accent-yellow text-surface-dark-foreground shadow-sm" : 
-                "bg-surface-card text-ink"
+                "w-11 h-11 rounded-full flex flex-col items-center justify-center text-sm font-semibold relative",
+                isToday && stat.isPerfect ? "bg-surface-card text-accent-blue" : 
+                isToday ? "bg-accent-blue text-surface-dark-foreground" : 
+                "bg-canvas text-ink",
+                !isToday && stat.isPerfect ? "ring-2 ring-accent-blue/50" : "",
+                !isToday && stat.isPartial ? "ring-1 ring-accent-blue/30" : ""
               )}>
                 <span>{format(stat.date, 'd')}</span>
+                
+                {/* Small indicator dots for completed/missed status */}
+                {!isToday && (
+                  <div className="absolute -bottom-1 flex justify-center w-full">
+                    <div className={cn(
+                      "w-1.5 h-1.5 rounded-full",
+                      stat.isPerfect ? "bg-accent-blue" :
+                      stat.isPartial ? "bg-accent-blue/50" :
+                      "bg-transparent"
+                    )} />
+                  </div>
+                )}
               </div>
             </div>
           );
