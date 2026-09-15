@@ -9,14 +9,17 @@ export function GlobalHooks() {
   useReminders();
   
   const theme = useAppStore((state) => state.settings?.theme || 'light');
+  const hasHydrated = useAppStore((state) => state._hasHydrated);
 
   useEffect(() => {
+    if (!hasHydrated) return;
+
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
-  }, [theme]);
+  }, [theme, hasHydrated]);
 
   return <HabitReminders />;
 }

@@ -49,6 +49,8 @@ interface AppState {
   };
   updateSettings: (settings: Partial<AppState['settings']>) => void;
   resetWidgetLayout: () => void;
+  _hasHydrated: boolean;
+  setHasHydrated: (state: boolean) => void;
 }
 
 const defaultWidgets: WidgetLayout[] = [
@@ -111,9 +113,14 @@ export const useAppStore = create<AppState>()(
         settings: { ...state.settings, ...newSettings }
       })),
       resetWidgetLayout: () => set({ widgets: defaultWidgets }),
+      _hasHydrated: false,
+      setHasHydrated: (state) => set({ _hasHydrated: state }),
     }),
     {
       name: 'personal-dashboard-storage',
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true)
+      },
       partialize: (state) => ({ 
         widgets: state.widgets,
         settings: state.settings,
