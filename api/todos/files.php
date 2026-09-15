@@ -16,7 +16,7 @@ header('Content-Type: application/json');
 
 try {
     if ($method === 'GET') {
-        $stmt = $db->prepare("SELECT id, name, description, created_at as createdAt, updated_at as updatedAt FROM files WHERE user_id = :user_id ORDER BY created_at ASC");
+        $stmt = $pdo->prepare("SELECT id, name, description, created_at as createdAt, updated_at as updatedAt FROM files WHERE user_id = :user_id ORDER BY created_at ASC");
         $stmt->execute(['user_id' => $user_id]);
         echo json_encode(['success' => true, 'files' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
     } 
@@ -25,7 +25,7 @@ try {
         $name = $input['name'];
         $desc = $input['description'] ?? null;
         
-        $stmt = $db->prepare("INSERT INTO files (id, user_id, name, description) VALUES (:id, :user_id, :name, :description)");
+        $stmt = $pdo->prepare("INSERT INTO files (id, user_id, name, description) VALUES (:id, :user_id, :name, :description)");
         $stmt->execute([
             'id' => $id,
             'user_id' => $user_id,
@@ -40,7 +40,7 @@ try {
         $name = $input['name'];
         $desc = $input['description'] ?? null;
         
-        $stmt = $db->prepare("UPDATE files SET name = :name, description = :description WHERE id = :id AND user_id = :user_id");
+        $stmt = $pdo->prepare("UPDATE files SET name = :name, description = :description WHERE id = :id AND user_id = :user_id");
         $stmt->execute([
             'id' => $id,
             'user_id' => $user_id,
@@ -53,7 +53,7 @@ try {
     elseif ($method === 'DELETE') {
         $id = $input['id'];
         
-        $stmt = $db->prepare("DELETE FROM files WHERE id = :id AND user_id = :user_id");
+        $stmt = $pdo->prepare("DELETE FROM files WHERE id = :id AND user_id = :user_id");
         $stmt->execute(['id' => $id, 'user_id' => $user_id]);
         
         echo json_encode(['success' => true]);

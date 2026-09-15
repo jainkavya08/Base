@@ -27,6 +27,7 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
       if (isLogin) {
         const res = await fetch("/api/auth/login.php", {
           method: "POST",
+          credentials: 'same-origin',
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
         });
@@ -40,6 +41,7 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
       } else {
         const res = await fetch("/api/auth/register.php", {
           method: "POST",
+          credentials: 'same-origin',
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name, email, password, confirmPassword }),
         });

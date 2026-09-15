@@ -31,7 +31,7 @@ export function AuthWrapper({ children }: { children: React.ReactNode }) {
 
   const refreshSession = async () => {
     try {
-      const res = await fetch("/api/auth/session.php");
+      const res = await fetch("/api/auth/session.php", { credentials: 'same-origin' });
       const data = await res.json();
       if (data.authenticated && data.user) {
         setUser(data.user);
@@ -48,7 +48,7 @@ export function AuthWrapper({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
-      await fetch("/api/auth/logout.php");
+      await fetch("/api/auth/logout.php", { credentials: 'same-origin' });
       setUser(null);
     } catch (e) {
       console.error("Failed to logout", e);

@@ -16,7 +16,7 @@ header('Content-Type: application/json');
 
 try {
     if ($method === 'GET') {
-        $stmt = $db->prepare("SELECT id, file_id as fileId, name, description, default_view as defaultView, created_at as createdAt, updated_at as updatedAt FROM todo_lists WHERE user_id = :user_id ORDER BY created_at ASC");
+        $stmt = $pdo->prepare("SELECT id, file_id as fileId, name, description, default_view as defaultView, created_at as createdAt, updated_at as updatedAt FROM todo_lists WHERE user_id = :user_id ORDER BY created_at ASC");
         $stmt->execute(['user_id' => $user_id]);
         echo json_encode(['success' => true, 'lists' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
     } 
@@ -28,7 +28,7 @@ try {
         $default_view = $input['defaultView'] ?? 'list';
         
         // Verify ownership of the file
-        $stmtFile = $db->prepare("SELECT id FROM files WHERE id = :file_id AND user_id = :user_id");
+        $stmtFile = $pdo->prepare("SELECT id FROM files WHERE id = :file_id AND user_id = :user_id");
         $stmtFile->execute(['file_id' => $file_id, 'user_id' => $user_id]);
         if (!$stmtFile->fetch()) {
             http_response_code(403);
@@ -36,7 +36,7 @@ try {
             exit;
         }
 
-        $stmt = $db->prepare("INSERT INTO todo_lists (id, user_id, file_id, name, description, default_view) VALUES (:id, :user_id, :file_id, :name, :description, :default_view)");
+        $stmt = $pdo->prepare("INSERT INTO todo_lists (id, user_id, file_id, name, description, default_view) VALUES (:id, :user_id, :file_id, :name, :description, :default_view)");
         $stmt->execute([
             'id' => $id,
             'user_id' => $user_id,
@@ -55,10 +55,10 @@ try {
         $default_view = $input['defaultView'] ?? null;
         
         if ($default_view !== null) {
-            $stmt = $db->prepare("UPDATE todo_lists SET default_view = :default_view WHERE id = :id AND user_id = :user_id");
+            $stmt = $pdo->prepare("UPDATE todo_lists SET default_view = :default_view WHERE id = :id AND user_id = :user_id");
             $stmt->execute(['id' => $id, 'user_id' => $user_id, 'default_view' => $default_view]);
         } else {
-            $stmt = $db->prepare("UPDATE todo_lists SET name = :name, description = :description WHERE id = :id AND user_id = :user_id");
+            $stmt = $pdo->prepare("UPDATE todo_lists SET name = :name, description = :description WHERE id = :id AND user_id = :user_id");
             $stmt->execute(['id' => $id, 'user_id' => $user_id, 'name' => $name, 'description' => $desc]);
         }
         
@@ -67,7 +67,7 @@ try {
     elseif ($method === 'DELETE') {
         $id = $input['id'];
         
-        $stmt = $db->prepare("DELETE FROM todo_lists WHERE id = :id AND user_id = :user_id");
+        $stmt = $pdo->prepare("DELETE FROM todo_lists WHERE id = :id AND user_id = :user_id");
         $stmt->execute(['id' => $id, 'user_id' => $user_id]);
         
         echo json_encode(['success' => true]);

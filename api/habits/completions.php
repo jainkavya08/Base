@@ -16,7 +16,7 @@ header('Content-Type: application/json');
 
 try {
     if ($method === 'GET') {
-        $stmt = $db->prepare("SELECT 
+        $stmt = $pdo->prepare("SELECT 
             id, 
             habit_id as habitId, 
             date, 
@@ -43,7 +43,7 @@ try {
         $value = $input['value'] ?? null;
         
         // Verify habit ownership
-        $habitCheck = $db->prepare("SELECT id FROM habits WHERE id = :habit_id AND user_id = :user_id");
+        $habitCheck = $pdo->prepare("SELECT id FROM habits WHERE id = :habit_id AND user_id = :user_id");
         $habitCheck->execute(['habit_id' => $habit_id, 'user_id' => $user_id]);
         if (!$habitCheck->fetch()) {
             http_response_code(403);
@@ -52,7 +52,7 @@ try {
         }
 
         // Insert or update (upsert)
-        $stmt = $db->prepare("INSERT INTO habit_completions (id, user_id, habit_id, date, value) 
+        $stmt = $pdo->prepare("INSERT INTO habit_completions (id, user_id, habit_id, date, value) 
                               VALUES (:id, :user_id, :habit_id, :date, :value)
                               ON DUPLICATE KEY UPDATE value = :value2");
         
@@ -70,10 +70,10 @@ try {
     elseif ($method === 'DELETE') {
         // Delete a completion record
         if (isset($input['id'])) {
-            $stmt = $db->prepare("DELETE FROM habit_completions WHERE id = :id AND user_id = :user_id");
+            $stmt = $pdo->prepare("DELETE FROM habit_completions WHERE id = :id AND user_id = :user_id");
             $stmt->execute(['id' => $input['id'], 'user_id' => $user_id]);
         } else if (isset($input['habitId']) && isset($input['date'])) {
-            $stmt = $db->prepare("DELETE FROM habit_completions WHERE habit_id = :habit_id AND date = :date AND user_id = :user_id");
+            $stmt = $pdo->prepare("DELETE FROM habit_completions WHERE habit_id = :habit_id AND date = :date AND user_id = :user_id");
             $stmt->execute([
                 'habit_id' => $input['habitId'],
                 'date' => $input['date'],

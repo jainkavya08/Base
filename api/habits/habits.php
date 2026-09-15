@@ -16,7 +16,7 @@ header('Content-Type: application/json');
 
 try {
     if ($method === 'GET') {
-        $stmt = $db->prepare("SELECT 
+        $stmt = $pdo->prepare("SELECT 
             id, 
             title, 
             type, 
@@ -59,7 +59,7 @@ try {
         $reminder_time = $input['reminderTime'] ?? null;
         $paused = isset($input['paused']) && $input['paused'] ? 1 : 0;
         
-        $stmt = $db->prepare("INSERT INTO habits (id, user_id, title, type, description, active_days, target, unit, icon, color, reminder_time, paused) 
+        $stmt = $pdo->prepare("INSERT INTO habits (id, user_id, title, type, description, active_days, target, unit, icon, color, reminder_time, paused) 
                               VALUES (:id, :user_id, :title, :type, :description, :active_days, :target, :unit, :icon, :color, :reminder_time, :paused)");
         $stmt->execute([
             'id' => $id,
@@ -102,7 +102,7 @@ try {
         }
 
         $sql = "UPDATE habits SET " . implode(', ', $fields) . " WHERE id = :id AND user_id = :user_id";
-        $stmt = $db->prepare($sql);
+        $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
         
         echo json_encode(['success' => true]);
@@ -111,7 +111,7 @@ try {
         $id = $input['id'];
         
         // On delete cascade handles completions
-        $stmt = $db->prepare("DELETE FROM habits WHERE id = :id AND user_id = :user_id");
+        $stmt = $pdo->prepare("DELETE FROM habits WHERE id = :id AND user_id = :user_id");
         $stmt->execute(['id' => $id, 'user_id' => $user_id]);
         
         echo json_encode(['success' => true]);

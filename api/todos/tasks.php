@@ -16,47 +16,50 @@ header('Content-Type: application/json');
 
 try {
     if ($method === 'GET') {
-        $stmt = $db->prepare("SELECT id, list_id as listId, parent_task_id as parentTaskId, title, description, completed, due_date as dueDate, priority, status, position, created_at as createdAt, updated_at as updatedAt FROM tasks WHERE user_id = :user_id ORDER BY created_at ASC");
+        $stmt = $pdo->prepare("SELECT id, list_id as listId, parent_task_id as parentTaskId, title, description, completed, due_date as dueDate, priority, status, position, created_at as createdAt, updated_at as updatedAt FROM tasks WHERE user_id = :user_id ORDER BY created_at ASC");
         $stmt->execute(['user_id' => $user_id]);
         
         $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        // Cast completed to boolean for frontend compatibility
+        // Cast completed to boolean for frontend
         foreach ($tasks as &$task) {
             $task['completed'] = (bool)$task['completed'];
         }
         
         echo json_encode(['success' => true, 'tasks' => $tasks]);
     } 
-    elseif ($method === 'POST') {
-        if (isset($input['bulk']) && $input['bulk'] === true) {
-            // Handle bulk updates (like toggling parent + subtasks)
-            $updates = $input['updates'];
-            $db->beginTransaction();
-            $stmt = $db->prepare("UPDATE tasks SET completed = :completed, updated_at = :updated_at WHERE id = :id AND user_id = :user_id");
-            foreach ($updates as $update) {
-                $stmt->execute([
-                    'completed' => $update['changes']['completed'] ? 1 : 0,
-                    'updated_at' => $update['changes']['updatedAt'] ?? date('Y-m-d H:i:s'),
-                    'id' => $update['key'],
-                    'user_id' => $user_id
-                ]);
-            }
-            $db->commit();
+    elseif ($method === 'PUT') {
+        if (isset($input['action']) && $input['action'] === 'toggle') {
+            $id = $input['id'];
+            $completed = $input['completed'] ? 1 : 0;
+            $updated_at = date('Y-m-d H:i:s');
+            
+            $pdo->beginTransaction();
+            $stmt = $pdo->prepare("UPDATE tasks SET completed = :completed, updated_at = :updated_at WHERE id = :id AND user_id = :user_id");
+            $stmt->execute([
+                'id' => $id,
+                'user_id' => $user_id,
+                'completed' => $completed,
+                'updated_at' => $updated_at
+            ]);
+            
+            // Note: In Dexie we had recursive toggle, we'll keep it simple or implement recursive if needed
+            
+            $pdo->commit();
             echo json_encode(['success' => true]);
             exit;
         }
 
         $id = $input['id'] ?? uniqid('', true);
         $list_id = $input['listId'];
+        $parent_task_id = $input['parentTaskId'] ?? null;
         $title = $input['title'];
         $desc = $input['description'] ?? null;
-        $completed = $input['completed'] ? 1 : 0;
+        $completed = ($input['completed'] ?? false) ? 1 : 0;
         $due_date = $input['dueDate'] ?? null;
         $priority = $input['priority'] ?? 'medium';
-        $parent_task_id = $input['parentTaskId'] ?? null;
         
-        // Verify ownership of the list
-        $stmtList = $db->prepare("SELECT id FROM todo_lists WHERE id = :list_id AND user_id = :user_id");
+        // Verify list ownership
+        $stmtList = $pdo->prepare("SELECT id FROM todo_lists WHERE id = :list_id AND user_id = :user_id");
         $stmtList->execute(['list_id' => $list_id, 'user_id' => $user_id]);
         if (!$stmtList->fetch()) {
             http_response_code(403);
@@ -64,7 +67,7 @@ try {
             exit;
         }
 
-        $stmt = $db->prepare("INSERT INTO tasks (id, user_id, list_id, parent_task_id, title, description, completed, due_date, priority) VALUES (:id, :user_id, :list_id, :parent_task_id, :title, :description, :completed, :due_date, :priority)");
+        $stmt = $pdo->prepare("INSERT INTO tasks (id, user_id, list_id, parent_task_id, title, description, completed, due_date, priority) VALUES (:id, :user_id, :list_id, :parent_task_id, :title, :description, :completed, :due_date, :priority)");
         $stmt->execute([
             'id' => $id,
             'user_id' => $user_id,
@@ -77,12 +80,6 @@ try {
             'priority' => $priority
         ]);
         
-        echo json_encode(['success' => true, 'id' => $id]);
-    }
-    elseif ($method === 'PUT') {
-        $id = $input['id'];
-        
-        // Build dynamic update query based on provided fields
         $fields = [];
         $params = ['id' => $id, 'user_id' => $user_id];
         
@@ -97,9 +94,9 @@ try {
             echo json_encode(['success' => true]);
             exit;
         }
-
-        $sql = "UPDATE tasks SET " . implode(', ', $fields) . " WHERE id = :id AND user_id = :user_id";
-        $stmt = $db->prepare($sql);
+        
+        $sql = "UPDATE tasks SET " . implode(", ", $fields) . " WHERE id = :id AND user_id = :user_id";
+        $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
         
         echo json_encode(['success' => true]);
@@ -107,7 +104,7 @@ try {
     elseif ($method === 'DELETE') {
         $id = $input['id'];
         
-        $stmt = $db->prepare("DELETE FROM tasks WHERE id = :id AND user_id = :user_id");
+        $stmt = $pdo->prepare("DELETE FROM tasks WHERE id = :id AND user_id = :user_id");
         $stmt->execute(['id' => $id, 'user_id' => $user_id]);
         
         echo json_encode(['success' => true]);
@@ -116,8 +113,8 @@ try {
         echo json_encode(['success' => false, 'error' => 'Method Not Allowed']);
     }
 } catch (PDOException $e) {
-    if ($db->inTransaction()) {
-        $db->rollBack();
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
     }
     http_response_code(500);
     echo json_encode(['success' => false, 'error' => 'Server error: ' . $e->getMessage()]);

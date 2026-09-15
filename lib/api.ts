@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 export async function fetchApi(endpoint: string, options: RequestInit = {}) {
   try {
     const res = await fetch(endpoint, {
+      credentials: 'same-origin',
       ...options,
       headers: {
         'Content-Type': 'application/json',

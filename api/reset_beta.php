@@ -32,18 +32,18 @@ try {
     ];
 
     foreach ($tables as $table) {
-        $stmt = $db->prepare("DELETE FROM $table WHERE user_id = :user_id");
+        $stmt = $pdo->prepare("DELETE FROM $table WHERE user_id = :user_id");
         $stmt->execute(['user_id' => $_SESSION['user_id']]);
     }
 
-    $db->exec("SET FOREIGN_KEY_CHECKS = 1");
+    $pdo->exec("SET FOREIGN_KEY_CHECKS = 1");
 
     echo json_encode([
         'success' => true,
         'message' => 'Beta data reset successfully for the authenticated user.'
     ]);
 } catch (PDOException $e) {
-    $db->exec("SET FOREIGN_KEY_CHECKS = 1");
+    $pdo->exec("SET FOREIGN_KEY_CHECKS = 1");
     http_response_code(500);
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
