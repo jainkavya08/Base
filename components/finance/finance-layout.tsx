@@ -84,7 +84,7 @@ function FinanceTabs() {
         ))}
       </div>
 
-      <div className="flex-1 animate-in fade-in duration-500">
+      <div className="flex-1 min-w-0 animate-in fade-in duration-500">
         {renderTab()}
       </div>
     </>
@@ -93,7 +93,7 @@ function FinanceTabs() {
 
 export function FinanceLayout() {
   return (
-    <div className="p-4 pb-24 md:p-8 md:pb-8 max-w-7xl mx-auto h-full flex flex-col gap-6 md:gap-8">
+    <div className="p-4 pb-24 md:p-8 md:pb-8 max-w-7xl mx-auto h-full flex flex-col gap-6 md:gap-8 min-w-0 w-full">
       <Suspense fallback={<div className="p-8">Loading finance...</div>}>
         <FinanceTabs />
       </Suspense>

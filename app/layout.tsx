@@ -74,7 +74,7 @@ export default function RootLayout({
         <AuthWrapper>
           <GlobalHooks />
           <NavRail />
-          <main className="flex-1 pb-20 md:pb-0 pl-0 md:pl-32 min-h-screen">
+          <main className="flex-1 pb-20 md:pb-0 pl-0 md:pl-32 min-h-screen min-w-0">
             {children}
           </main>
         </AuthWrapper>

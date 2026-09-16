@@ -103,10 +103,10 @@ export function AccountCardStack({ accounts, totalBalance }: AccountCardStackPro
             )}
           </div>
 
-          <div className="mt-6 flex items-end justify-between">
+          <div className="mt-6 flex items-end justify-between gap-4">
             <h2 className={cn(
-              "font-medium pointer-events-none",
-              currentCard.type === 'total' ? "text-3xl" : "text-2xl"
+              "font-medium pointer-events-none truncate min-w-0 flex-1",
+              currentCard.type === 'total' ? "text-3xl md:text-4xl" : "text-2xl"
             )}>
               {formatCurrency(currentCard.balance)}
             </h2>
