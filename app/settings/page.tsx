@@ -253,7 +253,7 @@ export default function SettingsPage() {
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">
-                {['default', 'Gold', 'Amber', 'Blue', 'Green', 'Purple', 'Red'].map(color => (
+                {['default', 'Gold', 'Amber', 'Blue', 'Green', 'Purple', 'Red', 'Ocean'].map(color => (
                   <button
                     key={color}
                     onClick={() => updateSettings({ accentColor: color })}
@@ -265,6 +265,7 @@ export default function SettingsPage() {
                         color === 'Blue' ? '#3b82f6' :
                         color === 'Green' ? '#10b981' :
                         color === 'Purple' ? '#8b5cf6' :
+                        color === 'Ocean' ? '#33648b' :
                         '#ef4444' // Red
                     }}
                     title={color === 'default' ? 'Default' : color}

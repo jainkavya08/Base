@@ -28,7 +28,8 @@ export function GlobalHooks() {
         Blue: '#3b82f6',
         Green: '#10b981',
         Purple: '#8b5cf6',
-        Red: '#ef4444'
+        Red: '#ef4444',
+        Ocean: '#33648b'
       };
       const color = accents[accentColor];
       if (color) {
