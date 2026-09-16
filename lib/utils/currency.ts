@@ -1,4 +1,4 @@
-export const formatCurrency = (amount: number, hideDecimals = true): string => {
+export const formatCurrency = (amount: number, hideDecimals = false): string => {
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',

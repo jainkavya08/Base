@@ -37,6 +37,8 @@ export function GlobalHooks() {
         document.documentElement.style.setProperty('--ring', color);
         document.documentElement.style.setProperty('--sidebar-ring', color);
         document.documentElement.style.setProperty('--sidebar-primary', color);
+        // Apply to the hardcoded accent-yellow variable so all UI elements (buttons, glows) update
+        document.documentElement.style.setProperty('--accent-yellow', color);
       }
     } else {
       document.documentElement.style.removeProperty('--accent');
@@ -44,6 +46,7 @@ export function GlobalHooks() {
       document.documentElement.style.removeProperty('--ring');
       document.documentElement.style.removeProperty('--sidebar-ring');
       document.documentElement.style.removeProperty('--sidebar-primary');
+      document.documentElement.style.removeProperty('--accent-yellow');
     }
   }, [theme, accentColor, hasHydrated]);
 
