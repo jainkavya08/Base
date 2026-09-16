@@ -71,7 +71,7 @@ export function HabitCalendar() {
               onClick={() => setCurrentMonth(m)}
               className={cn(
                 "px-6 py-2 rounded-full font-medium transition-colors min-w-[80px]",
-                isSelected ? "bg-accent-blue text-surface-dark-foreground shadow-md" : "bg-surface-card text-ink hover:bg-canvas"
+                isSelected ? "bg-accent-blue text-white shadow-md" : "bg-surface-card text-ink hover:bg-canvas"
               )}
             >
               {format(m, "MMM")}
@@ -177,7 +177,7 @@ export function HabitCalendar() {
                       disabled={isFutureDate}
                       className={cn(
                         "w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors text-xs sm:text-sm font-medium z-10 relative",
-                        isAllCompleted ? 'bg-accent-blue text-surface-dark-foreground' : 
+                        isAllCompleted ? 'bg-accent-blue text-white' : 
                         isMissed ? 'bg-[repeating-linear-gradient(45deg,var(--color-border),var(--color-border)_2px,transparent_2px,transparent_6px)] text-transparent border border-border/50' :
                         isPartial ? 'bg-accent-blue/20 text-accent-blue' :
                         isFutureDate ? 'text-ink-muted/60 cursor-default bg-canvas/30' : 

@@ -50,7 +50,7 @@ export function AddFileDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button className="bg-accent-blue text-surface-dark-foreground hover:bg-accent-blue/90 rounded-full px-6" />}>
+      <DialogTrigger render={<Button className="bg-accent-blue text-white hover:bg-accent-blue/90 rounded-full px-6" />}>
         <Plus className="w-4 h-4 mr-2" />
         New File
       </DialogTrigger>
@@ -92,7 +92,7 @@ export function AddFileDialog() {
             <Button
               type="submit"
               disabled={!name.trim()}
-              className="bg-accent-blue text-surface-dark-foreground hover:bg-accent-blue/90"
+              className="bg-accent-blue text-white hover:bg-accent-blue/90"
             >
               Create
             </Button>

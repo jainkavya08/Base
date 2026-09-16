@@ -52,6 +52,11 @@ interface AppState {
   resetWidgetLayout: () => void;
   _hasHydrated: boolean;
   setHasHydrated: (state: boolean) => void;
+  // Quick Links
+  quickLinks: { id: string; name: string; url: string; icon?: string }[];
+  addQuickLink: (link: Omit<AppState['quickLinks'][0], 'id'>) => void;
+  removeQuickLink: (id: string) => void;
+  editQuickLink: (id: string, updates: Partial<AppState['quickLinks'][0]>) => void;
 }
 
 const defaultWidgets: WidgetLayout[] = [
@@ -117,6 +122,17 @@ export const useAppStore = create<AppState>()(
       resetWidgetLayout: () => set({ widgets: defaultWidgets }),
       _hasHydrated: false,
       setHasHydrated: (state) => set({ _hasHydrated: state }),
+
+      quickLinks: [],
+      addQuickLink: (link) => set((state) => ({
+        quickLinks: [...state.quickLinks, { ...link, id: Date.now().toString() }]
+      })),
+      removeQuickLink: (id) => set((state) => ({
+        quickLinks: state.quickLinks.filter(l => l.id !== id)
+      })),
+      editQuickLink: (id, updates) => set((state) => ({
+        quickLinks: state.quickLinks.map(l => l.id === id ? { ...l, ...updates } : l)
+      })),
     }),
     {
       name: 'personal-dashboard-storage',
@@ -126,6 +142,7 @@ export const useAppStore = create<AppState>()(
       partialize: (state) => ({ 
         widgets: state.widgets,
         settings: state.settings,
+        quickLinks: state.quickLinks,
         pomodoro: {
           ...state.pomodoro,
           // Do not persist transient timer state, only settings and sessionCount
@@ -134,7 +151,7 @@ export const useAppStore = create<AppState>()(
           // We can optionally persist timeLeft/mode if we want them to survive a refresh while paused
           // Let's persist them so if they reload they don't lose the exact mode
         }
-      }), // Persist widgets, settings, and pomodoro settings
+      }), // Persist widgets, settings, quickLinks, and pomodoro settings
     }
   )
 );

@@ -112,7 +112,7 @@ export function TaskComposer({ listId }: { listId: string }) {
                 <Button 
                   onClick={handleSubmit}
                   disabled={tasksToCreate.length === 0 || isSubmitting}
-                  className="bg-accent-blue text-surface-dark-foreground hover:bg-accent-blue/90"
+                  className="bg-accent-blue text-white hover:bg-accent-blue/90"
                 >
                   {tasksToCreate.length > 1 ? `Add ${tasksToCreate.length} Tasks` : "Add Task"}
                 </Button>

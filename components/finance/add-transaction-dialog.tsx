@@ -89,7 +89,7 @@ export function AddTransactionDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <Button className="rounded-full bg-accent-yellow text-surface-dark hover:bg-accent-yellow/90" onClick={() => setOpen(true)}>
+      <Button className="rounded-full bg-accent-yellow text-white hover:bg-accent-yellow/90" onClick={() => setOpen(true)}>
         <Plus className="w-5 h-5 mr-1" />
         Add Transaction
       </Button>
@@ -201,7 +201,7 @@ export function AddTransactionDialog() {
             <Button type="button" variant="ghost" onClick={() => setOpen(false)} className="text-ink hover:bg-canvas">
               Cancel
             </Button>
-            <Button type="submit" className="bg-accent-yellow text-surface-dark hover:bg-accent-yellow/90 font-medium">
+            <Button type="submit" className="bg-accent-yellow text-white hover:bg-accent-yellow/90 font-medium">
               Save Transaction
             </Button>
           </div>

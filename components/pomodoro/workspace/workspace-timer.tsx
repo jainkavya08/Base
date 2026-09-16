@@ -212,9 +212,9 @@ export function WorkspaceTimer() {
   const strokeDashoffset = circumference - (progress / 100) * circumference;
 
   const modeColors = {
-    focus: { stroke: 'text-accent-blue', btn: 'bg-accent-blue text-surface-dark-foreground hover:bg-accent-blue/90' },
-    short_break: { stroke: 'text-accent-blue', btn: 'bg-accent-blue text-surface-dark-foreground hover:bg-accent-blue/90' },
-    long_break: { stroke: 'text-accent-coral', btn: 'bg-accent-coral text-surface-dark-foreground hover:bg-accent-coral/90' }
+    focus: { stroke: 'text-accent-blue', btn: 'bg-accent-blue text-white hover:bg-accent-blue/90' },
+    short_break: { stroke: 'text-accent-blue', btn: 'bg-accent-blue text-white hover:bg-accent-blue/90' },
+    long_break: { stroke: 'text-accent-coral', btn: 'bg-accent-coral text-white hover:bg-accent-coral/90' }
   };
   
   const currentModeStyle = modeColors[mode];
@@ -232,19 +232,19 @@ export function WorkspaceTimer() {
       <div className="flex gap-2 mb-10 relative z-10 bg-canvas p-1.5 rounded-full border border-border/10">
         <button 
           onClick={() => setMode('focus')}
-          className={cn("px-5 py-2 rounded-full text-sm font-medium transition-all", mode === 'focus' ? 'bg-surface-dark text-surface-dark-foreground shadow-sm' : 'text-surface-dark/60 hover:text-surface-dark')}
+          className={cn("px-5 py-2 rounded-full text-sm font-medium transition-all", mode === 'focus' ? 'bg-surface-dark text-white shadow-sm' : 'text-white/60 hover:text-white')}
         >
           Focus
         </button>
         <button 
           onClick={() => setMode('short_break')}
-          className={cn("px-5 py-2 rounded-full text-sm font-medium transition-all", mode === 'short_break' ? 'bg-surface-dark text-surface-dark-foreground shadow-sm' : 'text-surface-dark/60 hover:text-surface-dark')}
+          className={cn("px-5 py-2 rounded-full text-sm font-medium transition-all", mode === 'short_break' ? 'bg-surface-dark text-white shadow-sm' : 'text-white/60 hover:text-white')}
         >
           Short Break
         </button>
         <button 
           onClick={() => setMode('long_break')}
-          className={cn("px-5 py-2 rounded-full text-sm font-medium transition-all", mode === 'long_break' ? 'bg-surface-dark text-surface-dark-foreground shadow-sm' : 'text-surface-dark/60 hover:text-surface-dark')}
+          className={cn("px-5 py-2 rounded-full text-sm font-medium transition-all", mode === 'long_break' ? 'bg-surface-dark text-white shadow-sm' : 'text-white/60 hover:text-white')}
         >
           Long Break
         </button>
@@ -260,7 +260,7 @@ export function WorkspaceTimer() {
             stroke="currentColor"
             strokeWidth="6"
             fill="transparent"
-            className="text-surface-dark-foreground/10"
+            className="text-white/10"
           />
           <circle
             cx="150"
@@ -279,10 +279,10 @@ export function WorkspaceTimer() {
           />
         </svg>
         <div className="absolute flex flex-col items-center">
-          <span className="text-5xl sm:text-6xl md:text-7xl font-light tracking-tighter text-surface-dark-foreground font-mono tabular-nums">
+          <span className="text-5xl sm:text-6xl md:text-7xl font-light tracking-tighter text-white font-mono tabular-nums">
             {minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
           </span>
-          <span className="text-surface-dark-foreground/50 text-[10px] md:text-sm mt-2 uppercase tracking-widest font-medium">
+          <span className="text-white/50 text-[10px] md:text-sm mt-2 uppercase tracking-widest font-medium">
             Session {sessionCount % settings.sessionsBeforeLongBreak + 1} of {settings.sessionsBeforeLongBreak}
           </span>
         </div>
@@ -294,7 +294,7 @@ export function WorkspaceTimer() {
           variant="ghost" 
           size="icon" 
           onClick={handleReset}
-          className="w-12 h-12 rounded-full text-surface-dark-foreground/60 hover:text-surface-dark-foreground hover:bg-surface-card/10"
+          className="w-12 h-12 rounded-full text-white/60 hover:text-white hover:bg-surface-card/10"
           title="Reset Timer"
         >
           <RotateCcw className="w-5 h-5" />
@@ -304,7 +304,7 @@ export function WorkspaceTimer() {
           onClick={handleStartPause}
           className={cn(
             "w-[200px] h-16 rounded-full shadow-lg hover:scale-[1.02] active:scale-95 transition-all text-lg font-medium tracking-wide",
-            isRunning ? "bg-surface-card/10 text-surface-dark-foreground hover:bg-surface-card/20" : currentModeStyle.btn
+            isRunning ? "bg-surface-card/10 text-white hover:bg-surface-card/20" : currentModeStyle.btn
           )}
         >
           {isRunning ? "Pause" : "Start Focus"}
@@ -314,7 +314,7 @@ export function WorkspaceTimer() {
           variant="ghost" 
           size="icon" 
           onClick={handleSkip}
-          className="w-12 h-12 rounded-full text-surface-dark-foreground/60 hover:text-surface-dark-foreground hover:bg-surface-card/10"
+          className="w-12 h-12 rounded-full text-white/60 hover:text-white hover:bg-surface-card/10"
           title="Skip Session"
         >
           <SkipForward className="w-5 h-5" />
@@ -327,13 +327,13 @@ export function WorkspaceTimer() {
           variant="ghost" 
           size="icon" 
           onClick={toggleFullscreen}
-          className="text-surface-dark-foreground/40 hover:text-surface-dark-foreground hover:bg-surface-card/10 rounded-full"
+          className="text-white/40 hover:text-white hover:bg-surface-card/10 rounded-full"
           title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
         >
           {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
         </Button>
         <TimerSettings open={settingsOpen} onOpenChange={setSettingsOpen}>
-          <Button variant="ghost" size="icon" className="text-surface-dark-foreground/40 hover:text-surface-dark-foreground hover:bg-surface-card/10 rounded-full">
+          <Button variant="ghost" size="icon" className="text-white/40 hover:text-white hover:bg-surface-card/10 rounded-full">
             <Settings className="w-5 h-5" />
           </Button>
         </TimerSettings>

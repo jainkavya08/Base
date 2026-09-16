@@ -157,7 +157,7 @@ export function TaskItem({
                   <Button 
                     size="sm"
                     onClick={handleSaveEdit}
-                    className="h-8 bg-accent-blue text-surface-dark-foreground"
+                    className="h-8 bg-accent-blue text-white"
                   >
                     Save
                   </Button>

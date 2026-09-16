@@ -89,7 +89,7 @@ export function TasksDashboard({ fileId, listId }: { fileId: string; listId: str
           <Button
             variant={view === "list" ? "default" : "outline"}
             size="sm"
-            className={view === "list" ? "bg-accent-blue text-surface-dark-foreground" : "border-border text-ink hover:bg-canvas bg-transparent"}
+            className={view === "list" ? "bg-accent-blue text-white" : "border-border text-ink hover:bg-canvas bg-transparent"}
             onClick={() => setView("list")}
           >
             List
@@ -97,7 +97,7 @@ export function TasksDashboard({ fileId, listId }: { fileId: string; listId: str
           <Button
             variant={view === "board" ? "default" : "outline"}
             size="sm"
-            className={view === "board" ? "bg-accent-blue text-surface-dark-foreground" : "border-border text-ink hover:bg-canvas bg-transparent"}
+            className={view === "board" ? "bg-accent-blue text-white" : "border-border text-ink hover:bg-canvas bg-transparent"}
             onClick={() => setView("board")}
           >
             Board
@@ -105,7 +105,7 @@ export function TasksDashboard({ fileId, listId }: { fileId: string; listId: str
           <Button
             variant={view === "compact" ? "default" : "outline"}
             size="sm"
-            className={view === "compact" ? "bg-accent-blue text-surface-dark-foreground" : "border-border text-ink hover:bg-canvas bg-transparent"}
+            className={view === "compact" ? "bg-accent-blue text-white" : "border-border text-ink hover:bg-canvas bg-transparent"}
             onClick={() => setView("compact")}
           >
             Compact

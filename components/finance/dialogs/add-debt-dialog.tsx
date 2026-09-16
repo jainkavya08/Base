@@ -203,7 +203,7 @@ export function AddDebtDialog() {
             <Button type="button" variant="ghost" onClick={() => setOpen(false)} className="text-ink hover:bg-canvas">
               Cancel
             </Button>
-            <Button type="submit" className="bg-accent-coral text-surface-dark hover:bg-accent-coral/90 font-medium">
+            <Button type="submit" className="bg-accent-coral text-white hover:bg-accent-coral/90 font-medium">
               Save Debt
             </Button>
           </div>

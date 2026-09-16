@@ -64,7 +64,7 @@ export function AddReminderDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={
-        <Button className="rounded-full bg-accent-yellow text-surface-dark hover:bg-accent-yellow/90">
+        <Button className="rounded-full bg-accent-yellow text-white hover:bg-accent-yellow/90">
           <Plus className="w-5 h-5 mr-1" />
           Add Reminder
         </Button>
@@ -117,7 +117,7 @@ export function AddReminderDialog() {
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit" className="bg-accent-yellow text-surface-dark hover:bg-accent-yellow/90">
+            <Button type="submit" className="bg-accent-yellow text-white hover:bg-accent-yellow/90">
               Save Reminder
             </Button>
           </div>

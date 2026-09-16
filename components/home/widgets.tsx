@@ -89,7 +89,7 @@ export function WidgetPomodoro({ size }: { size: 'small' | 'large' }) {
                 targetEndTime: !isRunning ? Date.now() + timeLeft * 1000 : undefined 
               });
             }}
-            className={`rounded-full ${mode === 'focus' ? 'bg-accent-yellow text-surface-dark hover:bg-accent-yellow/90' : 'bg-accent-coral text-surface-dark hover:bg-accent-coral/90'}`}
+            className={`rounded-full ${mode === 'focus' ? 'bg-accent-yellow text-white hover:bg-accent-yellow/90' : 'bg-accent-coral text-white hover:bg-accent-coral/90'}`}
           >
             {isRunning ? <Pause className="w-4 h-4 mr-1" /> : <Play className="w-4 h-4 mr-1" />}
             {isRunning ? 'Pause' : 'Start'}

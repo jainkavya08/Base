@@ -76,7 +76,7 @@ export function WeeklyOverview() {
             >
               <span className={cn(
                 "text-sm font-medium mt-1",
-                isToday && stat.isPerfect ? "text-surface-dark-foreground" : 
+                isToday && stat.isPerfect ? "text-white" : 
                 isToday ? "text-accent-blue" : "text-ink"
               )}>
                 {format(stat.date, 'EE').charAt(0)}
@@ -85,7 +85,7 @@ export function WeeklyOverview() {
               <div className={cn(
                 "w-11 h-11 rounded-full flex flex-col items-center justify-center text-sm font-semibold relative",
                 isToday && stat.isPerfect ? "bg-surface-card text-accent-blue" : 
-                isToday ? "bg-accent-blue text-surface-dark-foreground" : 
+                isToday ? "bg-accent-blue text-white" : 
                 "bg-canvas text-ink",
                 !isToday && stat.isPerfect ? "ring-2 ring-accent-blue/50" : "",
                 !isToday && stat.isPartial ? "ring-1 ring-accent-blue/30" : ""

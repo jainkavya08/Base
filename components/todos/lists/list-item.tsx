@@ -89,7 +89,7 @@ export function ListItem({
         />
         <div className="flex gap-2 justify-end mt-auto">
           <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); setEditName(list.name); setIsEditing(false); }}>Cancel</Button>
-          <Button size="sm" onClick={handleSave} className="bg-accent-blue text-surface-dark-foreground">Save</Button>
+          <Button size="sm" onClick={handleSave} className="bg-accent-blue text-white">Save</Button>
         </div>
       </div>
     );

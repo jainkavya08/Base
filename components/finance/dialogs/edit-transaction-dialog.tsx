@@ -216,7 +216,7 @@ export function EditTransactionDialog({
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} className="text-ink hover:bg-canvas">
               Cancel
             </Button>
-            <Button type="submit" className="bg-accent-yellow text-surface-dark hover:bg-accent-yellow/90 font-medium">
+            <Button type="submit" className="bg-accent-yellow text-white hover:bg-accent-yellow/90 font-medium">
               Save Changes
             </Button>
           </div>

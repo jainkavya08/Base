@@ -32,9 +32,9 @@ export function ConsistencyHeatmap({ data }: { data: any[] }) {
               )}
             />
             {/* Simple CSS tooltip */}
-            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max px-3 py-2 bg-surface-dark text-surface-dark-foreground text-xs rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 pointer-events-none">
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max px-3 py-2 bg-surface-dark text-white text-xs rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 pointer-events-none">
               <p className="font-medium mb-0.5">{day.formattedDate}</p>
-              <p className="text-surface-dark-foreground/80">{day.completed} of {day.total} habits ({day.percentage}%)</p>
+              <p className="text-white/80">{day.completed} of {day.total} habits ({day.percentage}%)</p>
             </div>
           </div>
         );

@@ -73,7 +73,7 @@ export function LogSessionDialog({ onSessionAdded }: { onSessionAdded?: () => vo
             </Button>
             <Button 
               type="submit"
-              className="bg-accent-blue text-surface-dark-foreground hover:bg-accent-blue/90"
+              className="bg-accent-blue text-white hover:bg-accent-blue/90"
             >
               Save Session
             </Button>
