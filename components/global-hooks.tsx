@@ -17,8 +17,10 @@ export function GlobalHooks() {
 
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
+      document.documentElement.setAttribute('data-theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
+      document.documentElement.removeAttribute('data-theme');
     }
 
     if (accentColor && accentColor !== 'default') {
@@ -50,6 +52,39 @@ export function GlobalHooks() {
       document.documentElement.style.removeProperty('--accent-yellow');
     }
   }, [theme, accentColor, hasHydrated]);
+
+  useEffect(() => {
+    // One-time migration for quickLinks from old storage to new storage
+    try {
+      const oldStorage = localStorage.getItem('personal-dashboard-storage');
+      if (oldStorage) {
+        const oldState = JSON.parse(oldStorage).state;
+        if (oldState && Array.isArray(oldState.quickLinks) && oldState.quickLinks.length > 0) {
+          const newStorage = localStorage.getItem('base:dock-config');
+          if (!newStorage) {
+            // Migrate
+            const migratedState = {
+              state: {
+                quickLinks: oldState.quickLinks,
+                _hasHydrated: true
+              },
+              version: 0
+            };
+            localStorage.setItem('base:dock-config', JSON.stringify(migratedState));
+          }
+          
+          // Remove quickLinks from old storage to avoid confusion
+          delete oldState.quickLinks;
+          localStorage.setItem('personal-dashboard-storage', JSON.stringify({
+            state: oldState,
+            version: JSON.parse(oldStorage).version
+          }));
+        }
+      }
+    } catch (e) {
+      console.error('Migration failed:', e);
+    }
+  }, []);
 
   return <HabitReminders />;
 }

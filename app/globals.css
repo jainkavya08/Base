@@ -100,7 +100,7 @@
   --ink-muted: #5C584C;
 }
 
-.dark {
+.dark, [data-theme="dark"] {
   /* Dark mode with warm charcoal semantics */
   --background: #1B1A18;
   --foreground: #F7F4EC;

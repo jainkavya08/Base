@@ -44,6 +44,7 @@ export default function RootLayout({
                   if (state && state.settings) {
                     if (state.settings.theme === 'dark') {
                       document.documentElement.classList.add('dark');
+                      document.documentElement.setAttribute('data-theme', 'dark');
                     }
                     if (state.settings.accentColor && state.settings.accentColor !== 'default') {
                       const accents = {
@@ -71,13 +72,13 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex bg-canvas text-ink">
-        <AuthWrapper>
-          <GlobalHooks />
-          <NavRail />
-          <main className="flex-1 pb-20 md:pb-0 pl-0 md:pl-32 min-h-screen min-w-0">
+        <GlobalHooks />
+        <NavRail />
+        <main className="flex-1 pb-20 md:pb-0 pl-0 md:pl-32 min-h-screen min-w-0">
+          <AuthWrapper>
             {children}
-          </main>
-        </AuthWrapper>
+          </AuthWrapper>
+        </main>
       </body>
     </html>
   );

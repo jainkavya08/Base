@@ -61,8 +61,8 @@ export function AuthWrapper({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-canvas">
-        <div className="w-8 h-8 rounded-full border-2 border-accent-gold border-t-transparent animate-spin"></div>
+      <div className="flex-1 flex items-center justify-center min-h-[50vh]">
+        <div className="w-8 h-8 rounded-full border-2 border-accent-yellow border-t-transparent animate-spin"></div>
       </div>
     );
   }
@@ -70,7 +70,9 @@ export function AuthWrapper({ children }: { children: React.ReactNode }) {
   if (!user) {
     return (
       <AuthContext.Provider value={{ user, loading, refreshSession, logout }}>
-        <AuthScreen onAuthenticated={refreshSession} />
+        <div className="fixed inset-0 z-[100] bg-canvas overflow-y-auto">
+          <AuthScreen onAuthenticated={refreshSession} />
+        </div>
       </AuthContext.Provider>
     );
   }

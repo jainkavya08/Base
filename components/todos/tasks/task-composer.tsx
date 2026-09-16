@@ -37,7 +37,7 @@ export function TaskComposer({ listId }: { listId: string }) {
       await Promise.all(
         tasksToCreate.map((title) =>
           fetchApi("/api/todos/tasks.php", {
-            method: "POST",
+            method: "PUT",
             body: JSON.stringify({
               listId,
               title,

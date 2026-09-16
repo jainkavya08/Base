@@ -6,14 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
-import { useAppStore } from "@/lib/store";
+import { useDockStore } from "@/lib/dock-store";
 import { cn } from "@/lib/utils";
 
 export function AddLinkDialog({ className }: { className?: string }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
-  const addQuickLink = useAppStore((state) => state.addQuickLink);
+  const addQuickLink = useDockStore((state) => state.addQuickLink);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
