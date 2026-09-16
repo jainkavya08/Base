@@ -1,14 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import useSWR, { mutate } from "swr";
 import { fetcher, fetchApi } from "@/lib/api";
 import { Landmark, ArrowUpRight, ArrowDownRight, BadgeDollarSign, ShieldAlert, Trash2, HandCoins, Clock } from "lucide-react";
 import { formatCurrency } from "@/lib/utils/currency";
 import { format, parseISO } from "date-fns";
 import { AddDebtDialog } from "../dialogs/add-debt-dialog";
+import { DebtDetailDialog } from "../dialogs/debt-detail-dialog";
 import { Progress } from "@/components/ui/progress";
 
 export function DebtTab() {
+  const [selectedDebt, setSelectedDebt] = useState<any>(null);
   const { data } = useSWR('/api/finance/debts.php', fetcher);
   const debts: any[] = data?.debts;
 
@@ -74,11 +77,15 @@ export function DebtTab() {
             {owedByYou.length > 0 ? owedByYou.map(debt => {
               const progress = ((debt.originalAmount - debt.remainingAmount) / debt.originalAmount) * 100;
               return (
-                <div key={debt.id} className="bg-surface-card p-5 rounded-xl border border-border/50">
+                <div 
+                  key={debt.id} 
+                  className="bg-surface-card p-5 rounded-xl border border-border/50 cursor-pointer hover:border-border transition-colors"
+                  onClick={() => setSelectedDebt(debt)}
+                >
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <h4 className="font-medium text-ink">{debt.title}</h4>
-                      <p className="text-sm text-ink-muted">{debt.personOrOrganization}</p>
+                      <p className="text-sm text-ink-muted">{debt.personOrOrganization || debt.person}</p>
                     </div>
                     <div className="text-right">
                       <p className="font-medium text-ink">{formatCurrency(debt.remainingAmount)}</p>
@@ -115,11 +122,15 @@ export function DebtTab() {
             {owedToYou.length > 0 ? owedToYou.map(debt => {
               const progress = ((debt.originalAmount - debt.remainingAmount) / debt.originalAmount) * 100;
               return (
-                <div key={debt.id} className="bg-surface-card p-5 rounded-xl border border-border/50">
+                <div 
+                  key={debt.id} 
+                  className="bg-surface-card p-5 rounded-xl border border-border/50 cursor-pointer hover:border-border transition-colors"
+                  onClick={() => setSelectedDebt(debt)}
+                >
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <h4 className="font-medium text-ink">{debt.title}</h4>
-                      <p className="text-sm text-ink-muted">{debt.personOrOrganization}</p>
+                      <p className="text-sm text-ink-muted">{debt.personOrOrganization || debt.person}</p>
                     </div>
                     <div className="text-right">
                       <p className="font-medium text-ink">{formatCurrency(debt.remainingAmount)}</p>
@@ -148,6 +159,14 @@ export function DebtTab() {
         </div>
 
       </div>
+
+      <DebtDetailDialog 
+        debt={selectedDebt} 
+        open={!!selectedDebt} 
+        onOpenChange={(open) => {
+          if (!open) setSelectedDebt(null);
+        }} 
+      />
     </div>
   );
 }

@@ -158,7 +158,12 @@ export function TransactionsTab() {
             const acc = accounts.find(a => a.id === tx.accountId);
             
             return (
-              <div key={tx.id} className="bg-surface-card p-4 md:p-5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-border/50 hover:border-border transition-colors group">
+              <div key={tx.id} className={cn(
+                "p-4 md:p-5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-border/50 hover:border-border transition-colors group",
+                tx.type === 'income' ? 'bg-surface-card bg-gradient-to-r from-accent-green/5 to-transparent' : 
+                tx.type === 'expense' ? 'bg-surface-card bg-gradient-to-r from-accent-coral/5 to-transparent' : 
+                'bg-surface-card bg-gradient-to-r from-accent-blue/5 to-transparent'
+              )}>
                 <div className="flex items-start sm:items-center gap-4 md:gap-5">
                   <div className={cn(
                     "w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center shadow-sm shrink-0",

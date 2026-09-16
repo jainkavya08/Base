@@ -37,6 +37,7 @@ interface AppState {
   // Settings
   settings: {
     theme: 'light' | 'dark';
+    accentColor: string;
     notifications: {
       master: boolean;
       pomodoro: boolean;
@@ -99,6 +100,7 @@ export const useAppStore = create<AppState>()(
 
       settings: {
         theme: 'light',
+        accentColor: 'default',
         notifications: {
           master: true,
           pomodoro: true,

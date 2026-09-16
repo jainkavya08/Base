@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Moon, Sun, LayoutGrid, LogOut, Database, HardDrive, Server, ExternalLink } from "lucide-react";
+import { Moon, Sun, LayoutGrid, LogOut, Database, HardDrive, Server, ExternalLink, Palette } from "lucide-react";
 import { fetchApi, fetcher } from "@/lib/api";
 import useSWR from "swr";
 
@@ -240,6 +240,37 @@ export default function SettingsPage() {
                 checked={settings.theme === 'dark'} 
                 onCheckedChange={(checked) => updateSettings({ theme: checked ? 'dark' : 'light' })} 
               />
+            </div>
+
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface-card p-4 rounded-xl border border-border/50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-canvas flex items-center justify-center text-ink">
+                  <Palette className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-medium text-ink">Accent Color</h3>
+                  <p className="text-sm text-ink-muted">Customize the primary color theme</p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {['default', 'Gold', 'Amber', 'Blue', 'Green', 'Purple', 'Red'].map(color => (
+                  <button
+                    key={color}
+                    onClick={() => updateSettings({ accentColor: color })}
+                    className={`w-8 h-8 rounded-full border-2 transition-all ${settings.accentColor === color || (!settings.accentColor && color === 'default') ? 'border-ink scale-110' : 'border-transparent hover:scale-105'}`}
+                    style={{
+                      backgroundColor: color === 'default' ? '#F4C94C' : // Base's default
+                        color === 'Gold' ? '#F4C94C' :
+                        color === 'Amber' ? '#f59e0b' :
+                        color === 'Blue' ? '#3b82f6' :
+                        color === 'Green' ? '#10b981' :
+                        color === 'Purple' ? '#8b5cf6' :
+                        '#ef4444' // Red
+                    }}
+                    title={color === 'default' ? 'Default' : color}
+                  />
+                ))}
+              </div>
             </div>
 
             <div className="flex items-center justify-between bg-surface-card p-4 rounded-xl border border-border/50">

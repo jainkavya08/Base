@@ -9,14 +9,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/lib/utils";
 import useSWR from "swr";
 import { fetcher } from "@/lib/api";
+import { AccountCardStack } from "./account-card-stack";
 
 export function OverviewTab() {
   const { data: txData } = useSWR('/api/finance/transactions.php', fetcher);
   const { data: accountsData } = useSWR('/api/finance/accounts.php', fetcher);
   const transactions: any[] = txData?.transactions;
   const accounts: any[] = accountsData?.accounts;
-  
-  const [balanceMode, setBalanceMode] = useState<"total" | "account">("total");
 
   if (!transactions || !accounts) return null;
 
@@ -70,17 +69,8 @@ export function OverviewTab() {
       
       {/* 1. Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-surface-dark text-surface-dark-foreground rounded-2xl p-6 relative overflow-hidden shadow-lg">
-          <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-accent-yellow/20 rounded-full blur-2xl" />
-          <div className="relative z-10 flex flex-col h-full justify-between">
-            <div>
-              <p className="text-surface-dark-foreground/60 text-sm font-medium mb-1">Total Balance</p>
-              <h2 className="text-3xl font-medium">{formatCurrency(totalBalance)}</h2>
-            </div>
-            <div className="mt-4 flex items-center text-xs text-surface-dark-foreground/80 gap-1">
-              <Wallet className="w-3 h-3" /> Across {accounts.filter(a => a.isActive).length} accounts
-            </div>
-          </div>
+        <div className="col-span-1 sm:col-span-2 lg:col-span-1 h-full">
+          <AccountCardStack accounts={accounts} totalBalance={totalBalance} />
         </div>
 
         <div className="bg-surface-card rounded-2xl p-6 shadow-sm border border-transparent hover:border-border transition-colors">
@@ -122,45 +112,7 @@ export function OverviewTab() {
         </div>
       </div>
 
-      {/* 2. Account Balance Toggle */}
-      <div>
-        <div className="flex items-center gap-4 mb-4">
-          <h3 className="text-xl font-medium text-ink">Balance</h3>
-          <Select value={balanceMode} onValueChange={(v: any) => setBalanceMode(v)}>
-            <SelectTrigger className="w-[180px] bg-canvas border-border h-8 text-sm">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="total">Total Balance</SelectItem>
-              <SelectItem value="account">By Account</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        
-        {balanceMode === 'total' && (
-           <div className="text-4xl font-medium text-ink">{formatCurrency(totalBalance)}</div>
-        )}
-
-        {balanceMode === 'account' && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {accounts.filter(a => a.isActive).map(account => (
-              <div key={account.id} className="bg-surface-card p-5 rounded-xl border border-border/50 relative overflow-hidden group">
-                {account.color && (
-                  <div className="absolute top-0 left-0 w-1 h-full" style={{ backgroundColor: account.color }} />
-                )}
-                <p className="text-ink-muted text-sm font-medium mb-2">{account.name}</p>
-                <p className="text-2xl font-medium text-ink">{formatCurrency(account.balance)}</p>
-                <p className="text-xs text-ink-muted mt-2">{account.accountType}</p>
-              </div>
-            ))}
-            {accounts.filter(a => a.isActive).length === 0 && (
-              <p className="text-ink-muted text-sm">No active accounts.</p>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* 3. Trend Chart */}
+      {/* 2. Trend Chart */}
       <div className="bg-surface-card rounded-2xl p-6 shadow-sm">
         <div className="mb-6">
           <h3 className="text-xl font-medium text-ink">Spending Overview</h3>
@@ -227,7 +179,7 @@ export function OverviewTab() {
         </div>
       </div>
       
-      {/* 4. Recent Transactions List */}
+      {/* 3. Recent Transactions List */}
       <div>
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-medium text-ink">Recent Transactions</h3>

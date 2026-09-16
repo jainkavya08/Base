@@ -6,6 +6,7 @@ import { fetcher } from "@/lib/api";
 import { useAppStore } from "@/lib/store";
 import { CheckCircle, Timer, ListTodo, Bell, Wallet, Play, Pause } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { formatCurrency } from "@/lib/utils/currency";
 
 export function WidgetHabits({ size }: { size: 'small' | 'large' }) {
   const { data: habitsData } = useSWR('/api/habits/habits.php', fetcher);
@@ -205,17 +206,17 @@ export function WidgetFinance({ size }: { size: 'small' | 'large' }) {
       
       <div className="flex-1 flex flex-col justify-center gap-1">
         <p className="text-xs text-ink-muted uppercase tracking-wider">Net Balance</p>
-        <h4 className="text-2xl font-medium text-ink">${net.toFixed(2)}</h4>
+        <h4 className="text-2xl font-medium text-ink">{formatCurrency(net, false)}</h4>
         
         {size === 'large' && (
           <div className="flex gap-4 mt-4">
             <div>
               <p className="text-xs text-ink-muted">In</p>
-              <p className="text-sm font-medium text-ink">${income.toFixed(0)}</p>
+              <p className="text-sm font-medium text-ink">{formatCurrency(income, true)}</p>
             </div>
             <div>
               <p className="text-xs text-ink-muted">Out</p>
-              <p className="text-sm font-medium text-ink">${expense.toFixed(0)}</p>
+              <p className="text-sm font-medium text-ink">{formatCurrency(expense, true)}</p>
             </div>
           </div>
         )}
