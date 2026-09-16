@@ -24,15 +24,19 @@ export function AccountCardStack({ accounts, totalBalance }: AccountCardStackPro
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const activeAccounts = accounts.filter(a => (a as any).isActive !== false);
+  const cards = [
+    { id: 'total', name: 'Total Balance', balance: totalBalance, type: 'total' },
+    ...activeAccounts.map(a => ({ ...a, type: 'account' }))
+  ];
 
   if (activeAccounts.length === 0) {
     return (
-      <div className="bg-surface-dark text-surface-dark-foreground rounded-2xl p-6 relative overflow-hidden shadow-lg h-[200px] flex flex-col justify-between">
+      <div className="bg-surface-card rounded-2xl p-6 shadow-sm border border-border/50 h-full min-h-[200px] flex flex-col justify-between">
         <div>
-          <p className="text-surface-dark-foreground/60 text-sm font-medium mb-1">Total Balance</p>
-          <h2 className="text-3xl font-medium">{formatCurrency(totalBalance)}</h2>
+          <p className="text-ink-muted text-xs font-medium uppercase tracking-wider mb-1">Total Balance</p>
+          <h2 className="text-3xl font-medium text-ink">{formatCurrency(totalBalance)}</h2>
         </div>
-        <div className="mt-4 flex items-center text-xs text-surface-dark-foreground/80 gap-1">
+        <div className="mt-4 flex items-center text-xs text-ink-muted gap-1">
           <Wallet className="w-3 h-3" /> No active accounts
         </div>
       </div>
@@ -40,108 +44,122 @@ export function AccountCardStack({ accounts, totalBalance }: AccountCardStackPro
   }
 
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % activeAccounts.length);
+    setCurrentIndex((prev) => (prev + 1) % cards.length);
   };
 
   const handlePrev = () => {
-    setCurrentIndex((prev) => (prev - 1 + activeAccounts.length) % activeAccounts.length);
+    setCurrentIndex((prev) => (prev - 1 + cards.length) % cards.length);
   };
 
-  const currentAccount = activeAccounts[currentIndex];
+  const currentCard = cards[currentIndex];
 
   return (
-    <div className="bg-surface-card rounded-2xl p-6 shadow-sm border border-border/50 relative h-full min-h-[220px] flex flex-col justify-between group overflow-hidden">
-      {/* Background Accent */}
-      {currentAccount.color && (
-        <div 
-          className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-20 transition-colors duration-500" 
-          style={{ backgroundColor: currentAccount.color }} 
-        />
-      )}
+    <div className="relative h-full min-h-[200px] group rounded-2xl overflow-hidden shadow-sm">
+      <AnimatePresence mode="popLayout">
+        <motion.div
+          key={currentCard.id}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -30 }}
+          transition={{ duration: 0.3 }}
+          className={cn(
+            "absolute inset-0 p-6 flex flex-col justify-between border cursor-grab active:cursor-grabbing",
+            currentCard.type === 'total' 
+              ? "bg-surface-card border-border/50 text-ink" 
+              : "bg-surface-dark border-transparent text-surface-dark-foreground"
+          )}
+          style={currentCard.type === 'account' && (currentCard as any).color ? {
+            // Apply a subtle gradient of the bank's accent color to the dark card
+            backgroundImage: `linear-gradient(to bottom right, ${(currentCard as any).color}25, transparent)`
+          } : {}}
+          drag="y"
+          dragConstraints={{ top: 0, bottom: 0 }}
+          onDragEnd={(e, { offset }) => {
+            const swipe = offset.y;
+            if (swipe < -20) {
+              handleNext();
+            } else if (swipe > 20) {
+              handlePrev();
+            }
+          }}
+        >
+          <div className="flex justify-between items-start pointer-events-none">
+            <div>
+              <p className={cn(
+                "text-xs font-medium uppercase tracking-wider mb-1",
+                currentCard.type === 'total' ? "text-ink-muted" : "text-surface-dark-foreground/70"
+              )}>
+                {currentCard.type === 'total' ? 'Total Balance' : currentCard.name}
+              </p>
+              
+              {currentCard.type === 'account' && (
+                <h3 className="font-medium text-base">
+                  {(currentCard as any).accountNumberLast4 ? `•••• ${(currentCard as any).accountNumberLast4}` : (currentCard as any).accountType}
+                </h3>
+              )}
+            </div>
 
-      {/* Header: Total Balance remains visible */}
-      <div className="flex justify-between items-start z-10 relative">
-        <div>
-          <p className="text-ink-muted text-xs font-medium uppercase tracking-wider mb-1">Total Balance</p>
-          <h2 className="text-2xl font-medium text-ink">{formatCurrency(totalBalance)}</h2>
-        </div>
-        
-        {/* Navigation Controls */}
-        {activeAccounts.length > 1 && (
-          <div className="flex flex-col gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-            <button 
-              onClick={handlePrev}
-              className="w-6 h-6 flex items-center justify-center rounded bg-canvas hover:bg-canvas-elevated text-ink-muted hover:text-ink transition-colors"
-              aria-label="Previous account"
-            >
-              <ChevronUp className="w-4 h-4" />
-            </button>
-            <button 
-              onClick={handleNext}
-              className="w-6 h-6 flex items-center justify-center rounded bg-canvas hover:bg-canvas-elevated text-ink-muted hover:text-ink transition-colors"
-              aria-label="Next account"
-            >
-              <ChevronDown className="w-4 h-4" />
-            </button>
+            {currentCard.type === 'account' && (currentCard as any).color && (
+              <div className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: (currentCard as any).color }} />
+            )}
+            
+            {/* Navigation Controls (Visible on hover for desktop) */}
+            <div className="flex flex-col gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity pointer-events-auto">
+              <button 
+                onClick={(e) => { e.stopPropagation(); handlePrev(); }}
+                className={cn(
+                  "w-6 h-6 flex items-center justify-center rounded transition-colors",
+                  currentCard.type === 'total' 
+                    ? "bg-canvas hover:bg-canvas-elevated text-ink-muted hover:text-ink"
+                    : "bg-white/10 hover:bg-white/20 text-white/70 hover:text-white"
+                )}
+                aria-label="Previous card"
+              >
+                <ChevronUp className="w-4 h-4" />
+              </button>
+              <button 
+                onClick={(e) => { e.stopPropagation(); handleNext(); }}
+                className={cn(
+                  "w-6 h-6 flex items-center justify-center rounded transition-colors",
+                  currentCard.type === 'total' 
+                    ? "bg-canvas hover:bg-canvas-elevated text-ink-muted hover:text-ink"
+                    : "bg-white/10 hover:bg-white/20 text-white/70 hover:text-white"
+                )}
+                aria-label="Next card"
+              >
+                <ChevronDown className="w-4 h-4" />
+              </button>
+            </div>
           </div>
-        )}
-      </div>
 
-      {/* Swipeable Card Stack Area */}
-      <div className="relative h-24 mt-4 z-10">
-        <AnimatePresence mode="popLayout">
-          <motion.div
-            key={currentAccount.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="absolute inset-0 bg-surface-dark text-surface-dark-foreground rounded-xl p-4 flex flex-col justify-between shadow-md cursor-grab active:cursor-grabbing"
-            drag="y"
-            dragConstraints={{ top: 0, bottom: 0 }}
-            onDragEnd={(e, { offset }) => {
-              const swipe = offset.y;
-              if (swipe < -20) {
-                handleNext();
-              } else if (swipe > 20) {
-                handlePrev();
-              }
-            }}
-          >
-            <div className="flex justify-between items-start pointer-events-none">
-              <div>
-                <h3 className="font-medium text-base truncate max-w-[150px]">{currentAccount.name}</h3>
-                <p className="text-xs text-surface-dark-foreground/70">
-                  {currentAccount.accountNumberLast4 ? `•••• ${currentAccount.accountNumberLast4}` : currentAccount.accountType}
-                </p>
-              </div>
-              {currentAccount.color && (
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: currentAccount.color }} />
-              )}
-            </div>
-            <div className="mt-2 text-xl font-medium pointer-events-none">
-              {formatCurrency(currentAccount.balance)}
-            </div>
-          </motion.div>
-        </AnimatePresence>
+          <div className="mt-4 pointer-events-none">
+            <h2 className={cn(
+              "font-medium",
+              currentCard.type === 'total' ? "text-4xl" : "text-3xl"
+            )}>
+              {formatCurrency(currentCard.balance)}
+            </h2>
+          </div>
+          
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Fixed Indicators at the bottom */}
+      <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1 z-20 pointer-events-none">
+        {cards.map((_, idx) => (
+          <div 
+            key={idx} 
+            className={cn(
+              "h-1 rounded-full transition-all duration-300 pointer-events-auto cursor-pointer shadow-sm",
+              idx === currentIndex 
+                ? (currentCard.type === 'total' ? "w-4 bg-accent" : "w-4 bg-white") 
+                : (currentCard.type === 'total' ? "w-1.5 bg-border hover:bg-ink-muted" : "w-1.5 bg-white/30 hover:bg-white/60")
+            )}
+            onClick={() => setCurrentIndex(idx)}
+            aria-label={`Go to card ${idx + 1}`}
+          />
+        ))}
       </div>
-      
-      {/* Indicators */}
-      {activeAccounts.length > 1 && (
-        <div className="flex justify-center gap-1 mt-4 z-10 relative">
-          {activeAccounts.map((_, idx) => (
-            <div 
-              key={idx} 
-              className={cn(
-                "h-1 rounded-full transition-all duration-300 cursor-pointer",
-                idx === currentIndex ? "w-4 bg-accent" : "w-1.5 bg-border hover:bg-ink-muted"
-              )}
-              onClick={() => setCurrentIndex(idx)}
-              aria-label={`Go to account ${idx + 1}`}
-            />
-          ))}
-        </div>
-      )}
     </div>
   );
 }
