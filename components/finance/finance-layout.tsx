@@ -64,13 +64,13 @@ function FinanceTabs() {
         </div>
       </div>
 
-      <div className="flex items-center gap-6 border-b border-border overflow-x-auto pb-px no-scrollbar">
+      <div className="flex items-center gap-4 md:gap-6 border-b border-border overflow-x-auto pb-px no-scrollbar snap-x snap-mandatory">
         {TABS.map((tab) => (
           <button
             key={tab.id}
             onClick={() => router.push(`/finance?tab=${tab.id}`)}
             className={cn(
-              "pb-4 text-sm font-medium whitespace-nowrap transition-colors relative",
+              "pb-4 text-sm font-medium whitespace-nowrap transition-colors relative snap-start",
               currentTab === tab.id
                 ? "text-ink"
                 : "text-ink-muted hover:text-ink"
@@ -93,7 +93,7 @@ function FinanceTabs() {
 
 export function FinanceLayout() {
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto h-full flex flex-col gap-6 md:gap-8">
+    <div className="p-4 pb-24 md:p-8 md:pb-8 max-w-7xl mx-auto h-full flex flex-col gap-6 md:gap-8">
       <Suspense fallback={<div className="p-8">Loading finance...</div>}>
         <FinanceTabs />
       </Suspense>

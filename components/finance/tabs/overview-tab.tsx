@@ -65,48 +65,48 @@ export function OverviewTab() {
   });
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-6 md:gap-10">
       
       {/* 1. Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="col-span-1 sm:col-span-2 lg:col-span-1 h-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="col-span-1 sm:col-span-2 lg:col-span-1 h-full min-w-0">
           <AccountCardStack accounts={accounts} totalBalance={totalBalance} />
         </div>
 
-        <div className="bg-surface-card rounded-2xl p-6 shadow-sm border border-transparent hover:border-border transition-colors">
+        <div className="bg-surface-card rounded-2xl p-4 md:p-6 shadow-sm border border-transparent hover:border-border transition-colors box-border max-w-full">
           <div className="flex justify-between items-start">
-            <div>
+            <div className="min-w-0">
               <p className="text-ink-muted text-sm font-medium mb-1">Monthly Income</p>
-              <h3 className="text-2xl font-medium text-ink">{formatCurrency(income)}</h3>
+              <h3 className="text-xl md:text-2xl font-medium text-ink truncate">{formatCurrency(income)}</h3>
             </div>
-            <div className="w-8 h-8 rounded-full bg-accent-green/20 text-accent-green flex items-center justify-center">
-              <TrendingUp className="w-5 h-5" />
+            <div className="w-8 h-8 shrink-0 rounded-full bg-accent-green/20 text-accent-green flex items-center justify-center">
+              <TrendingUp className="w-4 h-4 md:w-5 md:h-5" />
             </div>
           </div>
         </div>
 
-        <div className="bg-surface-card rounded-2xl p-6 shadow-sm border border-transparent hover:border-border transition-colors">
+        <div className="bg-surface-card rounded-2xl p-4 md:p-6 shadow-sm border border-transparent hover:border-border transition-colors box-border max-w-full">
           <div className="flex justify-between items-start">
-            <div>
+            <div className="min-w-0">
               <p className="text-ink-muted text-sm font-medium mb-1">Monthly Expenses</p>
-              <h3 className="text-2xl font-medium text-ink">{formatCurrency(expense)}</h3>
+              <h3 className="text-xl md:text-2xl font-medium text-ink truncate">{formatCurrency(expense)}</h3>
             </div>
-            <div className="w-8 h-8 rounded-full bg-accent-coral/20 text-accent-coral flex items-center justify-center">
-              <TrendingDown className="w-5 h-5" />
+            <div className="w-8 h-8 shrink-0 rounded-full bg-accent-coral/20 text-accent-coral flex items-center justify-center">
+              <TrendingDown className="w-4 h-4 md:w-5 md:h-5" />
             </div>
           </div>
         </div>
 
-        <div className="bg-surface-card rounded-2xl p-6 shadow-sm border border-transparent hover:border-border transition-colors">
+        <div className="bg-surface-card rounded-2xl p-4 md:p-6 shadow-sm border border-transparent hover:border-border transition-colors box-border max-w-full">
           <div className="flex justify-between items-start">
             <div>
               <p className="text-ink-muted text-sm font-medium mb-1">Savings Rate</p>
-              <h3 className="text-2xl font-medium text-ink">
+              <h3 className="text-xl md:text-2xl font-medium text-ink">
                 {income > 0 ? `${savingsRate.toFixed(1)}%` : "N/A"}
               </h3>
             </div>
-            <div className="w-8 h-8 rounded-full bg-accent-blue/20 text-accent-blue flex items-center justify-center">
-              <PiggyBank className="w-5 h-5" />
+            <div className="w-8 h-8 shrink-0 rounded-full bg-accent-blue/20 text-accent-blue flex items-center justify-center">
+              <PiggyBank className="w-4 h-4 md:w-5 md:h-5" />
             </div>
           </div>
         </div>

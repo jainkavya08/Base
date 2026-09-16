@@ -94,8 +94,8 @@ export function AddAccountDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Button className="rounded-full bg-surface-card border border-border/50 text-ink hover:bg-canvas" onClick={() => setOpen(true)}>
-        <Plus className="w-5 h-5 mr-1" />
-        Add Account
+        <Plus className="w-5 h-5 md:mr-1" />
+        <span className="hidden md:inline">Add Account</span>
       </Button>
       <DialogContent className="w-[calc(100%-32px)] sm:w-full sm:max-w-[450px] max-h-[90vh] overflow-y-auto bg-surface-card border-none">
         <DialogHeader>

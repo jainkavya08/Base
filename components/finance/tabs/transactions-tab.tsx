@@ -164,9 +164,9 @@ export function TransactionsTab() {
                 tx.type === 'expense' ? 'bg-surface-card bg-gradient-to-r from-accent-coral/5 to-transparent' : 
                 'bg-surface-card bg-gradient-to-r from-accent-blue/5 to-transparent'
               )}>
-                <div className="flex items-start sm:items-center gap-4 md:gap-5">
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
                   <div className={cn(
-                    "w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center shadow-sm shrink-0",
+                    "w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center shrink-0", 
                     tx.type === 'income' ? 'bg-accent-green/10 text-accent-green border border-accent-green/20' : 
                     tx.type === 'expense' ? 'bg-accent-coral/10 text-accent-coral border border-accent-coral/20' : 
                     'bg-accent-blue/10 text-accent-blue border border-accent-blue/20'
@@ -176,30 +176,32 @@ export function TransactionsTab() {
                      <ArrowRightLeft className="w-5 h-5 md:w-6 md:h-6" />}
                   </div>
                   
-                  <div>
-                    <h4 className="text-base md:text-lg font-medium text-ink mb-1">{tx.title || tx.category}</h4>
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs md:text-sm text-ink-muted">
-                      <span>{format(parseISO(tx.date), "MMM d, yyyy")}</span>
+                  <div className="min-w-0 flex-1">
+                    <h4 className="text-base md:text-lg font-medium text-ink mb-1 truncate">{tx.title || tx.category}</h4>
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs md:text-sm text-ink-muted">
+                      <span className="whitespace-nowrap">{format(parseISO(tx.date), "MMM d, yyyy")}</span>
                       <span className="hidden sm:inline">•</span>
-                      <span className="flex items-center gap-1">
-                        <Wallet className="w-3 h-3" />
+                      <span className="flex items-center gap-1 truncate max-w-full">
+                        <Wallet className="w-3 h-3 shrink-0" />
+                        <span className="truncate">
                         {tx.isTransfer 
                           ? `${(tx as any).fromAcc?.name} → ${(tx as any).toAcc?.name}`
-                          : acc?.name || 'Unknown Account'
+                          : acc?.name || 'Unknown'
                         }
+                        </span>
                       </span>
                       {tx.category !== 'Transfer' && (
                         <>
                           <span className="hidden sm:inline">•</span>
-                          <span className="bg-canvas px-2 py-0.5 rounded-md border border-border/50 text-[10px] md:text-xs">{tx.category}</span>
+                          <span className="bg-canvas px-2 py-0.5 rounded-md border border-border/50 text-[10px] md:text-xs shrink-0">{tx.category}</span>
                         </>
                       )}
                     </div>
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-4 pl-14 sm:pl-0">
-                  <div className="flex flex-col sm:items-end">
+                <div className="flex items-center gap-2 sm:gap-4 pl-2 sm:pl-0 shrink-0">
+                  <div className="flex flex-col items-end">
                     <span className={cn("text-base md:text-lg font-medium", 
                       tx.type === 'income' ? 'text-accent-green' : 
                       tx.type === 'expense' ? 'text-ink' : 
@@ -208,13 +210,13 @@ export function TransactionsTab() {
                       {tx.type === 'income' ? '+' : tx.type === 'expense' ? '-' : ''}{formatCurrency(tx.amount)}
                     </span>
                     {tx.notes && (
-                      <span className="text-xs md:text-sm text-ink-muted mt-1 max-w-[200px] truncate">{tx.notes}</span>
+                      <span className="text-xs md:text-sm text-ink-muted mt-1 max-w-[120px] sm:max-w-[200px] truncate">{tx.notes}</span>
                     )}
                   </div>
                   {!tx.isTransfer && (
                     <DropdownMenu>
                       <DropdownMenuTrigger>
-                        <button className="p-2 -mr-2 rounded-lg hover:bg-canvas text-ink-muted hover:text-ink transition-colors opacity-0 group-hover:opacity-100 sm:opacity-100">
+                        <button className="p-2 -mr-2 rounded-lg hover:bg-canvas text-ink-muted hover:text-ink transition-colors opacity-100 md:opacity-0 md:group-hover:opacity-100">
                           <span className="sr-only">Open menu</span>
                           <div className="w-5 h-5 flex items-center justify-center">
                             <span className="w-1 h-1 bg-current rounded-full mx-[1px]" />

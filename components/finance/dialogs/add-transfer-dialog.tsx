@@ -91,8 +91,8 @@ export function AddTransferDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Button variant="outline" className="rounded-full bg-surface-card border border-border/50 text-ink hover:bg-canvas" onClick={() => setOpen(true)}>
-        <ArrowRightLeft className="w-4 h-4 mr-2" />
-        Transfer
+        <ArrowRightLeft className="w-4 h-4 md:mr-2" />
+        <span className="hidden md:inline">Transfer</span>
       </Button>
       <DialogContent className="sm:max-w-[425px] bg-surface-card border-none">
         <DialogHeader>

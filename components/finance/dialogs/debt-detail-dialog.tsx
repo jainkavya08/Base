@@ -131,7 +131,7 @@ export function DebtDetailDialog({ debt, open, onOpenChange }: DebtDetailDialogP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] bg-surface-card border-border">
+      <DialogContent className="w-[calc(100%-32px)] sm:w-full sm:max-w-[500px] max-h-[90vh] overflow-y-auto bg-surface-card border-border">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl font-medium text-ink">

@@ -40,26 +40,26 @@ export function DebtTab() {
         <AddDebtDialog />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-surface-card rounded-2xl p-6 border border-border/50 shadow-sm relative overflow-hidden">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+        <div className="bg-surface-card rounded-2xl p-4 md:p-6 border border-border/50 shadow-sm relative overflow-hidden box-border max-w-full">
           <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-accent-coral/10 rounded-full blur-2xl" />
           <p className="text-ink-muted text-sm font-medium mb-1">Total Owed by You</p>
-          <div className="flex items-center gap-3 mb-4">
-            <h2 className="text-4xl font-medium text-ink">{formatCurrency(totalOwedByYou)}</h2>
-            <div className="w-8 h-8 rounded-full bg-accent-coral/20 text-accent-coral flex items-center justify-center">
-              <ArrowDownRight className="w-5 h-5" />
+          <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-4">
+            <h2 className="text-3xl md:text-4xl font-medium text-ink truncate">{formatCurrency(totalOwedByYou)}</h2>
+            <div className="w-8 h-8 shrink-0 rounded-full bg-accent-coral/20 text-accent-coral flex items-center justify-center">
+              <ArrowDownRight className="w-4 h-4 md:w-5 md:h-5" />
             </div>
           </div>
           <p className="text-xs text-ink-muted">Across {owedByYou.length} active records</p>
         </div>
 
-        <div className="bg-surface-card rounded-2xl p-6 border border-border/50 shadow-sm relative overflow-hidden">
+        <div className="bg-surface-card rounded-2xl p-4 md:p-6 border border-border/50 shadow-sm relative overflow-hidden box-border max-w-full">
           <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-accent-green/10 rounded-full blur-2xl" />
           <p className="text-ink-muted text-sm font-medium mb-1">Total Owed to You</p>
-          <div className="flex items-center gap-3 mb-4">
-            <h2 className="text-4xl font-medium text-ink">{formatCurrency(totalOwedToYou)}</h2>
-            <div className="w-8 h-8 rounded-full bg-accent-green/20 text-accent-green flex items-center justify-center">
-              <ArrowUpRight className="w-5 h-5" />
+          <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-4">
+            <h2 className="text-3xl md:text-4xl font-medium text-ink truncate">{formatCurrency(totalOwedToYou)}</h2>
+            <div className="w-8 h-8 shrink-0 rounded-full bg-accent-green/20 text-accent-green flex items-center justify-center">
+              <ArrowUpRight className="w-4 h-4 md:w-5 md:h-5" />
             </div>
           </div>
           <p className="text-xs text-ink-muted">Across {owedToYou.length} active records</p>
