@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { NavRail } from "@/components/ui/nav-rail";
 import { GlobalHooks } from "@/components/global-hooks";
 import { AuthWrapper } from "@/components/auth/auth-wrapper";
@@ -13,6 +13,13 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Personal Dashboard",
   description: "Your local-first productivity hub",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
