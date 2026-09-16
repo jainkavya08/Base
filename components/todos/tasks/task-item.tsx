@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, Check } from "lucide-react";
 import { SubtaskComposer } from "./subtask-composer";
 import { SubtaskItem } from "./subtask-item";
 import { TaskMenu } from "./task-menu";
@@ -52,7 +52,7 @@ export function TaskItem({
     
     // Create new parent
     await fetchApi('/api/todos/tasks.php', {
-      method: 'POST',
+      method: 'PUT',
       body: JSON.stringify({
         ...task,
         id: newParentId,
@@ -66,7 +66,7 @@ export function TaskItem({
       // Loop over subtasks (we can run promises in parallel)
       await Promise.all(subtasks.map(st => 
         fetchApi('/api/todos/tasks.php', {
-          method: 'POST',
+          method: 'PUT',
           body: JSON.stringify({
             ...st,
             id: crypto.randomUUID(),
@@ -117,12 +117,16 @@ export function TaskItem({
           <div className="w-4 h-4 mt-1" /> // spacer
         )}
         
-        <input
-          type="checkbox"
-          checked={task.completed}
-          onChange={() => onToggle(task.id, task.completed, true, subtasks)}
-          className="w-5 h-5 accent-accent-blue rounded cursor-pointer mt-0.5"
-        />
+        <button
+          onClick={() => onToggle(task.id, task.completed, true, subtasks)}
+          className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors mt-0.5 shrink-0 ${
+            task.completed 
+              ? 'bg-accent-blue border-accent-blue text-white' 
+              : 'border-border/80 hover:border-accent-blue bg-transparent'
+          }`}
+        >
+          {task.completed && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+        </button>
         
         <div className="flex flex-col flex-1">
           <div className="flex justify-between items-start gap-4">

@@ -2,7 +2,7 @@
 
 import useSWR, { useSWRConfig } from "swr";
 import { fetcher, fetchApi } from "@/lib/api";
-import { CheckCircle2, ChevronRight } from "lucide-react";
+import { CheckCircle2, ChevronRight, Check } from "lucide-react";
 import Link from "next/link";
 import { TaskComposer } from "./task-composer";
 import { TaskItem } from "./task-item";
@@ -41,25 +41,29 @@ export function TasksDashboard({ fileId, listId }: { fileId: string; listId: str
 
     if (isParent && subtasks) {
       // Toggle parent and all its subtasks
-      const updates = subtasks.map(st => ({ key: st.id, changes: { completed: newStatus, updatedAt: now } }));
-      updates.push({ key: taskId, changes: { completed: newStatus, updatedAt: now } });
-      await fetchApi('/api/todos/tasks.php', { method: 'POST', body: JSON.stringify({ bulk: true, updates }) });
+      const promises = subtasks.map(st => 
+        fetchApi('/api/todos/tasks.php', { method: 'PUT', body: JSON.stringify({ action: 'toggle', id: st.id, completed: newStatus }) })
+      );
+      promises.push(
+        fetchApi('/api/todos/tasks.php', { method: 'PUT', body: JSON.stringify({ action: 'toggle', id: taskId, completed: newStatus }) })
+      );
+      await Promise.all(promises);
     } else if (!isParent && parentTask && subtasks) {
       // Toggle subtask
-      await fetchApi('/api/todos/tasks.php', { method: 'PUT', body: JSON.stringify({ id: taskId, completed: newStatus }) });
+      await fetchApi('/api/todos/tasks.php', { method: 'PUT', body: JSON.stringify({ action: 'toggle', id: taskId, completed: newStatus }) });
       
       // Check if parent should be completed/uncompleted
       const otherSubtasks = subtasks.filter(t => t.id !== taskId);
       const allOthersCompleted = otherSubtasks.every(t => t.completed);
       
       if (newStatus && allOthersCompleted) {
-        await fetchApi('/api/todos/tasks.php', { method: 'PUT', body: JSON.stringify({ id: parentTask.id, completed: true }) });
+        await fetchApi('/api/todos/tasks.php', { method: 'PUT', body: JSON.stringify({ action: 'toggle', id: parentTask.id, completed: true }) });
       } else if (!newStatus && parentTask.completed) {
-        await fetchApi('/api/todos/tasks.php', { method: 'PUT', body: JSON.stringify({ id: parentTask.id, completed: false }) });
+        await fetchApi('/api/todos/tasks.php', { method: 'PUT', body: JSON.stringify({ action: 'toggle', id: parentTask.id, completed: false }) });
       }
     } else {
       // Standard toggle
-      await fetchApi('/api/todos/tasks.php', { method: 'PUT', body: JSON.stringify({ id: taskId, completed: newStatus }) });
+      await fetchApi('/api/todos/tasks.php', { method: 'PUT', body: JSON.stringify({ action: 'toggle', id: taskId, completed: newStatus }) });
     }
     mutate('/api/todos/tasks.php');
   };
@@ -159,12 +163,16 @@ export function TasksDashboard({ fileId, listId }: { fileId: string; listId: str
                   key={task.id} 
                   className={`flex items-center gap-3 px-4 py-3 ${index !== topLevelTasks.length - 1 ? 'border-b border-border/50' : ''}`}
                 >
-                  <input
-                    type="checkbox"
-                    checked={task.completed}
-                    onChange={() => handleToggle(task.id, task.completed)}
-                    className="w-4 h-4 accent-accent-blue rounded cursor-pointer"
-                  />
+                  <button
+                    onClick={() => handleToggle(task.id, task.completed)}
+                    className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-colors shrink-0 ${
+                      task.completed 
+                        ? 'bg-accent-blue border-accent-blue text-white' 
+                        : 'border-border/80 hover:border-accent-blue bg-transparent'
+                    }`}
+                  >
+                    {task.completed && <Check className="w-3 h-3 stroke-[3]" />}
+                  </button>
                   <span className={`text-sm ${task.completed ? 'text-ink-muted line-through' : 'text-ink'}`}>
                     {task.title}
                   </span>

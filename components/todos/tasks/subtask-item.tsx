@@ -6,6 +6,7 @@ import { useSWRConfig } from "swr";
 import type { Todo } from "@/lib/db";
 import { TaskMenu } from "./task-menu";
 import { Button } from "@/components/ui/button";
+import { Check } from "lucide-react";
 
 export function SubtaskItem({ 
   subtask, 
@@ -38,7 +39,7 @@ export function SubtaskItem({
 
   const handleDuplicate = async () => {
     await fetchApi('/api/todos/tasks.php', {
-      method: 'POST',
+      method: 'PUT',
       body: JSON.stringify({
         ...subtask,
         id: crypto.randomUUID(),
@@ -59,12 +60,16 @@ export function SubtaskItem({
 
   return (
     <div className="flex items-start gap-3 group">
-      <input
-        type="checkbox"
-        checked={subtask.completed}
-        onChange={() => onToggle(subtask.id, subtask.completed, false, allSubtasks, parentTask)}
-        className="w-4 h-4 accent-accent-blue rounded cursor-pointer mt-1"
-      />
+      <button
+        onClick={() => onToggle(subtask.id, subtask.completed, false, allSubtasks, parentTask)}
+        className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-colors mt-1 shrink-0 ${
+          subtask.completed 
+            ? 'bg-accent-blue border-accent-blue text-white' 
+            : 'border-border/80 hover:border-accent-blue bg-transparent'
+        }`}
+      >
+        {subtask.completed && <Check className="w-3 h-3 stroke-[3]" />}
+      </button>
       
       {isEditing ? (
         <div className="flex-1 flex flex-col gap-2 bg-canvas p-2 rounded-lg border border-border/50">
