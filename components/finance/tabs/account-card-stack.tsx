@@ -31,7 +31,7 @@ export function AccountCardStack({ accounts, totalBalance }: AccountCardStackPro
 
   if (activeAccounts.length === 0) {
     return (
-      <div className="bg-surface-card rounded-2xl p-6 shadow-sm border border-border/50 h-full min-h-[200px] flex flex-col justify-between">
+      <div className="bg-surface-card rounded-2xl p-6 shadow-sm border border-border/50 h-full min-h-[140px] flex flex-col justify-between">
         <div>
           <p className="text-ink-muted text-xs font-medium uppercase tracking-wider mb-1">Total Balance</p>
           <h2 className="text-3xl font-medium text-ink">{formatCurrency(totalBalance)}</h2>
@@ -54,7 +54,7 @@ export function AccountCardStack({ accounts, totalBalance }: AccountCardStackPro
   const currentCard = cards[currentIndex];
 
   return (
-    <div className="relative h-full min-h-[200px] group rounded-2xl overflow-hidden shadow-sm">
+    <div className="relative h-full min-h-[140px] group rounded-2xl overflow-hidden shadow-sm">
       <AnimatePresence mode="popLayout">
         <motion.div
           key={currentCard.id}
@@ -69,7 +69,6 @@ export function AccountCardStack({ accounts, totalBalance }: AccountCardStackPro
               : "bg-surface-dark border-transparent text-surface-dark-foreground"
           )}
           style={currentCard.type === 'account' && (currentCard as any).color ? {
-            // Apply a subtle gradient of the bank's accent color to the dark card
             backgroundImage: `linear-gradient(to bottom right, ${(currentCard as any).color}25, transparent)`
           } : {}}
           drag="y"
@@ -93,7 +92,7 @@ export function AccountCardStack({ accounts, totalBalance }: AccountCardStackPro
               </p>
               
               {currentCard.type === 'account' && (
-                <h3 className="font-medium text-base">
+                <h3 className="font-medium text-sm">
                   {(currentCard as any).accountNumberLast4 ? `•••• ${(currentCard as any).accountNumberLast4}` : (currentCard as any).accountType}
                 </h3>
               )}
@@ -102,64 +101,36 @@ export function AccountCardStack({ accounts, totalBalance }: AccountCardStackPro
             {currentCard.type === 'account' && (currentCard as any).color && (
               <div className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: (currentCard as any).color }} />
             )}
-            
-            {/* Navigation Controls (Visible on hover for desktop) */}
-            <div className="flex flex-col gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity pointer-events-auto">
-              <button 
-                onClick={(e) => { e.stopPropagation(); handlePrev(); }}
-                className={cn(
-                  "w-6 h-6 flex items-center justify-center rounded transition-colors",
-                  currentCard.type === 'total' 
-                    ? "bg-canvas hover:bg-canvas-elevated text-ink-muted hover:text-ink"
-                    : "bg-white/10 hover:bg-white/20 text-white/70 hover:text-white"
-                )}
-                aria-label="Previous card"
-              >
-                <ChevronUp className="w-4 h-4" />
-              </button>
-              <button 
-                onClick={(e) => { e.stopPropagation(); handleNext(); }}
-                className={cn(
-                  "w-6 h-6 flex items-center justify-center rounded transition-colors",
-                  currentCard.type === 'total' 
-                    ? "bg-canvas hover:bg-canvas-elevated text-ink-muted hover:text-ink"
-                    : "bg-white/10 hover:bg-white/20 text-white/70 hover:text-white"
-                )}
-                aria-label="Next card"
-              >
-                <ChevronDown className="w-4 h-4" />
-              </button>
-            </div>
           </div>
 
-          <div className="mt-4 pointer-events-none">
+          <div className="mt-6 flex items-end justify-between">
             <h2 className={cn(
-              "font-medium",
-              currentCard.type === 'total' ? "text-4xl" : "text-3xl"
+              "font-medium pointer-events-none",
+              currentCard.type === 'total' ? "text-3xl" : "text-2xl"
             )}>
               {formatCurrency(currentCard.balance)}
             </h2>
+            
+            {/* Inline Indicators at bottom right */}
+            <div className="flex gap-1 mb-1 pointer-events-auto">
+              {cards.map((_, idx) => (
+                <div 
+                  key={idx} 
+                  className={cn(
+                    "h-1 rounded-full transition-all duration-300 cursor-pointer shadow-sm",
+                    idx === currentIndex 
+                      ? (currentCard.type === 'total' ? "w-4 bg-accent" : "w-4 bg-white") 
+                      : (currentCard.type === 'total' ? "w-1.5 bg-border hover:bg-ink-muted" : "w-1.5 bg-white/30 hover:bg-white/60")
+                  )}
+                  onClick={() => setCurrentIndex(idx)}
+                  aria-label={`Go to card ${idx + 1}`}
+                />
+              ))}
+            </div>
           </div>
           
         </motion.div>
       </AnimatePresence>
-
-      {/* Fixed Indicators at the bottom */}
-      <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1 z-20 pointer-events-none">
-        {cards.map((_, idx) => (
-          <div 
-            key={idx} 
-            className={cn(
-              "h-1 rounded-full transition-all duration-300 pointer-events-auto cursor-pointer shadow-sm",
-              idx === currentIndex 
-                ? (currentCard.type === 'total' ? "w-4 bg-accent" : "w-4 bg-white") 
-                : (currentCard.type === 'total' ? "w-1.5 bg-border hover:bg-ink-muted" : "w-1.5 bg-white/30 hover:bg-white/60")
-            )}
-            onClick={() => setCurrentIndex(idx)}
-            aria-label={`Go to card ${idx + 1}`}
-          />
-        ))}
-      </div>
     </div>
   );
 }
