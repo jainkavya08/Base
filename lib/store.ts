@@ -120,8 +120,12 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: 'personal-dashboard-storage',
-      onRehydrateStorage: () => (state) => {
-        state?.setHasHydrated(true)
+      onRehydrateStorage: () => (state, error) => {
+        if (state) {
+          state.setHasHydrated(true)
+        } else {
+          useAppStore.setState({ _hasHydrated: true })
+        }
       },
       partialize: (state) => ({ 
         widgets: state.widgets,

@@ -35,8 +35,12 @@ export const useDockStore = create<DockState>()(
     }),
     {
       name: 'base:dock-config',
-      onRehydrateStorage: () => (state) => {
-        state?.setHasHydrated(true);
+      onRehydrateStorage: () => (state, error) => {
+        if (state) {
+          state.setHasHydrated(true);
+        } else {
+          useDockStore.setState({ _hasHydrated: true });
+        }
       },
     }
   )

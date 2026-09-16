@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 export async function fetchApi(endpoint: string, options: RequestInit = {}) {
   // --- LOCAL MOCK API INTERCEPTOR ---
   if (
+    process.env.NODE_ENV === 'development' &&
     typeof window !== 'undefined' &&
     window.location.hostname === 'localhost' &&
     endpoint === '/api/todos/tasks.php'
@@ -96,7 +97,6 @@ export async function fetchApi(endpoint: string, options: RequestInit = {}) {
     // If it's a 401 Unauthorized, we might want to redirect to login
     // But since this is a SPA, we can just throw or let the UI handle it.
     if (res.status === 401) {
-      window.location.href = '/';
       throw new Error('Unauthorized');
     }
 
