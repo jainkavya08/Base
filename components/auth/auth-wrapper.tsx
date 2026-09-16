@@ -30,6 +30,17 @@ export function AuthWrapper({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const refreshSession = async () => {
+    // Development-only bypass for local UI testing
+    if (
+      typeof window !== "undefined" &&
+      window.location.hostname === "localhost" &&
+      !window.location.search.includes("login=true")
+    ) {
+      setUser({ id: "dev-bypass-user-id", name: "Development User", email: "dev@localhost" });
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await fetch("/api/auth/session.php", { credentials: 'same-origin' });
       const data = await res.json();
