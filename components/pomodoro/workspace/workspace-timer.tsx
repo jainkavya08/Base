@@ -5,6 +5,8 @@ import { Play, Pause, RotateCcw, Settings, SkipForward, Maximize, Minimize } fro
 import { useAppStore } from "@/lib/store";
 import { fetchApi } from "@/lib/api";
 import { mutate } from "swr";
+import useSWR from "swr";
+import { fetcher } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { TimerSettings } from "./timer-settings";
@@ -15,6 +17,9 @@ export function WorkspaceTimer() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  
+  const { data: taskData } = useSWR('/api/todos/tasks.php', fetcher);
+  const currentTask = taskData?.tasks?.find((t: any) => t.id === currentTodoId);
   
   // Use a ref to hold the latest state for the interval closure
   const stateRef = useRef({ isRunning, timeLeft, mode, targetEndTime, currentTodoId, sessionCount, settings });
@@ -320,6 +325,14 @@ export function WorkspaceTimer() {
           <SkipForward className="w-5 h-5" />
         </Button>
       </div>
+      
+      {/* Current Task Display */}
+      {currentTask && (
+        <div className="mt-8 text-center animate-in fade-in slide-in-from-bottom-2">
+          <p className="text-sm text-white/50 mb-1">Focusing on</p>
+          <p className="text-lg font-medium text-white max-w-sm truncate px-4">{currentTask.title}</p>
+        </div>
+      )}
 
       {/* Settings Gear and Fullscreen */}
       <div className="absolute top-6 right-6 flex items-center gap-2">

@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useDockStore, QuickLink } from "@/lib/dock-store";
-import { AddLinkDialog } from "./add-link-dialog";
+import { AddLinkDialog, AVAILABLE_ICONS, IconName } from "./add-link-dialog";
 import { Trash2, Home, CheckCircle, Timer, ListTodo, Wallet } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -60,6 +60,11 @@ function DockItem({
         >
           {link.type === 'system' && link.icon ? (
             <link.icon className="w-6 h-6 text-ink relative z-10" strokeWidth={2} />
+          ) : link.icon && AVAILABLE_ICONS[link.icon as IconName] ? (
+            (() => {
+              const Icon = AVAILABLE_ICONS[link.icon as IconName];
+              return <Icon className="w-6 h-6 text-ink relative z-10" strokeWidth={2} />;
+            })()
           ) : favicon ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={favicon} alt={link.name} className="w-2/3 h-2/3 object-contain pointer-events-none rounded-lg" />
@@ -76,16 +81,19 @@ function DockItem({
       
       {/* Remove Button for custom links */}
       {link.type !== 'system' && (
-        <button 
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            removeQuickLink(link.id);
-          }}
-          className="absolute -top-2 -right-2 w-5 h-5 bg-surface-dark text-white rounded-full flex items-center justify-center opacity-0 group-hover/dock-item:opacity-100 transition-opacity hover:bg-accent-coral z-10"
-        >
-          <Trash2 className="w-3 h-3" />
-        </button>
+        <>
+          <AddLinkDialog linkToEdit={link} />
+          <button 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              removeQuickLink(link.id);
+            }}
+            className="absolute -top-2 -right-2 w-5 h-5 bg-surface-dark text-white rounded-full flex items-center justify-center opacity-0 group-hover/dock-item:opacity-100 transition-opacity hover:bg-accent-coral z-10"
+          >
+            <Trash2 className="w-3 h-3" />
+          </button>
+        </>
       )}
     </div>
   );
