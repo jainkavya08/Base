@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronRight, Check, Circle, Clock, PauseCircle, CheckCircle2 } from "lucide-react";
+import { ChevronDown, ChevronRight, Check, Circle, Clock, PauseCircle, CheckCircle2, Calendar } from "lucide-react";
 import { SubtaskComposer } from "./subtask-composer";
 import { SubtaskItem } from "./subtask-item";
 import { TaskMenu } from "./task-menu";
@@ -96,6 +96,17 @@ export function TaskItem({
     
     mutate('/api/todos/tasks.php');
     setShowDeleteConfirm(false);
+  };
+
+  const handleDueDateChange = async (date: string | null) => {
+    await fetchApi('/api/todos/tasks.php', {
+      method: 'PUT',
+      body: JSON.stringify({
+        id: task.id,
+        dueDate: date
+      })
+    });
+    mutate('/api/todos/tasks.php');
   };
 
   const handleAddSubtaskMenu = () => {
@@ -202,6 +213,12 @@ export function TaskItem({
                     {getStatusLabel(task.status)}
                   </div>
                 )}
+                {task.dueDate && (
+                  <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-canvas border border-border/50 text-[11px] font-medium text-ink-muted">
+                    <Calendar className="w-3 h-3 text-accent-blue" />
+                    {new Date(task.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                  </div>
+                )}
               </div>
             )}
             
@@ -221,6 +238,8 @@ export function TaskItem({
                     onDelete={handleDelete}
                     onStatusChange={onStatusChange ? (status) => onStatusChange(task.id, status) : undefined}
                     currentStatus={task.status || 'todo'}
+                    onDueDateChange={handleDueDateChange}
+                    currentDueDate={task.dueDate}
                   />
                 </div>
               </div>

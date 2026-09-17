@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MoreVertical, Edit2, Plus, Copy, FolderInput, Trash2, ChevronRight, Circle, Clock, PauseCircle, CheckCircle2 } from "lucide-react";
+import { MoreVertical, Edit2, Plus, Copy, FolderInput, Trash2, ChevronRight, Circle, Clock, PauseCircle, CheckCircle2, Calendar } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -16,7 +16,9 @@ export function TaskMenu({
   onMove,
   onDelete,
   onStatusChange,
-  currentStatus
+  currentStatus,
+  onDueDateChange,
+  currentDueDate
 }: {
   isSubtask?: boolean;
   onEdit: () => void;
@@ -26,6 +28,8 @@ export function TaskMenu({
   onDelete: () => void;
   onStatusChange?: (status: string) => void;
   currentStatus?: string;
+  onDueDateChange?: (date: string | null) => void;
+  currentDueDate?: string | null;
 }) {
   const [open, setOpen] = useState(false);
   const [showStatusMenu, setShowStatusMenu] = useState(false);
@@ -84,6 +88,22 @@ export function TaskMenu({
             </div>
             <ChevronRight className="w-4 h-4" />
           </button>
+        )}
+
+        {onDueDateChange && (
+          <div className="relative flex items-center gap-2 px-3 py-2 text-sm text-ink hover:bg-canvas rounded-lg transition-colors cursor-pointer overflow-hidden">
+            <Calendar className="w-4 h-4 shrink-0 pointer-events-none" />
+            <span className="pointer-events-none">{currentDueDate ? new Date(currentDueDate).toLocaleDateString() : 'Set Due Date'}</span>
+            <input 
+              type="date"
+              value={currentDueDate ? currentDueDate.split('T')[0] : ''}
+              onChange={(e) => {
+                onDueDateChange(e.target.value ? e.target.value : null);
+                setOpen(false);
+              }}
+              className="absolute inset-0 opacity-0 cursor-pointer"
+            />
+          </div>
         )}
 
         {!isSubtask && onMove && (
