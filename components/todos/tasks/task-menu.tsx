@@ -7,6 +7,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Calendar as CalendarUI } from "@/components/ui/calendar";
 
 export function TaskMenu({
   isSubtask,
@@ -33,17 +34,22 @@ export function TaskMenu({
 }) {
   const [open, setOpen] = useState(false);
   const [showStatusMenu, setShowStatusMenu] = useState(false);
+  const [showDateMenu, setShowDateMenu] = useState(false);
 
   const handleAction = (action: () => void) => {
     setOpen(false);
     setShowStatusMenu(false);
+    setShowDateMenu(false);
     action();
   };
 
   return (
     <Popover open={open} onOpenChange={(val) => {
       setOpen(val);
-      if (!val) setShowStatusMenu(false);
+      if (!val) {
+        setShowStatusMenu(false);
+        setShowDateMenu(false);
+      }
     }}>
       <PopoverTrigger render={
         <button className="p-1 text-ink-muted hover:text-ink hover:bg-canvas rounded-md transition-colors">
@@ -91,19 +97,20 @@ export function TaskMenu({
         )}
 
         {onDueDateChange && (
-          <div className="relative flex items-center gap-2 px-3 py-2 text-sm text-ink hover:bg-canvas rounded-lg transition-colors cursor-pointer overflow-hidden">
-            <Calendar className="w-4 h-4 shrink-0 pointer-events-none" />
-            <span className="pointer-events-none">{currentDueDate ? new Date(currentDueDate).toLocaleDateString() : 'Set Due Date'}</span>
-            <input 
-              type="date"
-              value={currentDueDate ? currentDueDate.split('T')[0] : ''}
-              onChange={(e) => {
-                onDueDateChange(e.target.value ? e.target.value : null);
-                setOpen(false);
-              }}
-              className="absolute inset-0 opacity-0 cursor-pointer"
-            />
-          </div>
+          <button 
+            onClick={(e) => { 
+              e.stopPropagation(); 
+              setShowDateMenu(!showDateMenu);
+              setShowStatusMenu(false);
+            }}
+            className="flex items-center justify-between px-3 py-2 text-sm text-ink hover:bg-canvas rounded-lg transition-colors text-left"
+          >
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 shrink-0" />
+              <span>{currentDueDate ? new Date(currentDueDate).toLocaleDateString() : 'Set Due Date'}</span>
+            </div>
+            <ChevronRight className="w-4 h-4" />
+          </button>
         )}
 
         {!isSubtask && onMove && (
@@ -145,6 +152,26 @@ export function TaskMenu({
             <div className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-green-500" /> Completed</div>
             {currentStatus === 'completed' && <CheckCircle2 className="w-3.5 h-3.5 text-accent-blue" />}
           </button>
+        </div>
+      )}
+
+      {showDateMenu && onDueDateChange && (
+        <div className="absolute right-[calc(100%+4px)] top-0 p-3 bg-surface-card border border-border/50 shadow-xl rounded-xl z-50">
+          <CalendarUI
+            mode="single"
+            selected={currentDueDate ? new Date(currentDueDate) : undefined}
+            onSelect={(date) => {
+              if (date) {
+                // Ensure the date is stored in local time, not UTC midnight
+                // to avoid timezone shifting when formatting
+                const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+                onDueDateChange(localDate);
+              } else {
+                onDueDateChange(null);
+              }
+              handleAction(() => {});
+            }}
+          />
         </div>
       )}
     </Popover>
