@@ -16,7 +16,7 @@ header('Content-Type: application/json');
 
 try {
     if ($method === 'GET') {
-        $stmt = $pdo->prepare("SELECT id, list_id as listId, parent_task_id as parentTaskId, title, description, completed, due_date as dueDate, priority, status, position, created_at as createdAt, updated_at as updatedAt FROM tasks WHERE user_id = :user_id ORDER BY created_at ASC");
+        $stmt = $pdo->prepare("SELECT id, list_id as listId, parent_task_id as parentTaskId, title, description, completed, due_date as dueDate, priority, status, position, created_at as createdAt, updated_at as updatedAt FROM tasks WHERE user_id = :user_id ORDER BY position ASC, created_at ASC");
         $stmt->execute(['user_id' => $user_id]);
         
         $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -31,14 +31,16 @@ try {
         if (isset($input['action']) && $input['action'] === 'toggle') {
             $id = $input['id'];
             $completed = $input['completed'] ? 1 : 0;
+            $status = $completed ? 'completed' : 'todo';
             $updated_at = date('Y-m-d H:i:s');
             
             $pdo->beginTransaction();
-            $stmt = $pdo->prepare("UPDATE tasks SET completed = :completed, updated_at = :updated_at WHERE id = :id AND user_id = :user_id");
+            $stmt = $pdo->prepare("UPDATE tasks SET completed = :completed, status = :status, updated_at = :updated_at WHERE id = :id AND user_id = :user_id");
             $stmt->execute([
                 'id' => $id,
                 'user_id' => $user_id,
                 'completed' => $completed,
+                'status' => $status,
                 'updated_at' => $updated_at
             ]);
             
@@ -67,28 +69,46 @@ try {
             exit;
         }
 
-        $stmt = $pdo->prepare("INSERT INTO tasks (id, user_id, list_id, parent_task_id, title, description, completed, due_date, priority) VALUES (:id, :user_id, :list_id, :parent_task_id, :title, :description, :completed, :due_date, :priority)");
-        $stmt->execute([
-            'id' => $id,
-            'user_id' => $user_id,
-            'list_id' => $list_id,
-            'parent_task_id' => $parent_task_id,
-            'title' => $title,
-            'description' => $desc,
-            'completed' => $completed,
-            'due_date' => $due_date,
-            'priority' => $priority
-        ]);
+        // Check if task exists
+        $stmtCheck = $pdo->prepare("SELECT id FROM tasks WHERE id = :id AND user_id = :user_id");
+        $stmtCheck->execute(['id' => $id, 'user_id' => $user_id]);
+        $exists = $stmtCheck->fetch();
+
+        if (!$exists) {
+            $stmt = $pdo->prepare("INSERT INTO tasks (id, user_id, list_id, parent_task_id, title, description, completed, due_date, priority, status, position) VALUES (:id, :user_id, :list_id, :parent_task_id, :title, :description, :completed, :due_date, :priority, :status, :position)");
+            $stmt->execute([
+                'id' => $id,
+                'user_id' => $user_id,
+                'list_id' => $list_id,
+                'parent_task_id' => $parent_task_id,
+                'title' => $title,
+                'description' => $desc,
+                'completed' => $completed,
+                'due_date' => $due_date,
+                'priority' => $priority,
+                'status' => $input['status'] ?? ($completed ? 'completed' : 'todo'),
+                'position' => $input['position'] ?? 0
+            ]);
+        }
         
         $fields = [];
         $params = ['id' => $id, 'user_id' => $user_id];
         
         if (isset($input['title'])) { $fields[] = 'title = :title'; $params['title'] = $input['title']; }
         if (isset($input['description'])) { $fields[] = 'description = :description'; $params['description'] = $input['description']; }
-        if (isset($input['completed'])) { $fields[] = 'completed = :completed'; $params['completed'] = $input['completed'] ? 1 : 0; }
+        if (isset($input['completed'])) { 
+            $fields[] = 'completed = :completed'; 
+            $params['completed'] = $input['completed'] ? 1 : 0;
+            // Also sync status if completed changes directly
+            $fields[] = 'status = :status_val';
+            $params['status_val'] = $input['completed'] ? 'completed' : 'todo';
+        }
         if (isset($input['dueDate'])) { $fields[] = 'due_date = :due_date'; $params['due_date'] = $input['dueDate']; }
         if (isset($input['priority'])) { $fields[] = 'priority = :priority'; $params['priority'] = $input['priority']; }
         if (isset($input['listId'])) { $fields[] = 'list_id = :list_id'; $params['list_id'] = $input['listId']; }
+        if (isset($input['status'])) { $fields[] = 'status = :status'; $params['status'] = $input['status']; }
+        if (isset($input['position'])) { $fields[] = 'position = :position'; $params['position'] = $input['position']; }
+        if (isset($input['parentTaskId'])) { $fields[] = 'parent_task_id = :parent_task_id'; $params['parent_task_id'] = $input['parentTaskId']; }
         
         if (empty($fields)) {
             echo json_encode(['success' => true]);

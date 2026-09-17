@@ -11,17 +11,26 @@ import { parseMultiLineTasks } from "@/lib/utils/tasks";
 export function SubtaskComposer({ 
   listId, 
   parentTaskId,
-  forceOpen 
+  currentTaskCount = 0,
+  forceOpen = false 
 }: { 
   listId: string; 
   parentTaskId: string;
+  currentTaskCount?: number;
   forceOpen?: boolean;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(forceOpen);
   const [text, setText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { mutate } = useSWRConfig();
+
+  useEffect(() => {
+    if (forceOpen) {
+      setIsOpen(true);
+      setTimeout(() => textareaRef.current?.focus(), 50);
+    }
+  }, [forceOpen]);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -31,13 +40,6 @@ export function SubtaskComposer({
     }
   }, [text]);
 
-  useEffect(() => {
-    if (forceOpen) {
-      setIsOpen(true);
-      setTimeout(() => textareaRef.current?.focus(), 50);
-    }
-  }, [forceOpen]);
-
   const tasksToCreate = parseMultiLineTasks(text);
 
   const handleSubmit = async () => {
@@ -46,7 +48,7 @@ export function SubtaskComposer({
     setIsSubmitting(true);
     try {
       await Promise.all(
-        tasksToCreate.map((title) =>
+        tasksToCreate.map((title, index) =>
           fetchApi("/api/todos/tasks.php", {
             method: "PUT",
             body: JSON.stringify({
@@ -55,6 +57,8 @@ export function SubtaskComposer({
               title,
               completed: false,
               priority: "medium",
+              status: "todo",
+              position: currentTaskCount + index,
             }),
           })
         )

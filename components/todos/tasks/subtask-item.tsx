@@ -62,12 +62,15 @@ export function SubtaskItem({
     <div className="flex items-start gap-3 group">
       <button
         onClick={() => onToggle(subtask.id, subtask.completed, false, allSubtasks, parentTask)}
-        className={`w-4 h-4 rounded-sm border flex items-center justify-center transition-colors mt-1 shrink-0 ${
+        className={`relative w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center transition-all mt-1 shrink-0 group-hover:border-accent-blue ${
           subtask.completed 
-            ? 'bg-accent-blue border-accent-blue text-white' 
-            : 'border-border/80 hover:border-accent-blue bg-transparent'
+            ? 'bg-[var(--color-accent-blue,var(--accent-blue))] border-[var(--color-accent-blue,var(--accent-blue))] text-white' 
+            : 'border-border/80 bg-transparent'
         }`}
+        style={{ width: '18px', height: '18px', padding: 0 }}
+        aria-label={subtask.completed ? "Mark as uncompleted" : "Mark as completed"}
       >
+        <span className="absolute inset-[-12px]" />
         {subtask.completed && <Check className="w-3 h-3 stroke-[3]" />}
       </button>
       

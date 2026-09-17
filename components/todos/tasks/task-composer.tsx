@@ -8,7 +8,7 @@ import { useSWRConfig } from "swr";
 import { cn } from "cn";
 import { parseMultiLineTasks } from "@/lib/utils/tasks";
 
-export function TaskComposer({ listId }: { listId: string }) {
+export function TaskComposer({ listId, currentTaskCount = 0 }: { listId: string; currentTaskCount?: number }) {
   const [isOpen, setIsOpen] = useState(false);
   const [text, setText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,12 +30,8 @@ export function TaskComposer({ listId }: { listId: string }) {
 
     setIsSubmitting(true);
     try {
-      // In a real production app we'd create a bulk endpoint, but for this migration
-      // creating sequentially or parallel via promises is fine, or we can use our POST bulk
-      // Wait, our POST endpoint doesn't support bulk creation, but we can easily add it or just loop.
-      // Let's just loop for now, it's fast enough.
       await Promise.all(
-        tasksToCreate.map((title) =>
+        tasksToCreate.map((title, index) =>
           fetchApi("/api/todos/tasks.php", {
             method: "PUT",
             body: JSON.stringify({
@@ -43,6 +39,8 @@ export function TaskComposer({ listId }: { listId: string }) {
               title,
               completed: false,
               priority: "medium",
+              status: "todo",
+              position: currentTaskCount + index,
             }),
           })
         )

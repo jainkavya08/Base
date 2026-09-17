@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MoreVertical, Edit2, Plus, Copy, FolderInput, Trash2 } from "lucide-react";
+import { MoreVertical, Edit2, Plus, Copy, FolderInput, Trash2, ChevronRight, Circle, Clock, PauseCircle, CheckCircle2 } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -14,7 +14,9 @@ export function TaskMenu({
   onAddSubtask,
   onDuplicate,
   onMove,
-  onDelete
+  onDelete,
+  onStatusChange,
+  currentStatus
 }: {
   isSubtask?: boolean;
   onEdit: () => void;
@@ -22,16 +24,23 @@ export function TaskMenu({
   onDuplicate: () => void;
   onMove?: () => void;
   onDelete: () => void;
+  onStatusChange?: (status: string) => void;
+  currentStatus?: string;
 }) {
   const [open, setOpen] = useState(false);
+  const [showStatusMenu, setShowStatusMenu] = useState(false);
 
   const handleAction = (action: () => void) => {
     setOpen(false);
+    setShowStatusMenu(false);
     action();
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={(val) => {
+      setOpen(val);
+      if (!val) setShowStatusMenu(false);
+    }}>
       <PopoverTrigger render={
         <button className="p-1 text-ink-muted hover:text-ink hover:bg-canvas rounded-md transition-colors">
           <MoreVertical className="w-4 h-4" />
@@ -64,6 +73,19 @@ export function TaskMenu({
           Duplicate
         </button>
 
+        {onStatusChange && (
+          <button 
+            onClick={(e) => { e.stopPropagation(); setShowStatusMenu(!showStatusMenu); }}
+            className="flex items-center justify-between px-3 py-2 text-sm text-ink hover:bg-canvas rounded-lg transition-colors text-left"
+          >
+            <div className="flex items-center gap-2">
+              <Circle className="w-4 h-4" />
+              Set Status
+            </div>
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        )}
+
         {!isSubtask && onMove && (
           <button 
             onClick={() => handleAction(onMove)}
@@ -84,6 +106,27 @@ export function TaskMenu({
           Delete
         </button>
       </PopoverContent>
+      
+      {showStatusMenu && onStatusChange && (
+        <div className="absolute right-[calc(100%+4px)] top-0 w-40 p-1 bg-surface-card border border-border/50 shadow-xl rounded-xl flex flex-col gap-1 z-50">
+          <button onClick={() => handleAction(() => onStatusChange('todo'))} className="flex items-center justify-between px-3 py-2 text-sm text-ink hover:bg-canvas rounded-lg transition-colors text-left">
+            <div className="flex items-center gap-2"><Circle className="w-3.5 h-3.5 text-ink-muted" /> To Do</div>
+            {currentStatus === 'todo' && <CheckCircle2 className="w-3.5 h-3.5 text-accent-blue" />}
+          </button>
+          <button onClick={() => handleAction(() => onStatusChange('in_progress'))} className="flex items-center justify-between px-3 py-2 text-sm text-ink hover:bg-canvas rounded-lg transition-colors text-left">
+            <div className="flex items-center gap-2"><Clock className="w-3.5 h-3.5 text-accent-blue" /> In Progress</div>
+            {currentStatus === 'in_progress' && <CheckCircle2 className="w-3.5 h-3.5 text-accent-blue" />}
+          </button>
+          <button onClick={() => handleAction(() => onStatusChange('on_hold'))} className="flex items-center justify-between px-3 py-2 text-sm text-ink hover:bg-canvas rounded-lg transition-colors text-left">
+            <div className="flex items-center gap-2"><PauseCircle className="w-3.5 h-3.5 text-orange-500" /> On Hold</div>
+            {currentStatus === 'on_hold' && <CheckCircle2 className="w-3.5 h-3.5 text-accent-blue" />}
+          </button>
+          <button onClick={() => handleAction(() => onStatusChange('completed'))} className="flex items-center justify-between px-3 py-2 text-sm text-ink hover:bg-canvas rounded-lg transition-colors text-left">
+            <div className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-green-500" /> Completed</div>
+            {currentStatus === 'completed' && <CheckCircle2 className="w-3.5 h-3.5 text-accent-blue" />}
+          </button>
+        </div>
+      )}
     </Popover>
   );
 }

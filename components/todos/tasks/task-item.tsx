@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronRight, Check } from "lucide-react";
+import { ChevronDown, ChevronRight, Check, Circle, Clock, PauseCircle, CheckCircle2 } from "lucide-react";
 import { SubtaskComposer } from "./subtask-composer";
 import { SubtaskItem } from "./subtask-item";
 import { TaskMenu } from "./task-menu";
@@ -14,11 +14,13 @@ import type { Todo } from "@/lib/db";
 export function TaskItem({ 
   task, 
   allTasks, 
-  onToggle 
+  onToggle,
+  onStatusChange 
 }: { 
   task: Todo; 
   allTasks: Todo[];
   onToggle: (taskId: string, currentStatus: boolean, isParent?: boolean, subtasks?: Todo[], parentTask?: Todo) => void;
+  onStatusChange?: (taskId: string, newStatus: string) => void;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -103,6 +105,24 @@ export function TaskItem({
     setTimeout(() => setIsAddingSubtask(false), 50);
   };
 
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'in_progress': return <Clock className="w-3 h-3 text-accent-blue" />;
+      case 'on_hold': return <PauseCircle className="w-3 h-3 text-orange-500" />;
+      case 'completed': return <CheckCircle2 className="w-3 h-3 text-green-500" />;
+      default: return <Circle className="w-3 h-3 text-ink-muted" />;
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'in_progress': return 'In Progress';
+      case 'on_hold': return 'On Hold';
+      case 'completed': return 'Completed';
+      default: return 'To Do';
+    }
+  };
+
   return (
     <div className="bg-surface-card border border-border/50 rounded-2xl p-4 flex flex-col transition-all group/task relative">
       <div className="flex items-start gap-4">
@@ -119,12 +139,16 @@ export function TaskItem({
         
         <button
           onClick={() => onToggle(task.id, task.completed, true, subtasks)}
-          className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors mt-0.5 shrink-0 ${
+          className={`relative w-[20px] h-[20px] rounded-full border-2 flex items-center justify-center transition-all mt-0.5 shrink-0 group-hover/task:border-accent-blue ${
             task.completed 
-              ? 'bg-accent-blue border-accent-blue text-white' 
-              : 'border-border/80 hover:border-accent-blue bg-transparent'
+              ? 'bg-[var(--color-accent-blue,var(--accent-blue))] border-[var(--color-accent-blue,var(--accent-blue))] text-white' 
+              : 'border-border/80 bg-transparent'
           }`}
+          style={{ width: '20px', height: '20px', padding: 0 }}
+          aria-label={task.completed ? "Mark as uncompleted" : "Mark as completed"}
         >
+          {/* A larger invisible tap target for accessibility */}
+          <span className="absolute inset-[-12px]" />
           {task.completed && <Check className="w-3.5 h-3.5 stroke-[3]" />}
         </button>
         
@@ -168,9 +192,17 @@ export function TaskItem({
                 </div>
               </div>
             ) : (
-              <span className={`text-lg flex-1 ${task.completed ? 'text-ink-muted line-through' : 'text-ink'}`}>
-                {task.title}
-              </span>
+              <div className="flex flex-wrap items-center gap-2 flex-1">
+                <span className={`text-lg ${task.completed ? 'text-ink-muted line-through' : 'text-ink'}`}>
+                  {task.title}
+                </span>
+                {task.status && task.status !== 'todo' && (
+                  <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-canvas border border-border/50 text-[11px] font-medium text-ink-muted">
+                    {getStatusIcon(task.status)}
+                    {getStatusLabel(task.status)}
+                  </div>
+                )}
+              </div>
             )}
             
             {!isEditing && (
@@ -187,6 +219,8 @@ export function TaskItem({
                     onDuplicate={handleDuplicate}
                     onMove={() => setShowMoveDialog(true)}
                     onDelete={handleDelete}
+                    onStatusChange={onStatusChange ? (status) => onStatusChange(task.id, status) : undefined}
+                    currentStatus={task.status || 'todo'}
                   />
                 </div>
               </div>
@@ -216,6 +250,7 @@ export function TaskItem({
               listId={task.listId} 
               parentTaskId={task.id} 
               forceOpen={isAddingSubtask} 
+              currentTaskCount={subtasks.length}
             />
           )}
         </div>

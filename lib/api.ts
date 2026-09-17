@@ -44,7 +44,12 @@ export async function fetchApi(endpoint: string, options: RequestInit = {}) {
       
       if (body.action === 'toggle') {
         mockTasks = mockTasks.map(t => 
-          t.id === body.id ? { ...t, completed: body.completed, updatedAt: new Date().toISOString() } : t
+          t.id === body.id ? { 
+            ...t, 
+            completed: body.completed, 
+            status: body.completed ? 'completed' : 'todo',
+            updatedAt: new Date().toISOString() 
+          } : t
         );
         sessionStorage.setItem(MOCK_KEY, JSON.stringify(mockTasks));
         return { success: true };
@@ -63,8 +68,8 @@ export async function fetchApi(endpoint: string, options: RequestInit = {}) {
           completed: body.completed || false,
           dueDate: body.dueDate || null,
           priority: body.priority || 'medium',
-          status: body.status || 'pending',
-          position: mockTasks.length,
+          status: body.status || (body.completed ? 'completed' : 'todo'),
+          position: body.position ?? mockTasks.length,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };

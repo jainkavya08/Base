@@ -37,35 +37,90 @@ export function TasksDashboard({ fileId, listId }: { fileId: string; listId: str
 
   const handleToggle = async (taskId: string, currentStatus: boolean, isParent?: boolean, subtasks?: Todo[], parentTask?: Todo) => {
     const newStatus = !currentStatus;
-    const now = new Date().toISOString();
 
-    if (isParent && subtasks) {
-      // Toggle parent and all its subtasks
-      const promises = subtasks.map(st => 
-        fetchApi('/api/todos/tasks.php', { method: 'PUT', body: JSON.stringify({ action: 'toggle', id: st.id, completed: newStatus }) })
-      );
-      promises.push(
-        fetchApi('/api/todos/tasks.php', { method: 'PUT', body: JSON.stringify({ action: 'toggle', id: taskId, completed: newStatus }) })
-      );
-      await Promise.all(promises);
-    } else if (!isParent && parentTask && subtasks) {
-      // Toggle subtask
-      await fetchApi('/api/todos/tasks.php', { method: 'PUT', body: JSON.stringify({ action: 'toggle', id: taskId, completed: newStatus }) });
+    // Optimistic update
+    mutate('/api/todos/tasks.php', (currentData: any) => {
+      if (!currentData?.tasks) return currentData;
+      let newTasks = [...currentData.tasks];
       
-      // Check if parent should be completed/uncompleted
-      const otherSubtasks = subtasks.filter(t => t.id !== taskId);
-      const allOthersCompleted = otherSubtasks.every(t => t.completed);
+      const updateTaskState = (id: string, status: boolean) => {
+        newTasks = newTasks.map((t: any) => t.id === id ? { ...t, completed: status, status: status ? 'completed' : 'todo' } : t);
+      };
       
-      if (newStatus && allOthersCompleted) {
-        await fetchApi('/api/todos/tasks.php', { method: 'PUT', body: JSON.stringify({ action: 'toggle', id: parentTask.id, completed: true }) });
-      } else if (!newStatus && parentTask.completed) {
-        await fetchApi('/api/todos/tasks.php', { method: 'PUT', body: JSON.stringify({ action: 'toggle', id: parentTask.id, completed: false }) });
+      if (isParent && subtasks) {
+        subtasks.forEach(st => updateTaskState(st.id, newStatus));
+        updateTaskState(taskId, newStatus);
+      } else if (!isParent && parentTask && subtasks) {
+        updateTaskState(taskId, newStatus);
+        const otherSubtasks = subtasks.filter(t => t.id !== taskId);
+        const allOthersCompleted = otherSubtasks.every(t => t.completed);
+        if (newStatus && allOthersCompleted) updateTaskState(parentTask.id, true);
+        else if (!newStatus && parentTask.completed) updateTaskState(parentTask.id, false);
+      } else {
+        updateTaskState(taskId, newStatus);
       }
-    } else {
-      // Standard toggle
-      await fetchApi('/api/todos/tasks.php', { method: 'PUT', body: JSON.stringify({ action: 'toggle', id: taskId, completed: newStatus }) });
+      return { ...currentData, tasks: newTasks };
+    }, { revalidate: false });
+
+    try {
+      if (isParent && subtasks) {
+        // Toggle parent and all its subtasks
+        const promises = subtasks.map(st => 
+          fetchApi('/api/todos/tasks.php', { method: 'PUT', body: JSON.stringify({ action: 'toggle', id: st.id, completed: newStatus }) })
+        );
+        promises.push(
+          fetchApi('/api/todos/tasks.php', { method: 'PUT', body: JSON.stringify({ action: 'toggle', id: taskId, completed: newStatus }) })
+        );
+        await Promise.all(promises);
+      } else if (!isParent && parentTask && subtasks) {
+        // Toggle subtask
+        await fetchApi('/api/todos/tasks.php', { method: 'PUT', body: JSON.stringify({ action: 'toggle', id: taskId, completed: newStatus }) });
+        
+        // Check if parent should be completed/uncompleted
+        const otherSubtasks = subtasks.filter(t => t.id !== taskId);
+        const allOthersCompleted = otherSubtasks.every(t => t.completed);
+        
+        if (newStatus && allOthersCompleted) {
+          await fetchApi('/api/todos/tasks.php', { method: 'PUT', body: JSON.stringify({ action: 'toggle', id: parentTask.id, completed: true }) });
+        } else if (!newStatus && parentTask.completed) {
+          await fetchApi('/api/todos/tasks.php', { method: 'PUT', body: JSON.stringify({ action: 'toggle', id: parentTask.id, completed: false }) });
+        }
+      } else {
+        // Standard toggle
+        await fetchApi('/api/todos/tasks.php', { method: 'PUT', body: JSON.stringify({ action: 'toggle', id: taskId, completed: newStatus }) });
+      }
+      mutate('/api/todos/tasks.php');
+    } catch (e) {
+      mutate('/api/todos/tasks.php');
+      console.error(e);
     }
-    mutate('/api/todos/tasks.php');
+  };
+
+  const handleStatusChange = async (taskId: string, newStatus: string) => {
+    // Optimistic update
+    mutate('/api/todos/tasks.php', (currentData: any) => {
+      if (!currentData?.tasks) return currentData;
+      const newTasks = currentData.tasks.map((t: any) => 
+        t.id === taskId ? { ...t, status: newStatus, completed: newStatus === 'completed' } : t
+      );
+      return { ...currentData, tasks: newTasks };
+    }, { revalidate: false });
+
+    try {
+      await fetchApi('/api/todos/tasks.php', { 
+        method: 'PUT', 
+        body: JSON.stringify({ 
+          id: taskId, 
+          listId, 
+          status: newStatus,
+          completed: newStatus === 'completed'
+        }) 
+      });
+      mutate('/api/todos/tasks.php');
+    } catch (e) {
+      mutate('/api/todos/tasks.php');
+      console.error(e);
+    }
   };
 
   return (
@@ -86,7 +141,7 @@ export function TasksDashboard({ fileId, listId }: { fileId: string; listId: str
           </div>
         </div>
 
-        <TaskComposer listId={listId} />
+        <TaskComposer listId={listId} currentTaskCount={tasks.length} />
         
         {/* View toggles */}
         <div className="flex gap-2 mb-2">
@@ -130,28 +185,68 @@ export function TasksDashboard({ fileId, listId }: { fileId: string; listId: str
           {view === "list" && (
             <div className="flex flex-col gap-3">
               {topLevelTasks.map((task: any) => (
-                <TaskItem key={task.id} task={task} allTasks={tasks} onToggle={handleToggle} />
+                <TaskItem 
+                  key={task.id} 
+                  task={task} 
+                  allTasks={tasks} 
+                  onToggle={handleToggle} 
+                  onStatusChange={handleStatusChange} 
+                />
               ))}
             </div>
           )}
 
           {view === "board" && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-canvas border border-border/50 rounded-2xl p-4">
-                <h3 className="font-medium text-ink mb-4 border-b border-border pb-2">To Do</h3>
-                <div className="flex flex-col gap-3">
-                  {topLevelTasks.filter((t: any) => !t.completed).map((task: any) => (
-                    <TaskItem key={task.id} task={task} allTasks={tasks} onToggle={handleToggle} />
-                  ))}
-                </div>
-              </div>
-              <div className="bg-canvas border border-border/50 rounded-2xl p-4">
-                <h3 className="font-medium text-ink mb-4 border-b border-border pb-2">Completed</h3>
-                <div className="flex flex-col gap-3">
-                  {topLevelTasks.filter((t: any) => t.completed).map((task: any) => (
-                    <TaskItem key={task.id} task={task} allTasks={tasks} onToggle={handleToggle} />
-                  ))}
-                </div>
+            <div className="overflow-x-auto pb-4">
+              <div className="flex gap-6 min-w-max">
+                {[
+                  { id: 'todo', title: 'To Do', className: 'bg-canvas', borderColor: 'border-border/50', headerBorder: 'border-border' },
+                  { id: 'in_progress', title: 'In Progress', className: 'bg-accent-blue/5', borderColor: 'border-accent-blue/20', headerBorder: 'border-accent-blue/30' },
+                  { id: 'on_hold', title: 'On Hold', className: 'bg-orange-500/5', borderColor: 'border-orange-500/20', headerBorder: 'border-orange-500/30' },
+                  { id: 'completed', title: 'Completed', className: 'bg-green-500/5', borderColor: 'border-green-500/20', headerBorder: 'border-green-500/30' }
+                ].map(column => (
+                  <div 
+                    key={column.id}
+                    className={`w-[320px] border ${column.borderColor} ${column.className} rounded-2xl p-4 flex flex-col shrink-0`}
+                    onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('ring-2', 'ring-accent-blue/50'); }}
+                    onDragLeave={(e) => { e.preventDefault(); e.currentTarget.classList.remove('ring-2', 'ring-accent-blue/50'); }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.currentTarget.classList.remove('ring-2', 'ring-accent-blue/50');
+                      const taskId = e.dataTransfer.getData('text/plain');
+                      if (taskId) handleStatusChange(taskId, column.id);
+                    }}
+                  >
+                    <h3 className={`font-medium text-ink mb-4 border-b ${column.headerBorder} pb-2 flex items-center justify-between`}>
+                      {column.title}
+                      <span className="text-xs text-ink-muted bg-surface-card px-2 py-0.5 rounded-full">
+                        {topLevelTasks.filter((t: any) => (t.status || (t.completed ? 'completed' : 'todo')) === column.id).length}
+                      </span>
+                    </h3>
+                    <div className="flex flex-col gap-3 min-h-[100px]">
+                      {topLevelTasks
+                        .filter((t: any) => (t.status || (t.completed ? 'completed' : 'todo')) === column.id)
+                        .map((task: any) => (
+                          <div 
+                            key={task.id} 
+                            draggable
+                            onDragStart={(e) => {
+                              e.dataTransfer.setData('text/plain', task.id);
+                              e.dataTransfer.effectAllowed = 'move';
+                            }}
+                            className="cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow rounded-2xl"
+                          >
+                            <TaskItem 
+                              task={task} 
+                              allTasks={tasks} 
+                              onToggle={handleToggle} 
+                              onStatusChange={handleStatusChange} 
+                            />
+                          </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
