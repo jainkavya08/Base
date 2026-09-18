@@ -52,29 +52,38 @@ try {
         }
 
         $id = $input['id'] ?? uniqid('', true);
-        $list_id = $input['listId'];
-        $parent_task_id = $input['parentTaskId'] ?? null;
-        $title = $input['title'];
-        $desc = $input['description'] ?? null;
-        $completed = ($input['completed'] ?? false) ? 1 : 0;
-        $due_date = $input['dueDate'] ?? null;
-        $priority = $input['priority'] ?? 'medium';
         
-        // Verify list ownership
-        $stmtList = $pdo->prepare("SELECT id FROM todo_lists WHERE id = :list_id AND user_id = :user_id");
-        $stmtList->execute(['list_id' => $list_id, 'user_id' => $user_id]);
-        if (!$stmtList->fetch()) {
-            http_response_code(403);
-            echo json_encode(['success' => false, 'error' => 'List not found or access denied']);
-            exit;
-        }
-
-        // Check if task exists
+        // Check if task exists for updates
         $stmtCheck = $pdo->prepare("SELECT id FROM tasks WHERE id = :id AND user_id = :user_id");
         $stmtCheck->execute(['id' => $id, 'user_id' => $user_id]);
         $exists = $stmtCheck->fetch();
+        
+        // If listId is provided (or if it's a new task), verify list ownership
+        $list_id = $input['listId'] ?? null;
+        if ($list_id || !$exists) {
+            if (!$list_id) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => 'listId is required for new tasks']);
+                exit;
+            }
+            $stmtList = $pdo->prepare("SELECT id FROM todo_lists WHERE id = :list_id AND user_id = :user_id");
+            $stmtList->execute(['list_id' => $list_id, 'user_id' => $user_id]);
+            if (!$stmtList->fetch()) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'List not found or access denied']);
+                exit;
+            }
+        }
+
 
         if (!$exists) {
+            $parent_task_id = $input['parentTaskId'] ?? null;
+            $title = $input['title'];
+            $desc = $input['description'] ?? null;
+            $completed = ($input['completed'] ?? false) ? 1 : 0;
+            $due_date = $input['dueDate'] ?? null;
+            $priority = $input['priority'] ?? 'medium';
+            
             $stmt = $pdo->prepare("INSERT INTO tasks (id, user_id, list_id, parent_task_id, title, description, completed, due_date, priority, status, position) VALUES (:id, :user_id, :list_id, :parent_task_id, :title, :description, :completed, :due_date, :priority, :status, :position)");
             $stmt->execute([
                 'id' => $id,
@@ -103,7 +112,7 @@ try {
             $fields[] = 'status = :status_val';
             $params['status_val'] = $input['completed'] ? 'completed' : 'todo';
         }
-        if (isset($input['dueDate'])) { $fields[] = 'due_date = :due_date'; $params['due_date'] = $input['dueDate']; }
+        if (array_key_exists('dueDate', $input)) { $fields[] = 'due_date = :due_date'; $params['due_date'] = $input['dueDate']; }
         if (isset($input['priority'])) { $fields[] = 'priority = :priority'; $params['priority'] = $input['priority']; }
         if (isset($input['listId'])) { $fields[] = 'list_id = :list_id'; $params['list_id'] = $input['listId']; }
         if (isset($input['status'])) { $fields[] = 'status = :status'; $params['status'] = $input['status']; }

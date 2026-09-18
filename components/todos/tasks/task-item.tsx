@@ -99,6 +99,15 @@ export function TaskItem({
   };
 
   const handleDueDateChange = async (date: string | null) => {
+    // Optimistic update
+    mutate('/api/todos/tasks.php', (currentData: any) => {
+      if (!currentData?.tasks) return currentData;
+      const newTasks = currentData.tasks.map((t: any) => 
+        t.id === task.id ? { ...t, dueDate: date } : t
+      );
+      return { ...currentData, tasks: newTasks };
+    }, { revalidate: false });
+
     await fetchApi('/api/todos/tasks.php', {
       method: 'PUT',
       body: JSON.stringify({
@@ -214,8 +223,25 @@ export function TaskItem({
                   </div>
                 )}
                 {task.dueDate && (
-                  <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-canvas border border-border/50 text-[11px] font-medium text-ink-muted">
-                    <Calendar className="w-3 h-3 text-accent-blue" />
+                  <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-canvas border border-border/50 text-[11px] font-medium ${
+                    (() => {
+                      if (task.completed) return 'text-ink-muted';
+                      const today = new Date();
+                      today.setHours(0,0,0,0);
+                      const due = new Date(task.dueDate);
+                      due.setHours(0,0,0,0);
+                      
+                      if (due < today) return 'text-red-500';
+                      if (due.getTime() === today.getTime()) return 'text-accent-blue';
+                      return 'text-ink-muted';
+                    })()
+                  }`}>
+                    <Calendar className={`w-3 h-3 ${
+                      task.completed ? 'text-ink-muted' : 
+                      new Date(task.dueDate).setHours(0,0,0,0) < new Date().setHours(0,0,0,0) ? 'text-red-500' :
+                      new Date(task.dueDate).setHours(0,0,0,0) === new Date().setHours(0,0,0,0) ? 'text-accent-blue' :
+                      'text-ink-muted'
+                    }`} />
                     {new Date(task.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                   </div>
                 )}
