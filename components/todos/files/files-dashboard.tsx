@@ -14,13 +14,13 @@ export function FilesDashboard() {
   const { data: listsData } = useSWR('/api/todos/lists.php', fetcher);
   const { data: tasksData } = useSWR('/api/todos/tasks.php', fetcher);
 
+  const { handleToggle, handleStatusChange } = useTaskActions();
+
   if (filesLoading) return <div className="text-center p-8 text-ink-muted">Loading files...</div>;
   
   const files = filesData?.files || [];
   const lists = listsData?.lists || [];
   const tasks = tasksData?.tasks || [];
-
-  const { handleToggle, handleStatusChange } = useTaskActions();
 
   const todayStr = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
   const dueTodayTasks = tasks.filter((t: any) => t.dueDate === todayStr && !t.completed && !t.parentTaskId);
