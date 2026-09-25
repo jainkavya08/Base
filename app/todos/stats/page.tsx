@@ -113,7 +113,7 @@ export default function TodosStatsPage() {
           <div className="w-full h-3 bg-canvas rounded-full overflow-hidden border border-border/50">
             <div 
               className="h-full bg-primary transition-all duration-500 ease-out" 
-              style={{ width: \`\${goalProgress}%\` }}
+              style={{ width: `${goalProgress}%` }}
             />
           </div>
         </div>
