@@ -4,6 +4,22 @@ import { useMemo } from "react";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { format, subDays, startOfDay, eachDayOfInterval } from "date-fns";
 
+function formatDuration(minutes: number) {
+  const totalMinutes = Math.max(0, Math.round(minutes));
+  const hours = Math.floor(totalMinutes / 60);
+  const remainingMinutes = totalMinutes % 60;
+
+  if (hours === 0) {
+    return `${remainingMinutes}m`;
+  }
+
+  if (remainingMinutes === 0) {
+    return `${hours}h`;
+  }
+
+  return `${hours}h ${remainingMinutes}m`;
+}
+
 export function FocusTimeChart({ sessions, days }: { sessions: any[], days: number }) {
   
   const data = useMemo(() => {
@@ -59,7 +75,7 @@ export function FocusTimeChart({ sessions, days }: { sessions: any[], days: numb
                     return (
                       <div className="bg-surface-dark text-surface-dark-foreground px-4 py-3 rounded-xl shadow-xl text-sm">
                         <div className="font-medium mb-1">{data.date}</div>
-                        <div className="text-accent-blue">{data.minutes} minutes</div>
+                        <div className="text-accent-blue">{formatDuration(data.minutes)}</div>
                         <div className="text-surface-dark-foreground/70 text-xs">{data.sessions} sessions</div>
                       </div>
                     );
