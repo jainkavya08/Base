@@ -153,3 +153,26 @@
     @apply font-sans;
   }
 }
+
+/* Taste Skill Motion Layer */
+:root {
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-soft: cubic-bezier(0.33, 1, 0.68, 1);
+  --t-reveal: 700ms;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-rise] {
+    opacity: 0;
+    transform: translateY(16px);
+    animation: rise-in var(--t-reveal) var(--ease-out) forwards;
+    animation-delay: calc(var(--i, 0) * 80ms + 100ms);
+  }
+}
+
+@keyframes rise-in {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

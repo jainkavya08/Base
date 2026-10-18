@@ -30,14 +30,13 @@ export function AuthWrapper({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const refreshSession = async () => {
-    // Development-only bypass for local UI testing
+    // Local preview bypass for local UI testing and static inspection
     if (
-      process.env.NODE_ENV === 'development' &&
       typeof window !== "undefined" &&
-      window.location.hostname === "localhost" &&
+      (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") &&
       !window.location.search.includes("login=true")
     ) {
-      setUser({ id: "dev-bypass-user-id", name: "Development User", email: "dev@localhost" });
+      setUser({ id: "local-user-id", name: "Kai", email: "kai@local" });
       setLoading(false);
       return;
     }

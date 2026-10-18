@@ -56,7 +56,7 @@ function DockItem({
         <motion.div
           ref={ref}
           style={{ width, height: width }}
-          className="rounded-2xl bg-surface-card/80 backdrop-blur-md border border-border/50 flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow relative cursor-pointer overflow-hidden group"
+          className="rounded-2xl bg-canvas flex items-center justify-center transition-colors relative cursor-pointer overflow-hidden group hover:bg-surface-card"
         >
           {link.type === 'system' && link.icon ? (
             <link.icon className="w-6 h-6 text-ink relative z-10" strokeWidth={2} />
@@ -73,7 +73,7 @@ function DockItem({
           )}
           
           {/* Tooltip */}
-          <div className="absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none px-3 py-1.5 bg-surface-dark/90 backdrop-blur-sm text-white text-xs rounded-lg shadow-lg whitespace-nowrap">
+          <div className="absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none px-3 py-1.5 bg-surface-dark text-white text-xs rounded-lg whitespace-nowrap">
             {link.name}
           </div>
         </motion.div>
@@ -107,11 +107,11 @@ export function QuickDock() {
   const displayLinks = hasHydrated ? [...SYSTEM_LINKS, ...quickLinks] : SYSTEM_LINKS;
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 hidden sm:block">
+    <div className="w-full flex justify-center py-6">
       <motion.div
         onMouseMove={(e) => mouseX.set(e.pageX)}
         onMouseLeave={() => mouseX.set(Infinity)}
-        className="flex items-end gap-3 px-4 py-3 rounded-3xl bg-canvas/30 backdrop-blur-xl border border-border/30 shadow-2xl"
+        className="flex items-end gap-3 px-5 py-3 rounded-3xl bg-surface-card"
       >
         {displayLinks.map((link) => (
           <DockItem key={link.id} link={link} mouseX={mouseX} />
@@ -119,7 +119,7 @@ export function QuickDock() {
         
         {/* Divider if we have custom links */}
         {quickLinks.length > 0 && hasHydrated && (
-          <div className="w-px h-10 bg-border/50 mx-1 self-center" />
+          <div className="w-1.5 h-1.5 rounded-full bg-border mx-1 self-center" />
         )}
         
         <AddLinkDialog />
