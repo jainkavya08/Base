@@ -62,9 +62,9 @@ function SortableWidget({ id, size }: { id: string, size: 'small' | 'large' }) {
       ref={setNodeRef} 
       style={style} 
       className={cn(
-        "bg-surface-card rounded-2xl p-6 transition-colors group relative cursor-grab active:cursor-grabbing",
+        "bg-surface-card rounded-2xl p-6 shadow-sm border border-transparent transition-colors group relative cursor-grab active:cursor-grabbing",
         size === 'large' ? 'col-span-1 md:col-span-2 row-span-2' : 'col-span-1 row-span-1',
-        isDragging && 'opacity-50 z-50 scale-105'
+        isDragging && 'opacity-50 z-50 border-border scale-105 shadow-xl'
       )}
       {...attributes} 
       {...listeners}
@@ -78,7 +78,10 @@ function SortableWidget({ id, size }: { id: string, size: 'small' | 'large' }) {
         </button>
       </div>
       
-      <div className="relative z-10 h-full">
+      {/* Invisible link overlay to make the whole card clickable but still draggable */}
+      <Link href={`/${id === 'home' ? '' : id}`} className="absolute inset-0 z-10" />
+      
+      <div className="relative z-0 h-full pointer-events-none">
         <Component size={size} />
       </div>
     </div>
@@ -118,7 +121,7 @@ export function BentoGrid() {
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
     >
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 auto-rows-fr md:auto-rows-[200px] gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 auto-rows-[200px] gap-6">
         <SortableContext 
           items={widgetIds}
           strategy={rectSortingStrategy}

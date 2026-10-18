@@ -91,7 +91,7 @@ export function AddLinkDialog({ className, linkToEdit }: { className?: string; l
               setOpen(true);
             }}
             className={cn(
-              "w-12 h-12 rounded-2xl bg-canvas flex items-center justify-center text-ink-muted hover:text-ink hover:bg-surface-card transition-colors group shrink-0",
+              "w-12 h-12 rounded-2xl bg-surface-card/60 backdrop-blur-sm border border-border/50 flex items-center justify-center text-ink-muted hover:text-ink hover:bg-surface-card transition-all group shrink-0",
               className
             )}
           >

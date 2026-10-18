@@ -67,19 +67,17 @@ export function WidgetPomodoro({ size }: { size: 'small' | 'large' }) {
 
   return (
     <div className="flex flex-col h-full justify-between">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-canvas text-accent-coral flex items-center justify-center">
-            <Timer className="w-4 h-4" />
-          </div>
-          <span className="font-medium text-base text-ink">Focus Timer</span>
+      <div className="flex items-center gap-2 mb-4">
+        <div className="w-8 h-8 rounded-full bg-canvas text-accent-coral flex items-center justify-center">
+          <Timer className="w-4 h-4" />
         </div>
-        <span className="text-2xl font-medium tracking-tight text-ink tabular-nums">
-          {minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
-        </span>
+        <h3 className="font-medium text-ink">Pomodoro</h3>
       </div>
       
-      <div className="flex-1 flex flex-col justify-center items-center gap-4 py-2">
+      <div className="flex-1 flex flex-col justify-center items-center gap-4">
+        <div className="text-4xl font-mono tracking-tight text-ink">
+          {minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
+        </div>
         
         <div className="flex gap-2">
           <Button 
@@ -91,9 +89,9 @@ export function WidgetPomodoro({ size }: { size: 'small' | 'large' }) {
                 targetEndTime: !isRunning ? Date.now() + timeLeft * 1000 : undefined 
               });
             }}
-            className={`rounded-full font-medium ${mode === 'focus' ? 'bg-accent-yellow text-ink hover:bg-accent-yellow/90' : 'bg-accent-coral text-white hover:bg-accent-coral/90'}`}
+            className={`rounded-full ${mode === 'focus' ? 'bg-accent-yellow text-white hover:bg-accent-yellow/90' : 'bg-accent-coral text-white hover:bg-accent-coral/90'}`}
           >
-            {isRunning ? <Pause className="w-4 h-4 mr-1 text-current" /> : <Play className="w-4 h-4 mr-1 text-current" />}
+            {isRunning ? <Pause className="w-4 h-4 mr-1" /> : <Play className="w-4 h-4 mr-1" />}
             {isRunning ? 'Pause' : 'Start'}
           </Button>
         </div>
@@ -207,7 +205,7 @@ export function WidgetFinance({ size }: { size: 'small' | 'large' }) {
       </div>
       
       <div className="flex-1 flex flex-col justify-center gap-1">
-        <p className="text-sm text-ink-muted">Net Balance</p>
+        <p className="text-xs text-ink-muted uppercase tracking-wider">Net Balance</p>
         <h4 className="text-2xl font-medium text-ink">{formatCurrency(net, false)}</h4>
         
         {size === 'large' && (

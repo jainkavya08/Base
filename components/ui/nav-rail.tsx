@@ -79,7 +79,7 @@ export function NavRail() {
       </nav>
 
       {/* Mobile Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-surface-card z-50 flex items-center justify-around px-2 py-3 pb-[calc(12px+env(safe-area-inset-bottom))]">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-surface-card border-t border-border/50 z-50 flex items-center justify-around px-2 py-3 pb-[calc(12px+env(safe-area-inset-bottom))]">
         {PRIMARY_ITEMS.map((item) => {
           const isActive = pathname === item.href;
           return (
@@ -89,14 +89,14 @@ export function NavRail() {
               onClick={handleNav}
               className={cn(
                 "flex flex-col items-center gap-1 p-2 rounded-xl transition-colors flex-1",
-                isActive ? "text-ink font-semibold" : "text-ink-muted hover:text-ink"
+                isActive ? "text-accent-yellow" : "text-ink-muted hover:text-ink"
               )}
             >
               <item.icon
-                className={cn("w-6 h-6", isActive ? "fill-current text-ink" : "")}
+                className={cn("w-6 h-6", isActive ? "fill-current" : "")}
                 strokeWidth={isActive ? 2.5 : 2}
               />
-              <span className="text-[11px] font-medium">{item.label}</span>
+              <span className="text-[10px] font-medium">{item.label}</span>
             </Link>
           );
         })}
