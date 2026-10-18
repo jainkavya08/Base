@@ -217,9 +217,9 @@ export function WorkspaceTimer() {
   const strokeDashoffset = circumference - (progress / 100) * circumference;
 
   const modeColors = {
-    focus: { stroke: 'text-accent-blue', btn: 'bg-accent-blue text-white hover:bg-accent-blue/90' },
-    short_break: { stroke: 'text-accent-blue', btn: 'bg-accent-blue text-white hover:bg-accent-blue/90' },
-    long_break: { stroke: 'text-accent-coral', btn: 'bg-accent-coral text-white hover:bg-accent-coral/90' }
+    focus: { stroke: 'text-[#FFE14D]', btn: 'bg-[#FF4D00] text-white hover:bg-[#FF4D00]/90 border border-[#1A1A1A] shadow-[4px_4px_0px_0px_#FFE14D]' },
+    short_break: { stroke: 'text-[#FFE14D]', btn: 'bg-[#FFE14D] text-[#1A1A1A] hover:bg-[#FFE14D]/90 border border-[#1A1A1A] shadow-[4px_4px_0px_0px_#FF4D00]' },
+    long_break: { stroke: 'text-[#FF4D00]', btn: 'bg-[#FF4D00] text-white hover:bg-[#FF4D00]/90 border border-[#1A1A1A] shadow-[4px_4px_0px_0px_#FFE14D]' }
   };
   
   const currentModeStyle = modeColors[mode];
@@ -228,36 +228,36 @@ export function WorkspaceTimer() {
     <div 
       ref={containerRef}
       className={cn(
-        "bg-surface-dark p-8 flex flex-col items-center justify-center relative shadow-xl w-full transition-all duration-300",
-        isFullscreen ? "h-screen w-screen rounded-none fixed inset-0 z-50 overflow-auto" : "rounded-[32px]"
+        "bg-[#1A1A1A] p-6 sm:p-8 flex flex-col items-center justify-center relative w-full border-2 border-[#1A1A1A] shadow-[6px_6px_0px_0px_#FFE14D] transition-all duration-300",
+        isFullscreen ? "h-screen w-screen rounded-none fixed inset-0 z-50 overflow-auto" : "rounded-[6px]"
       )}
     >
       
       {/* Top Mode Selector */}
-      <div className="flex gap-2 mb-10 relative z-10 bg-canvas p-1.5 rounded-full border border-border/10">
+      <div className="flex gap-1.5 mb-8 relative z-10 bg-[#2A2A2A] p-1 rounded-[4px] border border-white/20">
         <button 
           onClick={() => setMode('focus')}
-          className={cn("px-5 py-2 rounded-full text-sm font-medium transition-all", mode === 'focus' ? 'bg-surface-dark text-white shadow-sm' : 'text-white/60 hover:text-white')}
+          className={cn("px-4 py-1.5 rounded-[3px] text-xs font-sans font-medium transition-all", mode === 'focus' ? 'bg-[#FFE14D] text-[#1A1A1A] shadow-[2px_2px_0px_0px_#FF4D00] font-bold' : 'text-white/70 hover:text-white')}
         >
-          Focus
+          Focus Session
         </button>
         <button 
           onClick={() => setMode('short_break')}
-          className={cn("px-5 py-2 rounded-full text-sm font-medium transition-all", mode === 'short_break' ? 'bg-surface-dark text-white shadow-sm' : 'text-white/60 hover:text-white')}
+          className={cn("px-4 py-1.5 rounded-[3px] text-xs font-sans font-medium transition-all", mode === 'short_break' ? 'bg-[#FFE14D] text-[#1A1A1A] shadow-[2px_2px_0px_0px_#FF4D00] font-bold' : 'text-white/70 hover:text-white')}
         >
           Short Break
         </button>
         <button 
           onClick={() => setMode('long_break')}
-          className={cn("px-5 py-2 rounded-full text-sm font-medium transition-all", mode === 'long_break' ? 'bg-surface-dark text-white shadow-sm' : 'text-white/60 hover:text-white')}
+          className={cn("px-4 py-1.5 rounded-[3px] text-xs font-sans font-medium transition-all", mode === 'long_break' ? 'bg-[#FFE14D] text-[#1A1A1A] shadow-[2px_2px_0px_0px_#FF4D00] font-bold' : 'text-white/70 hover:text-white')}
         >
           Long Break
         </button>
       </div>
 
       {/* Large Circular Timer */}
-      <div className="relative flex items-center justify-center mb-8 md:mb-12 w-[240px] h-[240px] sm:w-[280px] sm:h-[280px] md:w-[320px] md:h-[320px]">
-        <svg className="w-full h-full -rotate-90 drop-shadow-xl" viewBox="0 0 300 300">
+      <div className="relative flex items-center justify-center mb-8 md:mb-10 w-[240px] h-[240px] sm:w-[280px] sm:h-[280px] md:w-[300px] md:h-[300px]">
+        <svg className="w-full h-full -rotate-90" viewBox="0 0 300 300">
           <circle
             cx="150"
             cy="150"
@@ -272,9 +272,9 @@ export function WorkspaceTimer() {
             cy="150"
             r={radius}
             stroke="currentColor"
-            strokeWidth="10"
+            strokeWidth="8"
             fill="transparent"
-            strokeLinecap="round"
+            strokeLinecap="butt"
             style={{ 
               strokeDasharray: circumference, 
               strokeDashoffset,
@@ -284,45 +284,47 @@ export function WorkspaceTimer() {
           />
         </svg>
         <div className="absolute flex flex-col items-center">
-          <span className="text-5xl sm:text-6xl md:text-7xl font-light tracking-tighter text-white font-mono tabular-nums">
+          <span className="text-5xl sm:text-6xl md:text-7xl font-normal tracking-tight text-white font-mono tabular-nums">
             {minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
           </span>
-          <span className="text-white/50 text-[10px] md:text-sm mt-2 uppercase tracking-widest font-medium">
+          <span className="text-[#FFE14D] text-[11px] md:text-xs mt-2 uppercase tracking-widest font-mono font-medium">
             Session {sessionCount % settings.sessionsBeforeLongBreak + 1} of {settings.sessionsBeforeLongBreak}
           </span>
         </div>
       </div>
 
       {/* Controls */}
-      <div className="flex items-center gap-6 relative z-10 w-full justify-center">
+      <div className="flex items-center gap-4 relative z-10 w-full justify-center">
         <Button 
-          variant="ghost" 
+          variant="outline" 
           size="icon" 
           onClick={handleReset}
-          className="w-12 h-12 rounded-full text-white/60 hover:text-white hover:bg-surface-card/10"
+          className="w-11 h-11 rounded-[4px] bg-[#2A2A2A] text-white border-white/20 hover:bg-white/10"
           title="Reset Timer"
         >
-          <RotateCcw className="w-5 h-5" />
+          <RotateCcw className="w-4 h-4" />
         </Button>
         
-        <Button 
+        <button 
           onClick={handleStartPause}
           className={cn(
-            "w-[200px] h-16 rounded-full shadow-lg hover:scale-[1.02] active:scale-95 transition-all text-lg font-medium tracking-wide",
-            isRunning ? "bg-surface-card/10 text-white hover:bg-surface-card/20" : currentModeStyle.btn
+            "w-[180px] h-12 rounded-[4px] border border-[#1A1A1A] font-sans text-sm font-medium tracking-wide transition-all duration-120 active:translate-x-[2px] active:translate-y-[2px]",
+            isRunning 
+              ? "bg-[#2A2A2A] text-white border-white/20 shadow-[3px_3px_0px_0px_#FFE14D]" 
+              : currentModeStyle.btn
           )}
         >
-          {isRunning ? "Pause" : "Start Focus"}
-        </Button>
+          {isRunning ? "Pause Session" : "Start Session"}
+        </button>
 
         <Button 
-          variant="ghost" 
+          variant="outline" 
           size="icon" 
           onClick={handleSkip}
-          className="w-12 h-12 rounded-full text-white/60 hover:text-white hover:bg-surface-card/10"
+          className="w-11 h-11 rounded-[4px] bg-[#2A2A2A] text-white border-white/20 hover:bg-white/10"
           title="Skip Session"
         >
-          <SkipForward className="w-5 h-5" />
+          <SkipForward className="w-4 h-4" />
         </Button>
       </div>
       

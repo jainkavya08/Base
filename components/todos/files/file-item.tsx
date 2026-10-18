@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Folder } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSWRConfig } from "swr";
 import { fetchApi } from "@/lib/api";
@@ -42,8 +41,6 @@ export function FileItem({
   };
 
   const handleDelete = async () => {
-    // Delete tasks, lists, and the file
-    // Ideally this cascading happens in the backend or we send requests, but for safety we can just tell the backend to delete the file. The backend schema uses ON DELETE CASCADE for files -> todo_lists -> tasks. So just deleting the file is enough.
     await fetchApi('/api/todos/files.php', {
       method: 'DELETE',
       body: JSON.stringify({ id: file.id })
@@ -58,14 +55,14 @@ export function FileItem({
 
   if (isDeleting) {
     return (
-      <div className="bg-surface-card rounded-2xl p-6 shadow-sm border border-red-500/50 flex flex-col items-center justify-center text-center gap-3 h-full min-h-[160px]">
-        <h4 className="text-sm font-medium text-ink">Delete {file.name}?</h4>
-        <p className="text-xs text-ink-muted">
+      <div className="bg-[#FDFAF4] rounded-[6px] p-5 border-2 border-[#FF4D00] shadow-[4px_4px_0px_0px_#1A1A1A] flex flex-col items-center justify-center text-center gap-3 h-full min-h-[160px]">
+        <h4 className="font-serif text-lg font-normal text-[#1A1A1A]">Delete {file.name}?</h4>
+        <p className="text-xs text-[#8A7F72] font-sans">
           This will delete {fileLists.length} lists and {fileTasks.length} tasks.
         </p>
         <div className="flex gap-2 mt-2">
           <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); setIsDeleting(false); }}>Cancel</Button>
-          <Button variant="destructive" size="sm" onClick={(e) => { e.stopPropagation(); handleDelete(); }} className="bg-red-500 text-white">Delete</Button>
+          <Button variant="destructive" size="sm" onClick={(e) => { e.stopPropagation(); handleDelete(); }}>Delete</Button>
         </div>
       </div>
     );
@@ -73,9 +70,9 @@ export function FileItem({
 
   if (isEditing) {
     return (
-      <div className="bg-surface-card rounded-2xl p-6 shadow-sm border border-accent-blue/50 flex flex-col gap-3 h-full min-h-[160px]">
-        <div className="mb-4">
-          <Folder className="w-8 h-8 text-accent-blue" />
+      <div className="bg-[#FDFAF4] rounded-[6px] p-5 border border-[#1A1A1A] shadow-[4px_4px_0px_0px_#1A1A1A] flex flex-col gap-3 h-full min-h-[160px]">
+        <div className="w-9 h-9 rounded-[3px] bg-[#FFE14D] border border-[#1A1A1A] flex items-center justify-center">
+          <Folder className="w-5 h-5 text-[#1A1A1A]" />
         </div>
         <input
           value={editName}
@@ -88,12 +85,12 @@ export function FileItem({
               setIsEditing(false);
             }
           }}
-          className="w-full bg-canvas text-ink placeholder:text-ink-muted focus:outline-none p-2 rounded-lg border border-border/50 text-sm"
+          className="w-full bg-[#F5F0E8] text-[#1A1A1A] placeholder:text-[#8A7F72] focus:outline-none p-2 rounded-[4px] border border-[#1A1A1A] text-sm font-sans"
           autoFocus
         />
         <div className="flex gap-2 justify-end mt-auto">
           <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); setEditName(file.name); setIsEditing(false); }}>Cancel</Button>
-          <Button size="sm" onClick={handleSave} className="bg-accent-blue text-white">Save</Button>
+          <Button size="sm" variant="cta" onClick={handleSave}>Save</Button>
         </div>
       </div>
     );
@@ -102,10 +99,12 @@ export function FileItem({
   return (
     <div 
       onClick={() => router.push(`/todos/view?fileId=${file.id}`)}
-      className="bg-surface-card rounded-2xl p-6 shadow-sm border border-border/50 hover:border-accent-blue/50 transition-all group hover:shadow-md cursor-pointer relative h-full min-h-[160px] flex flex-col"
+      className="bg-[#FDFAF4] rounded-[6px] p-5 border border-[#1A1A1A] shadow-[4px_4px_0px_0px_#1A1A1A] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[6px_6px_0px_0px_#1A1A1A] transition-all group cursor-pointer relative h-full min-h-[160px] flex flex-col justify-between"
     >
-      <div className="flex justify-between items-start mb-8">
-        <Folder className="w-8 h-8 text-accent-blue group-hover:scale-110 transition-transform" />
+      <div className="flex justify-between items-start mb-4">
+        <div className="w-10 h-10 rounded-[4px] bg-[#FFE14D] border border-[#1A1A1A] shadow-[2px_2px_0px_0px_#1A1A1A] flex items-center justify-center shrink-0">
+          <Folder className="w-5 h-5 text-[#1A1A1A]" />
+        </div>
         <div className="opacity-0 group-hover:opacity-100 transition-opacity">
           <CardMenu 
             onEdit={(e) => { e?.stopPropagation(); setIsEditing(true); }} 
@@ -120,10 +119,13 @@ export function FileItem({
           />
         </div>
       </div>
-      <h3 className="text-lg font-medium text-ink mb-1">{file.name}</h3>
-      <div className="flex flex-col gap-1 text-sm text-ink-muted mt-auto">
-        <span>{fileLists.length} Lists</span>
-        <span>{fileTasks.length} Tasks</span>
+
+      <div>
+        <h3 className="font-serif text-2xl font-normal text-[#1A1A1A] mb-1">{file.name}</h3>
+        <div className="flex items-center gap-2 mt-2">
+          <span className="badge-sendlinks text-[10px]">{fileLists.length} LISTS</span>
+          <span className="text-xs font-mono text-[#8A7F72]">{fileTasks.length} tasks</span>
+        </div>
       </div>
     </div>
   );

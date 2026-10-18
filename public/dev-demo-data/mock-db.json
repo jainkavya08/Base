@@ -1,0 +1,186 @@
+{
+  "habits": [
+    {
+      "id": "h-1",
+      "title": "Morning Journaling",
+      "type": "daily",
+      "description": "Capture daily reflections and intentions",
+      "activeDays": [0, 1, 2, 3, 4, 5, 6],
+      "target": 1,
+      "unit": "session",
+      "icon": "lucide:Book",
+      "color": "#FF4D00",
+      "reminderTime": "08:00",
+      "paused": false,
+      "createdAt": "2026-10-01T00:00:00Z"
+    },
+    {
+      "id": "h-2",
+      "title": "Deep Focus Work",
+      "type": "daily",
+      "description": "Uninterrupted deep work blocks",
+      "activeDays": [1, 2, 3, 4, 5],
+      "target": 2,
+      "unit": "hours",
+      "icon": "lucide:Target",
+      "color": "#1A1A1A",
+      "reminderTime": "09:30",
+      "paused": false,
+      "createdAt": "2026-10-01T00:00:00Z"
+    },
+    {
+      "id": "h-3",
+      "title": "Evening Walk",
+      "type": "daily",
+      "description": "Step outdoors for fresh air and movement",
+      "activeDays": [0, 1, 2, 3, 4, 5, 6],
+      "target": 30,
+      "unit": "min",
+      "icon": "lucide:Activity",
+      "color": "#FFE14D",
+      "reminderTime": "18:00",
+      "paused": false,
+      "createdAt": "2026-10-01T00:00:00Z"
+    }
+  ],
+  "completions": [
+    { "id": "c-1", "habitId": "h-1", "date": "2026-10-18", "value": 1 },
+    { "id": "c-2", "habitId": "h-2", "date": "2026-10-18", "value": 2 },
+    { "id": "c-3", "habitId": "h-1", "date": "2026-10-19", "value": 1 }
+  ],
+  "reminders": [
+    {
+      "id": "rem-1",
+      "title": "Quarterly Financial Review",
+      "fireAt": "2026-10-20T14:00:00.000Z",
+      "createdAt": "2026-10-15T00:00:00Z"
+    },
+    {
+      "id": "rem-2",
+      "title": "Review Design System Specs",
+      "fireAt": "2026-10-22T10:30:00.000Z",
+      "createdAt": "2026-10-15T00:00:00Z"
+    }
+  ],
+  "files": [
+    {
+      "id": "f-1",
+      "name": "General Projects",
+      "description": "Core initiatives and tasks",
+      "createdAt": "2026-10-01T00:00:00Z",
+      "updatedAt": "2026-10-18T00:00:00Z"
+    }
+  ],
+  "lists": [
+    {
+      "id": "l-1",
+      "fileId": "f-1",
+      "name": "Sprint Deliverables",
+      "description": "High priority tasks for this sprint",
+      "defaultView": "list",
+      "createdAt": "2026-10-01T00:00:00Z",
+      "updatedAt": "2026-10-18T00:00:00Z"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "t-1",
+      "listId": "l-1",
+      "title": "Refine sendlinks tactile design components",
+      "description": "Ensure 1px ink borders and hard offset shadows match spec",
+      "completed": true,
+      "dueDate": "2026-10-19",
+      "priority": "high",
+      "status": "completed",
+      "position": 0,
+      "createdAt": "2026-10-18T10:00:00Z",
+      "updatedAt": "2026-10-18T12:00:00Z"
+    },
+    {
+      "id": "t-2",
+      "listId": "l-1",
+      "title": "Verify responsive layouts across viewports",
+      "description": "Test at 1440px desktop, 768px tablet, 390px mobile",
+      "completed": false,
+      "dueDate": "2026-10-19",
+      "priority": "high",
+      "status": "in_progress",
+      "position": 1,
+      "createdAt": "2026-10-18T11:00:00Z",
+      "updatedAt": "2026-10-18T11:00:00Z"
+    },
+    {
+      "id": "t-3",
+      "listId": "l-1",
+      "title": "Deploy production build and verify static export",
+      "description": "Execute npm run build with zero errors",
+      "completed": false,
+      "dueDate": "2026-10-20",
+      "priority": "medium",
+      "status": "todo",
+      "position": 2,
+      "createdAt": "2026-10-18T12:00:00Z",
+      "updatedAt": "2026-10-18T12:00:00Z"
+    }
+  ],
+  "accounts": [
+    {
+      "id": "acc-1",
+      "name": "Treasury Operating",
+      "bankName": "First Commercial",
+      "accountType": "Checking",
+      "accountNumberLast4": "4092",
+      "balance": 18450.75,
+      "currency": "USD",
+      "color": "#1A1A1A",
+      "isActive": true,
+      "createdAt": "2026-10-01T00:00:00Z",
+      "updatedAt": "2026-10-18T00:00:00Z"
+    },
+    {
+      "id": "acc-2",
+      "name": "Yield Reserve",
+      "bankName": "Apex Vault",
+      "accountType": "Savings",
+      "accountNumberLast4": "8812",
+      "balance": 42300.00,
+      "currency": "USD",
+      "color": "#FF4D00",
+      "isActive": true,
+      "createdAt": "2026-10-01T00:00:00Z",
+      "updatedAt": "2026-10-18T00:00:00Z"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "tx-1",
+      "accountId": "acc-1",
+      "categoryId": "cat-income",
+      "amount": 6500.00,
+      "type": "income",
+      "description": "Client Retainer Payment",
+      "date": "2026-10-15T09:00:00Z",
+      "createdAt": "2026-10-15T09:00:00Z"
+    },
+    {
+      "id": "tx-2",
+      "accountId": "acc-1",
+      "categoryId": "cat-cloud",
+      "amount": 240.00,
+      "type": "expense",
+      "description": "Server Hosting & Cloud Infrastructure",
+      "date": "2026-10-17T14:30:00Z",
+      "createdAt": "2026-10-17T14:30:00Z"
+    },
+    {
+      "id": "tx-3",
+      "accountId": "acc-1",
+      "categoryId": "cat-office",
+      "amount": 85.50,
+      "type": "expense",
+      "description": "Stationery & Ink Supplies",
+      "date": "2026-10-18T11:15:00Z",
+      "createdAt": "2026-10-18T11:15:00Z"
+    }
+  ]
+}

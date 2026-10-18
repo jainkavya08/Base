@@ -144,12 +144,12 @@ export function TaskItem({
   };
 
   return (
-    <div className="bg-surface-card border border-border/50 rounded-2xl p-4 flex flex-col transition-all group/task relative">
-      <div className="flex items-start gap-4">
+    <div className="bg-[#FDFAF4] border border-[#1A1A1A] rounded-[4px] p-3.5 shadow-[2px_2px_0px_0px_#1A1A1A] hover:shadow-[3px_3px_0px_0px_#1A1A1A] flex flex-col transition-all group/task relative">
+      <div className="flex items-start gap-3">
         {subtasks.length > 0 ? (
           <button 
             onClick={() => setIsExpanded(!isExpanded)}
-            className="mt-1 text-ink-muted hover:text-ink transition-colors"
+            className="mt-1 text-[#8A7F72] hover:text-[#1A1A1A] transition-colors"
           >
             {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
           </button>
@@ -159,16 +159,15 @@ export function TaskItem({
         
         <button
           onClick={() => onToggle(task.id, task.completed, true, subtasks)}
-          className={`relative w-[20px] h-[20px] rounded-full border-2 flex items-center justify-center transition-all mt-0.5 shrink-0 group-hover/task:border-accent-blue ${
+          className={`relative w-[18px] h-[18px] rounded-[2px] border-2 border-[#1A1A1A] flex items-center justify-center transition-all mt-0.5 shrink-0 ${
             task.completed 
-              ? 'bg-[var(--color-accent-blue,var(--accent-blue))] border-[var(--color-accent-blue,var(--accent-blue))] text-white' 
-              : 'border-border/80 bg-transparent'
+              ? 'bg-[#FFE14D] text-[#1A1A1A]' 
+              : 'bg-white hover:bg-[#FFE14D]/40'
           }`}
-          style={{ width: '20px', height: '20px', padding: 0 }}
           aria-label={task.completed ? "Mark as uncompleted" : "Mark as completed"}
         >
           {/* A larger invisible tap target for accessibility */}
-          <span className="absolute inset-[-12px]" />
+          <span className="absolute inset-[-8px]" />
           {task.completed && <Check className="w-3.5 h-3.5 stroke-[3]" />}
         </button>
         

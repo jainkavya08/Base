@@ -57,14 +57,14 @@ export function ListItem({
 
   if (isDeleting) {
     return (
-      <div className="bg-surface-card rounded-2xl p-6 shadow-sm border border-red-500/50 flex flex-col items-center justify-center text-center gap-3 h-full min-h-[120px]">
-        <h4 className="text-sm font-medium text-ink">Delete {list.name}?</h4>
-        <p className="text-xs text-ink-muted">
+      <div className="bg-[#FDFAF4] rounded-[6px] p-5 shadow-[4px_4px_0px_0px_#FF4D00] border-2 border-[#FF4D00] flex flex-col items-center justify-center text-center gap-3 h-full min-h-[120px]">
+        <h4 className="text-sm font-medium text-[#1A1A1A]">Delete {list.name}?</h4>
+        <p className="text-xs font-mono text-[#8A7F72]">
           This will delete {listTasks.length} tasks and subtasks.
         </p>
-        <div className="flex gap-2 mt-2">
+        <div className="flex gap-2 mt-1">
           <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); setIsDeleting(false); }}>Cancel</Button>
-          <Button variant="destructive" size="sm" onClick={(e) => { e.stopPropagation(); handleDelete(); }} className="bg-red-500 text-white">Delete</Button>
+          <Button variant="destructive" size="sm" onClick={(e) => { e.stopPropagation(); handleDelete(); }}>Delete</Button>
         </div>
       </div>
     );
@@ -72,7 +72,7 @@ export function ListItem({
 
   if (isEditing) {
     return (
-      <div className="bg-surface-card rounded-2xl p-6 shadow-sm border border-accent-blue/50 flex flex-col gap-3 h-full min-h-[120px]">
+      <div className="bg-[#FDFAF4] rounded-[6px] p-5 shadow-[4px_4px_0px_0px_#1A1A1A] border border-[#1A1A1A] flex flex-col gap-3 h-full min-h-[120px]">
         <input
           value={editName}
           onClick={(e) => e.stopPropagation()}
@@ -84,12 +84,12 @@ export function ListItem({
               setIsEditing(false);
             }
           }}
-          className="w-full bg-canvas text-ink placeholder:text-ink-muted focus:outline-none p-2 rounded-lg border border-border/50 text-sm"
+          className="w-full bg-[#FDFAF4] text-[#1A1A1A] placeholder:text-[#8A7F72] focus:outline-none p-2 rounded-[4px] border border-[#1A1A1A] text-sm font-sans"
           autoFocus
         />
         <div className="flex gap-2 justify-end mt-auto">
           <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); setEditName(list.name); setIsEditing(false); }}>Cancel</Button>
-          <Button size="sm" onClick={handleSave} className="bg-accent-blue text-white">Save</Button>
+          <Button variant="cta" size="sm" onClick={handleSave}>Save</Button>
         </div>
       </div>
     );
@@ -98,10 +98,10 @@ export function ListItem({
   return (
     <div 
       onClick={() => router.push(`/todos/view?fileId=${fileId}&listId=${list.id}`)}
-      className="bg-surface-card rounded-2xl p-6 shadow-sm border border-border/50 hover:border-accent-blue/50 transition-all group hover:shadow-md cursor-pointer relative h-full min-h-[120px] flex flex-col"
+      className="bg-[#FDFAF4] rounded-[6px] p-5 shadow-[4px_4px_0px_0px_#1A1A1A] border border-[#1A1A1A] hover:translate-x-0.5 transition-transform group cursor-pointer relative h-full min-h-[120px] flex flex-col justify-between"
     >
       <div className="flex justify-between items-start mb-3">
-        <h3 className="text-lg font-medium text-ink flex-1 pr-4">{list.name}</h3>
+        <h3 className="font-serif italic font-normal text-2xl text-[#1A1A1A] flex-1 pr-4">{list.name}</h3>
         <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute right-4 top-4">
           <CardMenu 
             onEdit={(e) => { e?.stopPropagation(); setIsEditing(true); }} 
@@ -116,7 +116,7 @@ export function ListItem({
           />
         </div>
       </div>
-      <div className="flex justify-between items-center text-sm text-ink-muted mt-auto">
+      <div className="flex justify-between items-center text-xs font-mono text-[#8A7F72] mt-auto pt-2 border-t border-[#1A1A1A]/10">
         <span>{topLevelTasks} tasks · {completed} completed</span>
       </div>
     </div>

@@ -93,17 +93,20 @@ export function AddAccountDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <Button className="rounded-full bg-surface-card border border-border/50 text-ink hover:bg-canvas" onClick={() => setOpen(true)}>
-        <Plus className="w-5 h-5 md:mr-1" />
+      <Button variant="outline" onClick={() => setOpen(true)}>
+        <Plus className="w-4 h-4 md:mr-1.5" />
         <span className="hidden md:inline">Add Account</span>
       </Button>
-      <DialogContent className="w-[calc(100%-32px)] sm:w-full sm:max-w-[450px] max-h-[90vh] overflow-y-auto bg-surface-card border-none">
+      <DialogContent className="w-[calc(100%-32px)] sm:w-full sm:max-w-[450px] max-h-[90vh] overflow-y-auto bg-[#FDFAF4] border border-[#1A1A1A] rounded-[6px] shadow-[8px_8px_0px_0px_#1A1A1A] p-6">
         <DialogHeader>
-          <DialogTitle className="text-xl font-medium text-ink flex items-center gap-2">
-            <Landmark className="w-5 h-5 text-accent-yellow" /> Add Bank Account
+          <div className="flex items-center gap-2 mb-1">
+            <span className="badge-sendlinks">ACCOUNT SETUP</span>
+          </div>
+          <DialogTitle className="font-serif italic font-normal text-2xl text-[#1A1A1A] flex items-center gap-2">
+            <Landmark className="w-5 h-5 text-[#FF4D00]" /> Add Bank Account
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-2">
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
@@ -227,11 +230,11 @@ export function AddAccountDialog() {
             </div>
           </div>
 
-          <div className="mt-6 flex justify-end gap-3">
-            <Button type="button" variant="ghost" onClick={() => setOpen(false)} className="text-ink hover:bg-canvas">
+          <div className="mt-6 flex justify-end gap-2.5">
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit" className="bg-accent-yellow text-white hover:bg-accent-yellow/90 font-medium">
+            <Button type="submit" variant="cta">
               Save Account
             </Button>
           </div>

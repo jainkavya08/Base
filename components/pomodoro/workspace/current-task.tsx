@@ -112,27 +112,27 @@ export function CurrentTask() {
   };
 
   return (
-    <div className="bg-surface-card rounded-[32px] p-6 lg:p-8 shadow-sm border border-border/50 flex flex-col max-h-[600px]">
-      <div className="flex items-center justify-between mb-4 shrink-0">
-        <h3 className="text-lg font-medium text-ink flex items-center gap-2">
-          <ListTodo className="w-5 h-5 text-accent-blue" />
-          Focus Task
-        </h3>
+    <div className="bg-[#FDFAF4] rounded-[6px] p-5 border border-[#1A1A1A] shadow-[4px_4px_0px_0px_#1A1A1A] flex flex-col max-h-[600px]">
+      <div className="flex items-center justify-between mb-4 pb-2 border-b border-[#1A1A1A]/10 shrink-0">
+        <div className="flex items-center gap-2">
+          <span className="badge-sendlinks">FOCUS TASK</span>
+          <h3 className="font-serif text-xl font-normal text-[#1A1A1A]">Objective</h3>
+        </div>
         
         {/* Source Toggle */}
-        <div className="flex bg-canvas p-1 rounded-lg border border-border/50">
+        <div className="flex bg-[#F5F0E8] p-1 rounded-[4px] border border-[#1A1A1A]">
           <button
             onClick={() => setTaskSource('my_tasks')}
-            className={cn("px-3 py-1 text-xs font-medium rounded-md transition-colors", 
-              taskSource === 'my_tasks' ? "bg-accent-blue text-white shadow-sm" : "text-ink-muted hover:text-ink"
+            className={cn("px-2.5 py-0.5 text-xs font-sans font-medium rounded-[2px] transition-colors", 
+              taskSource === 'my_tasks' ? "bg-[#1A1A1A] text-white" : "text-[#8A7F72] hover:text-[#1A1A1A]"
             )}
           >
             My Tasks
           </button>
           <button
             onClick={() => setTaskSource('all_lists')}
-            className={cn("px-3 py-1 text-xs font-medium rounded-md transition-colors", 
-              taskSource === 'all_lists' ? "bg-accent-blue text-white shadow-sm" : "text-ink-muted hover:text-ink"
+            className={cn("px-2.5 py-0.5 text-xs font-sans font-medium rounded-[2px] transition-colors", 
+              taskSource === 'all_lists' ? "bg-[#1A1A1A] text-white" : "text-[#8A7F72] hover:text-[#1A1A1A]"
             )}
           >
             All Lists
@@ -141,21 +141,21 @@ export function CurrentTask() {
       </div>
 
       {/* Date Filters */}
-      <div className="flex gap-2 mb-4 shrink-0 overflow-x-auto pb-1 scrollbar-hide">
+      <div className="flex gap-1.5 mb-4 shrink-0 overflow-x-auto pb-1 scrollbar-hide">
         {[
           { id: 'today', label: 'Today' },
           { id: 'tomorrow', label: 'Tomorrow' },
           { id: 'day_after', label: 'Day After' },
-          { id: 'all', label: 'All' },
+          { id: 'all', label: 'All Tasks' },
         ].map(filter => (
           <button
             key={filter.id}
             onClick={() => setDateFilter(filter.id as any)}
             className={cn(
-              "px-3 py-1.5 text-xs font-medium rounded-full transition-colors whitespace-nowrap border",
+              "px-3 py-1 text-xs font-sans font-medium rounded-[2px] transition-all whitespace-nowrap border",
               dateFilter === filter.id 
-                ? "bg-accent-blue/10 text-accent-blue border-accent-blue/20" 
-                : "bg-canvas text-ink-muted border-transparent hover:border-border/50 hover:text-ink"
+                ? "bg-[#FFE14D] text-[#1A1A1A] border-[#1A1A1A] shadow-[1px_1px_0px_0px_#1A1A1A] font-bold" 
+                : "bg-[#F5F0E8] text-[#8A7F72] border-[#1A1A1A]/30 hover:border-[#1A1A1A] hover:text-[#1A1A1A]"
             )}
           >
             {filter.label}
@@ -163,15 +163,15 @@ export function CurrentTask() {
         ))}
       </div>
 
-      <div className="flex-1 overflow-y-auto min-h-[200px] flex flex-col gap-2 pr-2 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto min-h-[180px] flex flex-col gap-2 pr-1 custom-scrollbar">
         {isTasksLoading ? (
           <div className="flex items-center justify-center flex-1">
-            <Loader2 className="w-6 h-6 animate-spin text-ink-muted" />
+            <Loader2 className="w-5 h-5 animate-spin text-[#8A7F72]" />
           </div>
         ) : todos.length === 0 ? (
-          <div className="flex flex-col items-center justify-center flex-1 text-center py-8">
-            <Calendar className="w-8 h-8 text-ink-muted mb-2 opacity-50" />
-            <p className="text-sm text-ink-muted">No tasks due {dateFilter !== 'all' ? dateFilter.replace('_', ' ') : 'here'}.</p>
+          <div className="flex flex-col items-center justify-center flex-1 text-center py-6">
+            <Calendar className="w-6 h-6 text-[#8A7F72] mb-1 opacity-40" />
+            <p className="text-xs text-[#8A7F72] font-sans">No tasks scheduled for this period.</p>
           </div>
         ) : (
           todos.map((todo: any) => {
@@ -182,30 +182,30 @@ export function CurrentTask() {
                 key={todo.id}
                 onClick={() => handleTaskClick(todo.id)}
                 className={cn(
-                  "flex items-start gap-3 p-3 rounded-xl transition-all border",
+                  "flex items-start gap-2.5 p-2.5 rounded-[4px] transition-all border",
                   isRunning && !isSelected ? "opacity-50 cursor-not-allowed" : "cursor-pointer",
                   isSelected 
-                    ? "bg-accent-blue/5 border-accent-blue/30 shadow-sm ring-1 ring-accent-blue/20" 
-                    : "bg-canvas border-transparent hover:border-border/50"
+                    ? "bg-[#FFE14D]/40 border-2 border-[#1A1A1A] shadow-[2px_2px_0px_0px_#1A1A1A]" 
+                    : "bg-[#F5F0E8] border-[#1A1A1A]/30 hover:border-[#1A1A1A]"
                 )}
               >
                 <button 
                   disabled={isRunning}
                   className={cn(
-                  "w-5 h-5 mt-0.5 rounded-full flex items-center justify-center shrink-0 transition-colors",
-                  isSelected ? "text-accent-blue" : "text-ink-muted"
+                  "w-4 h-4 mt-0.5 rounded-[2px] border border-[#1A1A1A] flex items-center justify-center shrink-0 transition-colors",
+                  isSelected ? "bg-[#1A1A1A] text-[#FFE14D]" : "bg-white text-transparent"
                 )}>
-                  {isSelected ? <CheckCircle className="w-5 h-5" /> : <Circle className="w-5 h-5" />}
+                  {isSelected && <CheckCircle className="w-3.5 h-3.5" />}
                 </button>
                 <div className="flex flex-col min-w-0">
                   <span className={cn(
-                    "text-sm font-medium truncate",
-                    isSelected ? "text-accent-blue" : "text-ink"
+                    "text-xs font-sans font-medium truncate",
+                    isSelected ? "text-[#1A1A1A] font-bold" : "text-[#1A1A1A]"
                   )}>
                     {todo.title}
                   </span>
                   {(listName || todo.dueDate) && (
-                    <div className="flex items-center gap-2 mt-1 text-[10px] text-ink-muted">
+                    <div className="flex items-center gap-2 mt-0.5 text-[10px] text-[#8A7F72] font-mono">
                       {listName && <span className="truncate max-w-[100px]">{listName}</span>}
                       {listName && todo.dueDate && <span>•</span>}
                       {todo.dueDate && (
@@ -222,14 +222,14 @@ export function CurrentTask() {
         )}
       </div>
 
-      <div className="mt-4 pt-4 border-t border-border/50 shrink-0">
+      <div className="mt-3 pt-3 border-t border-[#1A1A1A]/10 shrink-0">
         {isAdding ? (
-          <form onSubmit={handleAddTask} className="flex flex-col gap-2 animate-in fade-in slide-in-from-top-2">
+          <form onSubmit={handleAddTask} className="flex flex-col gap-2">
             <input
               autoFocus
               type="text"
               placeholder={`Add task for ${dateFilter === 'all' ? 'today' : dateFilter.replace('_', ' ')}...`}
-              className="w-full text-sm bg-canvas border border-border/50 rounded-lg px-3 py-2 text-ink placeholder:text-ink-muted focus:outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/50"
+              className="w-full text-xs bg-[#FDFAF4] border border-[#1A1A1A] rounded-[4px] px-3 py-2 text-[#1A1A1A] placeholder:text-[#8A7F72] focus:outline-none focus:ring-1 focus:ring-[#FFE14D]"
               value={newTaskTitle}
               onChange={e => setNewTaskTitle(e.target.value)}
               disabled={isSubmitting}
@@ -238,17 +238,17 @@ export function CurrentTask() {
               <Button type="button" variant="ghost" size="sm" onClick={() => setIsAdding(false)}>
                 Cancel
               </Button>
-              <Button type="submit" size="sm" className="bg-accent-blue text-white" disabled={!newTaskTitle.trim() || isSubmitting}>
-                {isSubmitting ? <Loader2 className="w-3 h-3 animate-spin" /> : "Save"}
+              <Button type="submit" size="sm" variant="cta" disabled={!newTaskTitle.trim() || isSubmitting}>
+                {isSubmitting ? <Loader2 className="w-3 h-3 animate-spin" /> : "Save Task"}
               </Button>
             </div>
           </form>
         ) : (
           <button 
             onClick={() => setIsAdding(true)}
-            className="w-full text-sm text-ink-muted hover:text-accent-blue font-medium flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-accent-blue/5 transition-colors border border-dashed border-transparent hover:border-accent-blue/20"
+            className="w-full text-xs text-[#1A1A1A] hover:bg-[#FFE14D] font-sans font-medium flex items-center justify-center gap-1.5 py-2 rounded-[4px] transition-colors border border-[#1A1A1A] shadow-[1px_1px_0px_0px_#1A1A1A]"
           >
-            <Plus className="w-4 h-4" /> Add Due Task
+            <Plus className="w-3.5 h-3.5" /> Add Due Task
           </button>
         )}
       </div>

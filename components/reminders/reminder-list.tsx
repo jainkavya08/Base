@@ -31,7 +31,7 @@ export function ReminderList() {
   };
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-2.5">
       {sortedReminders.map((reminder: any) => {
         const fireAt = new Date(reminder.fireAt);
         const overdue = isPast(fireAt);
@@ -39,40 +39,49 @@ export function ReminderList() {
         return (
           <div 
             key={reminder.id} 
-            className={`group flex items-center gap-4 p-4 rounded-2xl transition-all border ${overdue ? 'bg-accent-coral/10 border-accent-coral/20' : 'bg-surface-card border-transparent hover:border-border'}`}
+            className={`group flex items-center gap-3.5 p-3.5 rounded-[4px] transition-transform hover:translate-x-0.5 border ${
+              overdue 
+                ? 'bg-[#FDFAF4] border-2 border-[#FF4D00] shadow-[2px_2px_0px_0px_#FF4D00]' 
+                : 'bg-[#FDFAF4] border border-[#1A1A1A] shadow-[2px_2px_0px_0px_#1A1A1A]'
+            }`}
           >
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${overdue ? 'bg-accent-coral/20 text-accent-coral' : 'bg-canvas text-accent-yellow'}`}>
-              <Bell className="w-5 h-5" />
+            <div className={`w-8 h-8 rounded-[4px] border border-[#1A1A1A] flex items-center justify-center shrink-0 shadow-[1px_1px_0px_0px_#1A1A1A] ${
+              overdue ? 'bg-[#FF4D00] text-white' : 'bg-[#FFE14D] text-[#1A1A1A]'
+            }`}>
+              <Bell className="w-4 h-4" />
             </div>
             
             <div className="flex-1 min-w-0">
-              <h4 className={`font-medium truncate ${overdue ? 'text-accent-coral' : 'text-ink'}`}>
-                {reminder.title}
-              </h4>
-              <p className={`text-sm ${overdue ? 'text-accent-coral/80' : 'text-ink-muted'}`}>
+              <div className="flex items-center gap-2">
+                {overdue && <span className="badge-sendlinks bg-[#FF4D00] text-white border-[#1A1A1A]">OVERDUE</span>}
+                <h4 className={`text-sm font-medium truncate ${overdue ? 'text-[#FF4D00]' : 'text-[#1A1A1A]'}`}>
+                  {reminder.title}
+                </h4>
+              </div>
+              <p className={`text-xs font-mono mt-0.5 ${overdue ? 'text-[#FF4D00]/80' : 'text-[#8A7F72]'}`}>
                 {getRelativeTimeLabel(fireAt)}
               </p>
             </div>
             
             <Button 
-              variant="ghost" 
+              variant="outline" 
               size="icon" 
               onClick={() => deleteReminder(reminder.id)}
-              className="opacity-0 group-hover:opacity-100 transition-opacity text-ink-muted hover:text-accent-coral hover:bg-canvas"
+              className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity text-[#8A7F72] hover:text-[#FF4D00] hover:border-[#FF4D00]"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-3.5 h-3.5" />
             </Button>
           </div>
         );
       })}
 
       {sortedReminders.length === 0 && (
-        <div className="text-center py-16 bg-surface-card rounded-2xl border border-dashed border-border">
-          <div className="w-16 h-16 rounded-full bg-canvas flex items-center justify-center mx-auto mb-4">
-            <Bell className="w-8 h-8 text-ink-muted" />
+        <div className="text-center py-16 bg-[#FDFAF4] rounded-[6px] border border-[#1A1A1A] shadow-[4px_4px_0px_0px_#1A1A1A]">
+          <div className="w-12 h-12 rounded-[4px] bg-[#F5F0E8] border border-[#1A1A1A] flex items-center justify-center mx-auto mb-3">
+            <Bell className="w-6 h-6 text-[#8A7F72]" />
           </div>
-          <h3 className="text-lg font-medium text-ink">No upcoming reminders</h3>
-          <p className="text-ink-muted mt-1">Add one to get notified.</p>
+          <h3 className="font-serif italic font-normal text-xl text-[#1A1A1A]">No upcoming reminders</h3>
+          <p className="text-xs text-[#8A7F72] mt-1">Add one to get notified.</p>
         </div>
       )}
     </div>

@@ -5,21 +5,26 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans), "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: var(--font-serif), "Instrument Serif", Georgia, serif;
+  --font-display: var(--font-serif), "Instrument Serif", Georgia, serif;
+  --font-mono: var(--font-mono), "JetBrains Mono", monospace;
   
-  /* Custom Design System Tokens */
+  /* sendlinks.app Design System Tokens */
   --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
   --color-surface-card: var(--surface-card);
+  --color-surface-alt: var(--surface-alt);
   --color-surface-dark: var(--surface-dark);
   --color-surface-dark-foreground: var(--surface-dark-foreground);
   --color-accent-yellow: var(--accent-yellow);
-  --color-accent-coral: var(--accent-coral);
+  --color-accent-coral: var(--accent-orange);
+  --color-accent-orange: var(--accent-orange);
   --color-accent-blue: var(--accent-blue);
+  --color-accent-green: var(--accent-green);
   --color-ink: var(--ink);
   --color-ink-muted: var(--ink-muted);
+  --color-hairline: var(--hairline);
 
   /* shadcn/ui mappings */
   --color-sidebar-ring: var(--sidebar-ring);
@@ -48,108 +53,242 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
   
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-xs: 4px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 6px;
+  --radius-xl: 8px;
 }
 
 :root {
-  --background: #E7E1D6;
-  --foreground: #22201C;
-  --card: #F7F4EC;
-  --card-foreground: #22201C;
-  --popover: #F7F4EC;
-  --popover-foreground: #22201C;
-  --primary: #F4C94C;
-  --primary-foreground: #1B1A18;
-  --secondary: #1B1A18;
-  --secondary-foreground: #F7F4EC;
-  --muted: #E7E1D6;
-  --muted-foreground: #5C584C;
-  --accent: #F4C94C;
-  --accent-foreground: #1B1A18;
-  --destructive: #F0705C;
-  --border: #D0C9B6; /* Slightly darker than canvas for borders */
-  --input: #D0C9B6;
-  --ring: #F4C94C;
-  
-  --radius: 1rem; /* Generous radius */
-  
-  --sidebar: #F7F4EC;
-  --sidebar-foreground: #22201C;
-  --sidebar-primary: #F4C94C;
-  --sidebar-primary-foreground: #1B1A18;
-  --sidebar-accent: #E7E1D6;
-  --sidebar-accent-foreground: #22201C;
-  --sidebar-border: #D0C9B6;
-  --sidebar-ring: #F4C94C;
+  /* sendlinks.app light palette (Primary Source of Truth) */
+  --background: #F5F0E8;           /* Canvas: Warm beige */
+  --foreground: #1A1A1A;           /* Ink: Deep ink */
+  --canvas: #F5F0E8;
+  --surface: #FDFAF4;              /* Light cream surface for cards */
+  --surface-card: #FDFAF4;
+  --surface-alt: #EDE8DC;          /* Alternating band background */
+  --surface-dark: #1A1A1A;
+  --surface-dark-foreground: #FFFFFF;
 
-  /* Custom Design Variables */
-  --canvas: #E7E1D6;
-  --surface-card: #F7F4EC;
-  --surface-dark: #1B1A18;
-  --surface-dark-foreground: #F7F4EC;
-  --accent-yellow: #F4C94C;
-  --accent-coral: #F0705C;
-  --accent-blue: #30648c;
-  --ink: #22201C;
-  --ink-muted: #5C584C;
+  --card: #FDFAF4;
+  --card-foreground: #1A1A1A;
+  --popover: #FDFAF4;
+  --popover-foreground: #1A1A1A;
+
+  --primary: #1A1A1A;              /* Primary ink */
+  --primary-foreground: #FFFFFF;
+  --secondary: #FFFFFF;
+  --secondary-foreground: #1A1A1A;
+
+  --accent: #FFE14D;               /* Sunny yellow highlight */
+  --accent-foreground: #1A1A1A;
+  --accent-yellow: #FFE14D;
+  --accent-orange: #FF4D00;        /* Energetic orange accent & CTA */
+  --accent-blue: #E3F2FD;          /* Decorative light blue */
+  --accent-green: #C8E6C9;         /* Decorative light green */
+
+  --destructive: #FF4D00;
+  --muted: #EDE8DC;
+  --muted-foreground: #544C40;     /* Warm deep-sepia readable secondary text (7:1 contrast) */
+  --ink: #1A1A1A;
+  --ink-muted: #544C40;
+  --body: #544C40;
+  --hairline: #E5E7EB;
+
+  /* Structural 1px ink borders */
+  --border: #1A1A1A;
+  --input: #1A1A1A;
+  --ring: #FFE14D;
+
+  --radius: 0.25rem; /* 4px base radius */
+
+  --sidebar: #FDFAF4;
+  --sidebar-foreground: #1A1A1A;
+  --sidebar-primary: #1A1A1A;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #FFE14D;
+  --sidebar-accent-foreground: #1A1A1A;
+  --sidebar-border: #1A1A1A;
+  --sidebar-ring: #FFE14D;
 }
 
 .dark, [data-theme="dark"] {
-  /* Dark mode with warm charcoal semantics */
-  --background: #1B1A18;
-  --foreground: #F7F4EC;
-  --card: #22201C;
-  --card-foreground: #F7F4EC;
-  --popover: #22201C;
-  --popover-foreground: #F7F4EC;
-  --primary: #F4C94C;
-  --primary-foreground: #1B1A18;
-  --secondary: #E7E1D6;
-  --secondary-foreground: #22201C;
-  --muted: #2A2825;
-  --muted-foreground: #8A8577;
-  --accent: #F4C94C;
-  --accent-foreground: #1B1A18;
-  --destructive: #F0705C;
-  --border: #3A3833;
-  --input: #3A3833;
-  --ring: #F4C94C;
+  --background: #13110C;
+  --foreground: #FFFEF8;
+  --canvas: #13110C;
+  --surface: #211F1B;
+  --surface-card: #211F1B;
+  --surface-alt: #2D2B27;
+  --surface-dark: #0B0B0C;
+  --surface-dark-foreground: #FFFEF8;
 
-  --sidebar: #1B1A18;
-  --sidebar-foreground: #F7F4EC;
-  --sidebar-primary: #F4C94C;
-  --sidebar-primary-foreground: #1B1A18;
-  --sidebar-accent: #2A2825;
-  --sidebar-accent-foreground: #F7F4EC;
-  --sidebar-border: #3A3833;
-  --sidebar-ring: #F4C94C;
+  --card: #211F1B;
+  --card-foreground: #FFFEF8;
+  --popover: #211F1B;
+  --popover-foreground: #FFFEF8;
 
-  /* Custom Design Variables for Dark Mode */
-  --canvas: #1B1A18;
-  --surface-card: #22201C;
-  --surface-dark: #141311;
-  --surface-dark-foreground: #F7F4EC;
-  --accent-yellow: #F4C94C;
-  --accent-coral: #F0705C;
-  --accent-blue: #4A90E2;
-  --ink: #F7F4EC;
-  --ink-muted: #8A8577;
+  --primary: #FFE14D;
+  --primary-foreground: #0B0B0C;
+  --secondary: #2D2B27;
+  --secondary-foreground: #FFFEF8;
+
+  --accent: #FFE14D;
+  --accent-foreground: #0B0B0C;
+  --accent-yellow: #FFE14D;
+  --accent-orange: #FF4D00;
+  --accent-blue: #30648c;
+  --accent-green: #2e7d32;
+
+  --destructive: #FF4D00;
+  --muted: #2D2B27;
+  --muted-foreground: #A5A49E;
+  --ink: #FFFEF8;
+  --ink-muted: #A5A49E;
+  --body: #A5A49E;
+  --hairline: #393733;
+
+  --border: #393733;
+  --input: #393733;
+  --ring: #FFE14D;
+
+  --radius: 0.25rem;
+
+  --sidebar: #211F1B;
+  --sidebar-foreground: #FFFEF8;
+  --sidebar-primary: #FFE14D;
+  --sidebar-primary-foreground: #0B0B0C;
+  --sidebar-accent: #2D2B27;
+  --sidebar-accent-foreground: #FFFEF8;
+  --sidebar-border: #393733;
+  --sidebar-ring: #FFE14D;
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    border-color: var(--border);
+    outline-color: var(--ring);
   }
   body {
-    @apply bg-background text-foreground overflow-x-hidden;
+    background-color: var(--canvas);
+    color: var(--ink);
+    font-family: var(--font-sans), "DM Sans", -apple-system, sans-serif;
+    overflow-x: hidden;
   }
-  html {
-    @apply font-sans;
+  h1, h2, h3, .font-serif, .font-display {
+    font-family: var(--font-serif), "Instrument Serif", Georgia, serif;
   }
+}
+
+/* Hard-edged Tactile Elevation Classes (send/links style) */
+.shadow-hard-xs {
+  box-shadow: 2px 2px 0px 0px #1A1A1A;
+}
+
+.shadow-hard-sm {
+  box-shadow: 3px 3px 0px 0px #1A1A1A;
+}
+
+.shadow-hard {
+  box-shadow: 4px 4px 0px 0px #1A1A1A;
+}
+
+.shadow-hard-lg {
+  box-shadow: 6px 6px 0px 0px #1A1A1A;
+}
+
+.shadow-hard-orange {
+  box-shadow: 3px 3px 0px 0px #FF4D00;
+}
+
+.shadow-hard-orange-lg {
+  box-shadow: 4px 4px 0px 0px #FF4D00;
+}
+
+.shadow-hard-yellow {
+  box-shadow: 4px 4px 0px 0px #FFE14D;
+}
+
+/* Card tactile styling */
+.sendlinks-card {
+  background-color: var(--surface-card);
+  border: 1px solid #1A1A1A;
+  border-radius: 6px;
+  box-shadow: 4px 4px 0px 0px #1A1A1A;
+  transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sendlinks-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px #1A1A1A;
+}
+
+/* Button tactile styling */
+.btn-primary-sendlinks {
+  background-color: #1A1A1A;
+  color: #FFFFFF;
+  border: 1px solid #1A1A1A;
+  border-radius: 4px;
+  box-shadow: 3px 3px 0px 0px #FF4D00;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.btn-primary-sendlinks:hover {
+  box-shadow: 4px 4px 0px 0px #FFE14D;
+  transform: translate(-1px, -1px);
+}
+
+.btn-primary-sendlinks:active {
+  box-shadow: 1px 1px 0px 0px #1A1A1A;
+  transform: translate(2px, 2px);
+}
+
+.btn-cta-sendlinks {
+  background-color: #FF4D00;
+  color: #FFFFFF;
+  border: 1px solid #1A1A1A;
+  border-radius: 4px;
+  box-shadow: 4px 4px 0px 0px #1A1A1A;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.btn-cta-sendlinks:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px 0px #1A1A1A;
+}
+
+.btn-cta-sendlinks:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px 0px #1A1A1A;
+}
+
+.btn-secondary-sendlinks {
+  background-color: #FFFFFF;
+  color: #1A1A1A;
+  border: 2px solid #1A1A1A;
+  border-radius: 4px;
+  box-shadow: 5px 5px 0px 0px #1A1A1A;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.btn-secondary-sendlinks:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0px 0px #1A1A1A;
+}
+
+.btn-secondary-sendlinks:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px 0px #1A1A1A;
+}
+
+.badge-sendlinks {
+  background-color: #FFE14D;
+  color: #1A1A1A;
+  border: 1px solid #1A1A1A;
+  border-radius: 2px;
+  padding: 3px 9px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }

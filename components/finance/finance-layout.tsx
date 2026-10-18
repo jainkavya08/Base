@@ -52,39 +52,43 @@ function FinanceTabs() {
 
   return (
     <>
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-[#1A1A1A]/10">
         <div>
-          <h1 className="text-3xl font-medium text-ink">Finance</h1>
-          <p className="text-ink-muted mt-1">Track your spending, accounts, investments and financial goals.</p>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="badge-sendlinks">LEDGER & ASSETS</span>
+            <span className="text-xs font-mono text-[#8A7F72]">REAL-TIME</span>
+          </div>
+          <h1 className="font-serif italic font-normal text-3xl sm:text-4xl text-[#1A1A1A] tracking-tight">Finance</h1>
+          <p className="text-sm font-sans text-[#8A7F72] mt-0.5">Track your spending, accounts, investments and financial goals.</p>
         </div>
-        <div className="flex items-center gap-3 flex-wrap md:justify-end">
+        <div className="flex items-center gap-2.5 flex-wrap md:justify-end">
           <AddTransferDialog />
           <AddAccountDialog />
           <AddTransactionDialog />
         </div>
       </div>
 
-      <div className="flex items-center gap-4 md:gap-6 border-b border-border overflow-x-auto pb-px no-scrollbar snap-x snap-mandatory">
-        {TABS.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => router.push(`/finance?tab=${tab.id}`)}
-            className={cn(
-              "pb-4 text-sm font-medium whitespace-nowrap transition-colors relative snap-start",
-              currentTab === tab.id
-                ? "text-ink"
-                : "text-ink-muted hover:text-ink"
-            )}
-          >
-            {tab.label}
-            {currentTab === tab.id && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-ink rounded-t-full" />
-            )}
-          </button>
-        ))}
+      <div className="flex items-center gap-2 border-b border-[#1A1A1A]/10 overflow-x-auto pb-2 no-scrollbar snap-x snap-mandatory">
+        {TABS.map((tab) => {
+          const isActive = currentTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => router.push(`/finance?tab=${tab.id}`)}
+              className={cn(
+                "px-3.5 py-1.5 text-xs font-mono font-medium uppercase tracking-wider transition-all relative snap-start rounded-[4px] border",
+                isActive
+                  ? "bg-[#1A1A1A] text-[#FDFAF4] border-[#1A1A1A] shadow-[2px_2px_0px_0px_#FF4D00]"
+                  : "bg-[#FDFAF4] text-[#8A7F72] border-[#1A1A1A]/20 hover:border-[#1A1A1A] hover:text-[#1A1A1A]"
+              )}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
-      <div className="flex-1 min-w-0 animate-in fade-in duration-500">
+      <div className="flex-1 min-w-0 animate-in fade-in duration-300">
         {renderTab()}
       </div>
     </>

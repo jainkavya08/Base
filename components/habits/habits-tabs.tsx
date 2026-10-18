@@ -10,13 +10,13 @@ export function HabitsTabs() {
   const pathname = usePathname();
 
   const tabs = [
-    { name: "Habits", href: "/habits" },
+    { name: "My Habits", href: "/habits" },
     { name: "Stats & Progress", href: "/habits/stats" },
   ];
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-border/50 gap-4 sm:gap-0 pb-px mb-8">
-      <div className="flex gap-6">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#1A1A1A]/10 gap-4 sm:gap-0 pb-px mb-6">
+      <div className="flex gap-4 sm:gap-6">
         {tabs.map((tab) => {
           const isActive = pathname === tab.href;
           return (
@@ -24,15 +24,15 @@ export function HabitsTabs() {
               key={tab.name}
               href={tab.href}
               className={cn(
-                "relative pb-3 text-sm font-medium transition-colors",
-                isActive ? "text-ink" : "text-ink-muted hover:text-ink"
+                "relative pb-3 text-sm font-sans font-medium transition-colors",
+                isActive ? "text-[#1A1A1A]" : "text-[#8A7F72] hover:text-[#1A1A1A]"
               )}
             >
               {tab.name}
               {isActive && (
                 <motion.div
                   layoutId="habits-tab-indicator"
-                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent-blue rounded-t-full"
+                  className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#1A1A1A]"
                   initial={false}
                   transition={{ type: "spring", stiffness: 500, damping: 35 }}
                 />

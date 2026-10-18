@@ -79,17 +79,20 @@ export function AddInvestmentDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <Button className="rounded-full bg-surface-card border border-border/50 text-ink hover:bg-canvas" onClick={() => setOpen(true)}>
-        <Plus className="w-5 h-5 mr-1" />
+      <Button variant="outline" onClick={() => setOpen(true)}>
+        <Plus className="w-4 h-4 mr-1.5" />
         Add Investment
       </Button>
-      <DialogContent className="sm:max-w-[425px] bg-surface-card border-none">
+      <DialogContent className="sm:max-w-[425px] bg-[#FDFAF4] border border-[#1A1A1A] rounded-[6px] shadow-[8px_8px_0px_0px_#1A1A1A] p-6">
         <DialogHeader>
-          <DialogTitle className="text-xl font-medium text-ink flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-accent-green" /> Add Investment
+          <div className="flex items-center gap-2 mb-1">
+            <span className="badge-sendlinks">PORTFOLIO</span>
+          </div>
+          <DialogTitle className="font-serif italic font-normal text-2xl text-[#1A1A1A] flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-[#FF4D00]" /> Add Investment
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-2">
           
           {error && (
             <div className="bg-accent-coral/10 text-accent-coral p-3 rounded-lg text-sm">
@@ -190,11 +193,11 @@ export function AddInvestmentDialog() {
             />
           </div>
 
-          <div className="mt-4 flex justify-end gap-3">
-            <Button type="button" variant="ghost" onClick={() => setOpen(false)} className="text-ink hover:bg-canvas">
+          <div className="mt-4 flex justify-end gap-2.5">
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit" className="bg-accent-green text-white hover:bg-accent-green/90 font-medium">
+            <Button type="submit" variant="cta">
               Save Investment
             </Button>
           </div>

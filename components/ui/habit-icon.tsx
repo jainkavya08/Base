@@ -23,15 +23,20 @@ export const LUCIDE_ICONS: Record<string, React.ElementType> = {
 };
 
 export function HabitIcon({ icon, className }: { icon?: string, className?: string }) {
-  if (!icon) return <span className={className}>✨</span>;
+  if (!icon) return <Sparkles className={className} />;
   
-  if (icon.startsWith("lucide:")) {
-    const Icon = LUCIDE_ICONS[icon.replace("lucide:", "")];
-    if (Icon) return <Icon className={className} />;
-    return <span className={className}>✨</span>;
+  const cleanName = icon.replace("lucide:", "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const foundKey = Object.keys(LUCIDE_ICONS).find(k => k.toLowerCase() === cleanName);
+  
+  if (foundKey && LUCIDE_ICONS[foundKey]) {
+    const Icon = LUCIDE_ICONS[foundKey];
+    return <Icon className={className} />;
+  }
+
+  // If it's a short emoji
+  if (icon.length <= 4) {
+    return <span className={className}>{icon}</span>;
   }
   
-  // Emojis shouldn't typically have stroke/fill classes applied via className directly 
-  // as it doesn't affect them like SVGs, but we still apply className for sizing.
-  return <span className={className}>{icon}</span>;
+  return <Sparkles className={className} />;
 }

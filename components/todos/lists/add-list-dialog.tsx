@@ -55,80 +55,82 @@ export function AddListDialog({ fileId }: { fileId: string }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button className="bg-accent-blue text-white hover:bg-accent-blue/90 rounded-full px-6" />}>
-        <Plus className="w-4 h-4 mr-2" />
+      <Button variant="cta" onClick={() => setOpen(true)}>
+        <Plus className="w-4 h-4 mr-1.5" />
         New Todo List
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] bg-surface-card border-border/50">
+      </Button>
+      <DialogContent className="sm:max-w-[425px] bg-[#FDFAF4] border border-[#1A1A1A] rounded-[6px] shadow-[8px_8px_0px_0px_#1A1A1A] p-6">
         <DialogHeader>
-          <DialogTitle className="text-ink">Create Todo List</DialogTitle>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="badge-sendlinks">LIST CREATION</span>
+          </div>
+          <DialogTitle className="font-serif italic font-normal text-2xl text-[#1A1A1A]">Create Todo List</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6 py-4">
-          <div className="flex flex-col gap-3">
-            <Label htmlFor="name" className="text-ink-muted">Name</Label>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-2">
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="name" className="text-xs font-mono uppercase tracking-wider text-[#8A7F72]">Name</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Exam Preparation"
-              className="bg-canvas border-border text-ink"
+              className="bg-[#FDFAF4] border-[#1A1A1A] text-[#1A1A1A]"
               autoFocus
             />
           </div>
-          <div className="flex flex-col gap-3">
-            <Label htmlFor="description" className="text-ink-muted">Description (Optional)</Label>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="description" className="text-xs font-mono uppercase tracking-wider text-[#8A7F72]">Description (Optional)</Label>
             <Input
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="e.g. Final exam topics"
-              className="bg-canvas border-border text-ink"
+              className="bg-[#FDFAF4] border-[#1A1A1A] text-[#1A1A1A]"
             />
           </div>
-          <div className="flex flex-col gap-3">
-            <Label className="text-ink-muted">Default View</Label>
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-xs font-mono uppercase tracking-wider text-[#8A7F72]">Default View</Label>
             <div className="flex gap-2">
               <Button
                 type="button"
-                variant={view === "list" ? "default" : "outline"}
-                className={view === "list" ? "bg-accent-blue text-white" : "border-border text-ink bg-transparent hover:bg-canvas"}
+                variant={view === "list" ? "cta" : "outline"}
+                size="sm"
                 onClick={() => setView("list")}
               >
                 List
               </Button>
               <Button
                 type="button"
-                variant={view === "board" ? "default" : "outline"}
-                className={view === "board" ? "bg-accent-blue text-white" : "border-border text-ink bg-transparent hover:bg-canvas"}
+                variant={view === "board" ? "cta" : "outline"}
+                size="sm"
                 onClick={() => setView("board")}
               >
                 Board
               </Button>
               <Button
                 type="button"
-                variant={view === "compact" ? "default" : "outline"}
-                className={view === "compact" ? "bg-accent-blue text-white" : "border-border text-ink bg-transparent hover:bg-canvas"}
+                variant={view === "compact" ? "cta" : "outline"}
+                size="sm"
                 onClick={() => setView("compact")}
               >
                 Compact
               </Button>
             </div>
           </div>
-          <div className="flex justify-end gap-3 mt-4">
+          <div className="flex justify-end gap-2.5 mt-4">
             <Button
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
-              className="border-border text-ink hover:bg-canvas"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={!name.trim()}
-              className="bg-accent-blue text-white hover:bg-accent-blue/90"
+              variant="cta"
             >
-              Create
+              Create List
             </Button>
           </div>
         </form>

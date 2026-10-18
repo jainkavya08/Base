@@ -84,33 +84,34 @@ export function TaskComposer({ listId, currentTaskCount = 0 }: { listId: string;
         )}
       >
         <div className="overflow-hidden">
-          <div className="bg-surface-card border border-border/50 rounded-2xl p-4 shadow-sm">
+          <div className="bg-[#FDFAF4] border border-[#1A1A1A] rounded-[6px] p-4 shadow-[4px_4px_0px_0px_#1A1A1A]">
             <textarea
               ref={textareaRef}
               value={text}
               onChange={(e) => setText(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Add a task or paste multiple tasks..."
-              className="w-full bg-transparent text-ink placeholder:text-ink-muted resize-none focus:outline-none min-h-[40px] text-lg"
+              className="w-full bg-transparent text-[#1A1A1A] placeholder:text-[#8A7F72] resize-none focus:outline-none min-h-[40px] text-base font-sans"
               rows={1}
             />
             
-            <div className="flex items-center justify-between mt-4">
-              <div className="text-sm text-ink-muted">
+            <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#1A1A1A]/10">
+              <div className="text-xs font-mono text-[#8A7F72]">
                 {tasksToCreate.length > 1 ? `${tasksToCreate.length} tasks will be created` : ""}
               </div>
               <div className="flex gap-2">
                 <Button 
                   variant="outline" 
+                  size="sm"
                   onClick={handleCancel}
-                  className="border-border text-ink hover:bg-canvas"
                 >
                   Cancel
                 </Button>
                 <Button 
+                  variant="cta"
+                  size="sm"
                   onClick={handleSubmit}
                   disabled={tasksToCreate.length === 0 || isSubmitting}
-                  className="bg-accent-blue text-white hover:bg-accent-blue/90"
                 >
                   {tasksToCreate.length > 1 ? `Add ${tasksToCreate.length} Tasks` : "Add Task"}
                 </Button>
@@ -123,10 +124,11 @@ export function TaskComposer({ listId, currentTaskCount = 0 }: { listId: string;
       {!isOpen && (
         <Button 
           onClick={() => setIsOpen(true)}
-          className="self-start bg-transparent text-ink-muted hover:text-ink hover:bg-canvas rounded-full transition-colors"
-          variant="ghost"
+          variant="cta"
+          size="sm"
+          className="self-start"
         >
-          <Plus className="w-4 h-4 mr-2" />
+          <Plus className="w-4 h-4 mr-1.5" />
           Add Task
         </Button>
       )}

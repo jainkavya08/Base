@@ -33,76 +33,81 @@ export function RecurringTab() {
   }, 0);
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-medium text-ink">Recurring Payments</h2>
-          <p className="text-sm text-ink-muted mt-1">Manage subscriptions and repeating bills.</p>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="badge-sendlinks">SUBSCRIPTIONS</span>
+          </div>
+          <h2 className="font-serif italic font-normal text-2xl md:text-3xl text-[#1A1A1A]">Recurring Payments</h2>
+          <p className="text-xs font-sans text-[#8A7F72] mt-0.5">Manage subscriptions and repeating bills.</p>
         </div>
         <AddRecurringDialog />
       </div>
 
-      <div className="bg-surface-card rounded-2xl border border-border/50 p-6 flex flex-col sm:flex-row items-center gap-6 shadow-sm">
-        <div className="w-16 h-16 rounded-full bg-accent-coral/10 text-accent-coral flex items-center justify-center shrink-0">
-          <Repeat className="w-8 h-8" />
+      <div className="bg-[#FDFAF4] rounded-[6px] border border-[#1A1A1A] p-5 flex flex-col sm:flex-row items-center gap-5 shadow-[4px_4px_0px_0px_#1A1A1A]">
+        <div className="w-12 h-12 rounded-[4px] bg-[#FFE14D] border border-[#1A1A1A] shadow-[2px_2px_0px_0px_#1A1A1A] text-[#1A1A1A] flex items-center justify-center shrink-0">
+          <Repeat className="w-6 h-6" />
         </div>
         <div className="flex-1 text-center sm:text-left">
-          <p className="text-ink-muted text-sm font-medium mb-1">Estimated Monthly Cost</p>
-          <h3 className="text-3xl font-medium text-ink">{formatCurrency(totalMonthly)}</h3>
+          <p className="text-[#8A7F72] text-xs font-mono uppercase tracking-wider mb-1">Estimated Monthly Cost</p>
+          <h3 className="font-serif italic font-normal text-3xl text-[#1A1A1A]">{formatCurrency(totalMonthly)}</h3>
         </div>
-        <div className="flex gap-8 border-t sm:border-t-0 sm:border-l border-border/50 pt-4 sm:pt-0 sm:pl-8">
+        <div className="flex gap-6 border-t sm:border-t-0 sm:border-l border-[#1A1A1A]/10 pt-3 sm:pt-0 sm:pl-6">
           <div>
-            <p className="text-ink-muted text-xs uppercase tracking-wider mb-1">Active</p>
-            <p className="text-xl font-medium text-ink">{activeRecurring.length}</p>
+            <p className="text-[#8A7F72] text-xs font-mono uppercase tracking-wider mb-1">Active</p>
+            <p className="font-mono text-xl font-medium text-[#1A1A1A]">{activeRecurring.length}</p>
           </div>
           <div>
-            <p className="text-ink-muted text-xs uppercase tracking-wider mb-1">Total</p>
-            <p className="text-xl font-medium text-ink">{recurring.length}</p>
+            <p className="text-[#8A7F72] text-xs font-mono uppercase tracking-wider mb-1">Total</p>
+            <p className="font-mono text-xl font-medium text-[#1A1A1A]">{recurring.length}</p>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {recurring.length > 0 ? (
           recurring.map((item) => {
             const acc = accounts.find(a => a.id === item.accountId);
             return (
-              <div key={item.id} className={`bg-surface-card rounded-2xl p-6 border ${item.isActive ? 'border-border/50 shadow-sm' : 'border-dashed border-border opacity-60'} relative group`}>
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="font-medium text-ink text-lg">{item.name}</h3>
-                    <p className="text-sm text-ink-muted flex items-center gap-1 mt-1">
-                      <Clock className="w-3 h-3" />
-                      <span className="capitalize">{item.frequency}</span>
-                    </p>
+              <div key={item.id} className={`bg-[#FDFAF4] rounded-[6px] p-5 border border-[#1A1A1A] ${item.isActive ? 'shadow-[4px_4px_0px_0px_#1A1A1A]' : 'opacity-60 shadow-[2px_2px_0px_0px_#1A1A1A]'} relative group flex flex-col justify-between`}>
+                <div>
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <h3 className="font-medium text-[#1A1A1A] text-base">{item.name}</h3>
+                      <p className="text-xs font-mono text-[#8A7F72] flex items-center gap-1 mt-0.5">
+                        <Clock className="w-3 h-3" />
+                        <span className="capitalize">{item.frequency}</span>
+                      </p>
+                    </div>
+                    <span className={`px-1.5 py-0.5 rounded-[2px] border text-[10px] font-mono uppercase tracking-wider ${item.isActive ? 'bg-[#FFE14D] border-[#1A1A1A] text-[#1A1A1A]' : 'bg-[#F5F0E8] border-[#1A1A1A]/30 text-[#8A7F72]'}`}>
+                      {item.isActive ? 'Active' : 'Inactive'}
+                    </span>
                   </div>
-                  <div className={`px-2 py-1 rounded text-xs font-medium ${item.isActive ? 'bg-accent-green/10 text-accent-green' : 'bg-ink-muted/10 text-ink-muted'}`}>
-                    {item.isActive ? 'Active' : 'Inactive'}
+                  
+                  <div className="mb-4">
+                    <p className="font-serif italic font-normal text-2xl text-[#1A1A1A]">{formatCurrency(item.amount)}</p>
+                    <p className="text-xs font-mono text-[#8A7F72] mt-0.5">{item.categoryId} • {acc?.name || 'Unknown Account'}</p>
                   </div>
                 </div>
                 
-                <div className="mb-4">
-                  <p className="text-2xl font-medium text-ink">{formatCurrency(item.amount)}</p>
-                  <p className="text-xs text-ink-muted mt-1">{item.categoryId} • {acc?.name || 'Unknown Account'}</p>
-                </div>
-                
-                <div className="bg-canvas rounded-lg p-3 flex items-center justify-between mt-auto">
-                  <div className="flex items-center gap-2 text-sm text-ink-muted">
-                    <Calendar className="w-4 h-4" />
+                <div className="bg-[#F5F0E8] rounded-[4px] border border-[#1A1A1A]/20 p-2.5 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-1.5 text-[#8A7F72] font-mono">
+                    <Calendar className="w-3.5 h-3.5" />
                     <span>Next Due:</span>
                   </div>
-                  <span className="font-medium text-ink">{format(parseISO(item.nextDueDate), "MMM d, yyyy")}</span>
+                  <span className="font-mono font-medium text-[#1A1A1A]">{format(parseISO(item.nextDueDate), "MMM d, yyyy")}</span>
                 </div>
               </div>
             );
           })
         ) : (
-          <div className="col-span-full text-center py-20 bg-surface-card rounded-2xl border border-dashed border-border flex flex-col items-center">
-            <div className="w-16 h-16 rounded-full bg-canvas flex items-center justify-center mb-4">
-              <Repeat className="w-8 h-8 text-ink-muted" />
+          <div className="col-span-full text-center py-16 bg-[#FDFAF4] rounded-[6px] border border-[#1A1A1A] shadow-[4px_4px_0px_0px_#1A1A1A] flex flex-col items-center">
+            <div className="w-12 h-12 rounded-[4px] bg-[#F5F0E8] border border-[#1A1A1A] flex items-center justify-center mb-3">
+              <Repeat className="w-6 h-6 text-[#8A7F72]" />
             </div>
-            <h3 className="text-lg font-medium text-ink">No recurring payments</h3>
-            <p className="text-ink-muted mt-1 max-w-sm mx-auto mb-6">
+            <h3 className="font-serif italic font-normal text-xl text-[#1A1A1A]">No recurring payments</h3>
+            <p className="text-xs text-[#8A7F72] mt-1 max-w-sm mx-auto mb-5">
               Track your subscriptions, rent, or recurring bills to forecast your expenses.
             </p>
             <AddRecurringDialog />

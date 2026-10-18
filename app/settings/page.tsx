@@ -42,176 +42,182 @@ export default function SettingsPage() {
   );
 
   return (
-    <div className="p-8 max-w-4xl mx-auto h-full flex flex-col gap-10">
-      <div>
-        <h1 className="text-3xl font-medium text-ink">Settings</h1>
-        <p className="text-ink-muted mt-1">Manage your dashboard preferences and data.</p>
+    <div className="p-4 sm:p-8 max-w-4xl mx-auto h-full flex flex-col gap-8 pb-24 md:pb-8">
+      <div className="pb-2 border-b border-[#1A1A1A]/10">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="badge-sendlinks">SYSTEM</span>
+          <span className="text-xs font-mono text-[#8A7F72]">PREFERENCES</span>
+        </div>
+        <h1 className="font-serif italic font-normal text-3xl sm:text-4xl text-[#1A1A1A] tracking-tight">Settings</h1>
+        <p className="text-sm font-sans text-[#8A7F72] mt-0.5">Manage your dashboard preferences and data.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         
         {/* Left Column */}
-        <div className="flex flex-col gap-10">
+        <div className="flex flex-col gap-8">
           
           {/* Account Profile */}
-          <section className="flex flex-col gap-6">
-            <h2 className="text-xl font-medium text-ink pb-2 border-b border-border">Account</h2>
-            <div className="flex flex-col gap-4 bg-surface-card p-5 rounded-2xl border border-border/50">
+          <section className="flex flex-col gap-4">
+            <h2 className="font-serif italic font-normal text-xl text-[#1A1A1A] pb-1 border-b border-[#1A1A1A]/10">Account</h2>
+            <div className="flex flex-col gap-4 bg-[#FDFAF4] p-5 rounded-[6px] border border-[#1A1A1A] shadow-[4px_4px_0px_0px_#1A1A1A]">
               {user ? (
                 <>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm font-medium text-ink-muted">Logged in as</span>
-                    <span className="text-lg font-medium text-ink">{user.name}</span>
-                    <span className="text-sm text-ink-muted">{user.email}</span>
+                    <span className="text-xs font-mono text-[#8A7F72] uppercase tracking-wider">Logged in as</span>
+                    <span className="text-base font-medium text-[#1A1A1A]">{user.name}</span>
+                    <span className="text-xs font-mono text-[#8A7F72]">{user.email}</span>
                   </div>
                   <Button 
                     variant="outline" 
                     onClick={logout} 
-                    className="w-full text-accent-coral border-accent-coral/20 hover:bg-accent-coral/10 hover:text-accent-coral mt-2"
+                    className="w-full text-[#FF4D00] border-[#1A1A1A] hover:bg-[#FF4D00]/10 hover:text-[#FF4D00] mt-1"
                   >
                     <LogOut className="w-4 h-4 mr-2" /> Logout
                   </Button>
                 </>
               ) : (
-                <div className="text-sm text-ink-muted">Not logged in.</div>
+                <div className="text-xs font-mono text-[#8A7F72]">Not logged in.</div>
               )}
             </div>
           </section>
 
           {/* Account & Data */}
-          <section className="flex flex-col gap-6">
-            <h2 className="text-xl font-medium text-ink pb-2 border-b border-border">Account Profile</h2>
+          <section className="flex flex-col gap-4">
+            <h2 className="font-serif italic font-normal text-xl text-[#1A1A1A] pb-1 border-b border-[#1A1A1A]/10">Account Profile</h2>
             
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="name" className="text-ink">Display Name</Label>
-              <div className="flex gap-2 max-w-sm">
+            <div className="flex flex-col gap-3 bg-[#FDFAF4] p-5 rounded-[6px] border border-[#1A1A1A] shadow-[4px_4px_0px_0px_#1A1A1A]">
+              <Label htmlFor="name" className="text-xs font-mono uppercase tracking-wider text-[#8A7F72]">Display Name</Label>
+              <div className="flex gap-2">
                 <Input 
                   id="name"
                   value={profileName} 
                   onChange={(e) => setProfileName(e.target.value)}
-                  className="bg-canvas border-border text-ink"
+                  className="bg-[#FDFAF4] border-[#1A1A1A] text-[#1A1A1A] text-sm"
                 />
                 <Button 
                   onClick={handleSaveProfile} 
                   disabled={isSaving || profileName === user?.name}
-                  className="bg-accent-blue text-white hover:bg-accent-blue/90"
+                  variant="cta"
                 >
                   Save
                 </Button>
               </div>
-              <p className="text-sm text-ink-muted">Mainly used for personalized greetings.</p>
+              <p className="text-xs font-sans text-[#8A7F72]">Mainly used for personalized greetings.</p>
             </div>
           </section>
 
           {/* About */}
-          <section className="flex flex-col gap-6">
-            <h2 className="text-xl font-medium text-ink pb-2 border-b border-border">About</h2>
-            <div className="bg-surface-card p-5 rounded-2xl border border-border/50">
-              <h3 className="font-medium text-ink">Personal Productivity Dashboard</h3>
-              <p className="text-sm text-ink-muted mt-1">Version 1.0.0</p>
+          <section className="flex flex-col gap-4">
+            <h2 className="font-serif italic font-normal text-xl text-[#1A1A1A] pb-1 border-b border-[#1A1A1A]/10">About</h2>
+            <div className="bg-[#FDFAF4] p-5 rounded-[6px] border border-[#1A1A1A] shadow-[4px_4px_0px_0px_#1A1A1A]">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="badge-sendlinks">SYSTEM</span>
+              </div>
+              <h3 className="font-serif italic font-normal text-lg text-[#1A1A1A]">Personal Productivity Dashboard</h3>
+              <p className="text-xs font-mono text-[#8A7F72] mt-0.5">Version 1.0.0 • Sendlinks Aesthetic Engine</p>
               
-              <div className="mt-4 pt-4 border-t border-border">
-                <p className="text-sm text-ink font-medium mb-2">Recent Changes:</p>
-                <ul className="list-disc list-inside text-sm text-ink-muted space-y-1">
-                  <li>Migrated completely to MySQL single-source of truth.</li>
-                  <li>Removed old local browser storage.</li>
-                  <li>Improved multi-device synchronization.</li>
-                  <li>Enhanced Pomodoro and Finance sections.</li>
+              <div className="mt-3.5 pt-3.5 border-t border-[#1A1A1A]/10">
+                <p className="text-xs font-mono text-[#1A1A1A] font-medium mb-1.5 uppercase tracking-wider">Recent Changes:</p>
+                <ul className="list-disc list-inside text-xs font-sans text-[#8A7F72] space-y-1">
+                  <li>Migrated to full sendlinks tactile design system.</li>
+                  <li>Hard-offset color-blocked shadows and ink borders.</li>
+                  <li>Instrument Serif and DM Sans high-contrast typography.</li>
+                  <li>Integrated personal hub with instant reactivity.</li>
                 </ul>
               </div>
             </div>
           </section>
 
           {/* Hosting & Storage */}
-          <section className="flex flex-col gap-6">
+          <section className="flex flex-col gap-4">
             <div>
-              <h2 className="text-xl font-medium text-ink pb-2 border-b border-border">Hosting & Storage</h2>
-              <p className="text-sm text-ink-muted mt-2">Monitor your Base application storage and hosting resources.</p>
+              <h2 className="font-serif italic font-normal text-xl text-[#1A1A1A] pb-1 border-b border-[#1A1A1A]/10">Hosting & Storage</h2>
+              <p className="text-xs font-sans text-[#8A7F72] mt-1">Monitor your Base application storage and hosting resources.</p>
             </div>
             
             <div className="flex flex-col gap-4">
               {/* Application Storage Card */}
-              <div className="bg-surface-card p-5 rounded-2xl border border-border/50">
+              <div className="bg-[#FDFAF4] p-5 rounded-[6px] border border-[#1A1A1A] shadow-[4px_4px_0px_0px_#1A1A1A]">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-full bg-canvas flex items-center justify-center text-ink">
-                    <Database className="w-5 h-5" />
+                  <div className="w-8 h-8 rounded-[4px] bg-[#FFE14D] border border-[#1A1A1A] flex items-center justify-center text-[#1A1A1A] shadow-[1px_1px_0px_0px_#1A1A1A]">
+                    <Database className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-ink">Application Storage</h3>
-                    <p className="text-sm text-ink-muted">Data owned by you</p>
+                    <h3 className="font-medium text-sm text-[#1A1A1A]">Application Storage</h3>
+                    <p className="text-xs font-mono text-[#8A7F72]">Data owned by you</p>
                   </div>
                 </div>
 
                 {hostingLoading ? (
-                  <div className="animate-pulse space-y-3">
-                    <div className="h-4 bg-canvas rounded w-1/2"></div>
-                    <div className="h-4 bg-canvas rounded w-2/3"></div>
-                    <div className="h-4 bg-canvas rounded w-1/3"></div>
+                  <div className="animate-pulse space-y-3 font-mono text-xs">
+                    <div className="h-4 bg-[#F5F0E8] rounded w-1/2"></div>
+                    <div className="h-4 bg-[#F5F0E8] rounded w-2/3"></div>
                   </div>
                 ) : hostingError ? (
-                  <div className="text-sm text-accent-coral">
+                  <div className="text-xs font-mono text-[#FF4D00]">
                     Unable to load storage information.
-                    <Button variant="ghost" size="sm" onClick={() => window.location.reload()} className="ml-2 h-6 text-xs text-accent-coral">Retry</Button>
+                    <Button variant="ghost" size="sm" onClick={() => window.location.reload()} className="ml-2 h-6 text-xs text-[#FF4D00]">Retry</Button>
                   </div>
                 ) : hostingStats ? (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1">
-                      <span className="text-xs font-medium text-ink-muted uppercase tracking-wider">Files</span>
-                      <span className="text-lg font-medium text-ink">{hostingStats.files?.count || 0} files</span>
-                      <span className="text-xs text-ink-muted">File storage: Not available</span>
+                  <div className="grid grid-cols-2 gap-4 font-mono">
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-[10px] text-[#8A7F72] uppercase tracking-wider">Files</span>
+                      <span className="text-base font-medium text-[#1A1A1A]">{hostingStats.files?.count || 0} files</span>
+                      <span className="text-[10px] text-[#8A7F72]">File storage: Not available</span>
                     </div>
-                    <div className="flex flex-col gap-1">
-                      <span className="text-xs font-medium text-ink-muted uppercase tracking-wider">Database</span>
-                      <span className="text-lg font-medium text-ink">{hostingStats.database?.tables || 0} tables</span>
-                      <span className="text-xs text-ink-muted">{hostingStats.database?.size_mb ? `${hostingStats.database.size_mb} MB` : 'Size unavailable'}</span>
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-[10px] text-[#8A7F72] uppercase tracking-wider">Database</span>
+                      <span className="text-base font-medium text-[#1A1A1A]">{hostingStats.database?.tables || 0} tables</span>
+                      <span className="text-[10px] text-[#8A7F72]">{hostingStats.database?.size_mb ? `${hostingStats.database.size_mb} MB` : 'Size unavailable'}</span>
                     </div>
-                    <div className="flex flex-col gap-1 col-span-2 mt-2 pt-2 border-t border-border">
-                      <span className="text-xs font-medium text-ink-muted uppercase tracking-wider">Records</span>
-                      <span className="text-lg font-medium text-ink">{hostingStats.database?.user_records?.toLocaleString() || 0} records</span>
-                      <span className="text-xs text-ink-muted">Data points stored for your account</span>
+                    <div className="flex flex-col gap-0.5 col-span-2 mt-2 pt-2 border-t border-[#1A1A1A]/10">
+                      <span className="text-[10px] text-[#8A7F72] uppercase tracking-wider">Records</span>
+                      <span className="text-base font-medium text-[#1A1A1A]">{hostingStats.database?.user_records?.toLocaleString() || 0} records</span>
+                      <span className="text-[10px] text-[#8A7F72]">Data points stored for your account</span>
                     </div>
                   </div>
                 ) : null}
               </div>
 
               {/* InfinityFree Hosting Card */}
-              <div className="bg-surface-card p-5 rounded-2xl border border-border/50">
+              <div className="bg-[#FDFAF4] p-5 rounded-[6px] border border-[#1A1A1A] shadow-[4px_4px_0px_0px_#1A1A1A]">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-full bg-canvas flex items-center justify-center text-ink">
-                    <Server className="w-5 h-5" />
+                  <div className="w-8 h-8 rounded-[4px] bg-[#F5F0E8] border border-[#1A1A1A] flex items-center justify-center text-[#1A1A1A] shadow-[1px_1px_0px_0px_#1A1A1A]">
+                    <Server className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-ink">InfinityFree Hosting</h3>
-                    <p className="text-sm text-ink-muted">base.rf.gd</p>
+                    <h3 className="font-medium text-sm text-[#1A1A1A]">Production Hosting</h3>
+                    <p className="text-xs font-mono text-[#8A7F72]">base.rf.gd</p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 mb-5">
-                  <div className="flex flex-col gap-1">
-                    <span className="text-xs font-medium text-ink-muted uppercase tracking-wider">Status</span>
-                    <span className="text-sm font-medium text-ink flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-green-500"></span> Online
+                <div className="grid grid-cols-2 gap-4 mb-4 font-mono text-xs">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[10px] text-[#8A7F72] uppercase tracking-wider">Status</span>
+                    <span className="text-xs font-medium text-[#1A1A1A] flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-[#1A1A1A]"></span> Online
                     </span>
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <span className="text-xs font-medium text-ink-muted uppercase tracking-wider">Daily Hits</span>
-                    <span className="text-sm font-medium text-ink">Available in InfinityFree</span>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[10px] text-[#8A7F72] uppercase tracking-wider">Daily Hits</span>
+                    <span className="text-xs text-[#1A1A1A]">Available in InfinityFree</span>
                   </div>
-                  <div className="flex flex-col gap-1 col-span-2">
-                    <span className="text-xs font-medium text-ink-muted uppercase tracking-wider">Hosting Storage</span>
-                    <span className="text-sm font-medium text-ink">Available in InfinityFree</span>
+                  <div className="flex flex-col gap-0.5 col-span-2">
+                    <span className="text-[10px] text-[#8A7F72] uppercase tracking-wider">Hosting Storage</span>
+                    <span className="text-xs text-[#1A1A1A]">Available in InfinityFree</span>
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-border flex items-center justify-between">
-                  <span className="text-xs text-ink-muted">Base statistics: Updated just now</span>
+                <div className="pt-3 border-t border-[#1A1A1A]/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <span className="text-[10px] font-mono text-[#8A7F72]">Base statistics: Updated live</span>
                   <a 
                     href="https://app.infinityfree.net/" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 border-border bg-background hover:bg-muted hover:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50 h-9 px-4 py-2"
+                    className="inline-flex items-center justify-center rounded-[4px] text-xs font-mono font-medium transition-transform active:translate-x-[1px] active:translate-y-[1px] border border-[#1A1A1A] bg-[#FDFAF4] hover:bg-[#FFE14D] text-[#1A1A1A] shadow-[2px_2px_0px_0px_#1A1A1A] h-8 px-3"
                   >
-                    View Hosting Statistics <ExternalLink className="w-4 h-4 ml-2" />
+                    View Hosting Statistics <ExternalLink className="w-3.5 h-3.5 ml-1.5" />
                   </a>
                 </div>
               </div>
@@ -220,20 +226,20 @@ export default function SettingsPage() {
         </div>
 
         {/* Right Column */}
-        <div className="flex flex-col gap-10">
+        <div className="flex flex-col gap-8">
           
           {/* Appearance */}
-          <section className="flex flex-col gap-6">
-            <h2 className="text-xl font-medium text-ink pb-2 border-b border-border">Appearance</h2>
+          <section className="flex flex-col gap-4">
+            <h2 className="font-serif italic font-normal text-xl text-[#1A1A1A] pb-1 border-b border-[#1A1A1A]/10">Appearance</h2>
             
-            <div className="flex items-center justify-between bg-surface-card p-4 rounded-xl border border-border/50">
+            <div className="flex items-center justify-between bg-[#FDFAF4] p-4 rounded-[6px] border border-[#1A1A1A] shadow-[3px_3px_0px_0px_#1A1A1A]">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-canvas flex items-center justify-center text-ink">
-                  {settings.theme === 'dark' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+                <div className="w-8 h-8 rounded-[4px] bg-[#FFE14D] border border-[#1A1A1A] flex items-center justify-center text-[#1A1A1A] shadow-[1px_1px_0px_0px_#1A1A1A]">
+                  {settings.theme === 'dark' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
                 </div>
                 <div>
-                  <h3 className="font-medium text-ink">Dark Mode</h3>
-                  <p className="text-sm text-ink-muted">Toggle application theme</p>
+                  <h3 className="font-medium text-sm text-[#1A1A1A]">Dark Mode</h3>
+                  <p className="text-xs text-[#8A7F72]">Toggle application theme</p>
                 </div>
               </div>
               <Switch 
@@ -242,14 +248,14 @@ export default function SettingsPage() {
               />
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface-card p-4 rounded-xl border border-border/50">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#FDFAF4] p-4 rounded-[6px] border border-[#1A1A1A] shadow-[3px_3px_0px_0px_#1A1A1A]">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-canvas flex items-center justify-center text-ink">
-                  <Palette className="w-5 h-5" />
+                <div className="w-8 h-8 rounded-[4px] bg-[#F5F0E8] border border-[#1A1A1A] flex items-center justify-center text-[#1A1A1A] shadow-[1px_1px_0px_0px_#1A1A1A]">
+                  <Palette className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="font-medium text-ink">Accent Color</h3>
-                  <p className="text-sm text-ink-muted">Customize the primary color theme</p>
+                  <h3 className="font-medium text-sm text-[#1A1A1A]">Accent Color</h3>
+                  <p className="text-xs text-[#8A7F72]">Customize the primary color theme</p>
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -257,16 +263,16 @@ export default function SettingsPage() {
                   <button
                     key={color}
                     onClick={() => updateSettings({ accentColor: color })}
-                    className={`w-8 h-8 rounded-full border-2 transition-all ${settings.accentColor === color || (!settings.accentColor && color === 'default') ? 'border-ink scale-110' : 'border-transparent hover:scale-105'}`}
+                    className={`w-6 h-6 rounded-[3px] border border-[#1A1A1A] transition-transform ${settings.accentColor === color || (!settings.accentColor && color === 'default') ? 'scale-125 shadow-[2px_2px_0px_0px_#1A1A1A]' : 'hover:scale-110'}`}
                     style={{
-                      backgroundColor: color === 'default' ? '#F4C94C' : // Base's default
-                        color === 'Gold' ? '#F4C94C' :
-                        color === 'Amber' ? '#f59e0b' :
+                      backgroundColor: color === 'default' ? '#FFE14D' : 
+                        color === 'Gold' ? '#FFE14D' :
+                        color === 'Amber' ? '#FF4D00' :
                         color === 'Blue' ? '#3b82f6' :
                         color === 'Green' ? '#10b981' :
                         color === 'Purple' ? '#8b5cf6' :
                         color === 'Ocean' ? '#33648b' :
-                        '#ef4444' // Red
+                        '#ef4444'
                     }}
                     title={color === 'default' ? 'Default' : color}
                   />
@@ -274,31 +280,31 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between bg-surface-card p-4 rounded-xl border border-border/50">
+            <div className="flex items-center justify-between bg-[#FDFAF4] p-4 rounded-[6px] border border-[#1A1A1A] shadow-[3px_3px_0px_0px_#1A1A1A]">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-canvas flex items-center justify-center text-ink">
-                  <LayoutGrid className="w-5 h-5" />
+                <div className="w-8 h-8 rounded-[4px] bg-[#F5F0E8] border border-[#1A1A1A] flex items-center justify-center text-[#1A1A1A] shadow-[1px_1px_0px_0px_#1A1A1A]">
+                  <LayoutGrid className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="font-medium text-ink">Reset Dashboard Layout</h3>
-                  <p className="text-sm text-ink-muted">Restore default widget order & sizes</p>
+                  <h3 className="font-medium text-sm text-[#1A1A1A]">Reset Dashboard Layout</h3>
+                  <p className="text-xs text-[#8A7F72]">Restore default widget order & sizes</p>
                 </div>
               </div>
-              <Button variant="outline" size="sm" onClick={() => { resetWidgetLayout(); alert('Layout reset!'); }} className="border-border hover:bg-canvas">
+              <Button variant="outline" size="sm" onClick={() => { resetWidgetLayout(); alert('Layout reset!'); }}>
                 Reset
               </Button>
             </div>
           </section>
 
           {/* Notifications */}
-          <section className="flex flex-col gap-6">
-            <h2 className="text-xl font-medium text-ink pb-2 border-b border-border">Notifications</h2>
+          <section className="flex flex-col gap-4">
+            <h2 className="font-serif italic font-normal text-xl text-[#1A1A1A] pb-1 border-b border-[#1A1A1A]/10">Notifications</h2>
             
-            <div className="flex flex-col gap-3 bg-surface-card p-5 rounded-2xl border border-border/50">
-              <div className="flex items-center justify-between pb-4 border-b border-border">
+            <div className="flex flex-col gap-3 bg-[#FDFAF4] p-5 rounded-[6px] border border-[#1A1A1A] shadow-[4px_4px_0px_0px_#1A1A1A]">
+              <div className="flex items-center justify-between pb-3 border-b border-[#1A1A1A]/10">
                 <div>
-                  <h3 className="font-medium text-ink">Master Notifications</h3>
-                  <p className="text-sm text-ink-muted">Enable browser notifications</p>
+                  <h3 className="font-medium text-sm text-[#1A1A1A]">Master Notifications</h3>
+                  <p className="text-xs text-[#8A7F72]">Enable browser notifications</p>
                 </div>
                 <Switch 
                   checked={settings.notifications.master} 
@@ -315,9 +321,9 @@ export default function SettingsPage() {
                 />
               </div>
 
-              <div className="flex flex-col gap-4 pt-2">
+              <div className="flex flex-col gap-3 pt-1">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="notif-pomodoro" className="text-sm font-normal text-ink">Pomodoro session alerts</Label>
+                  <Label htmlFor="notif-pomodoro" className="text-xs font-mono text-[#1A1A1A]">Pomodoro session alerts</Label>
                   <Switch 
                     id="notif-pomodoro"
                     disabled={!settings.notifications.master}
@@ -326,7 +332,7 @@ export default function SettingsPage() {
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="notif-reminders" className="text-sm font-normal text-ink">Time-based reminders</Label>
+                  <Label htmlFor="notif-reminders" className="text-xs font-mono text-[#1A1A1A]">Time-based reminders</Label>
                   <Switch 
                     id="notif-reminders"
                     disabled={!settings.notifications.master}
@@ -335,7 +341,7 @@ export default function SettingsPage() {
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="notif-habits" className="text-sm font-normal text-ink">Habit nudges</Label>
+                  <Label htmlFor="notif-habits" className="text-xs font-mono text-[#1A1A1A]">Habit nudges</Label>
                   <Switch 
                     id="notif-habits"
                     disabled={!settings.notifications.master}

@@ -63,61 +63,62 @@ export function AddReminderDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={
-        <Button className="rounded-full bg-accent-yellow text-white hover:bg-accent-yellow/90">
-          <Plus className="w-5 h-5 mr-1" />
-          Add Reminder
-        </Button>
-      } />
-      <DialogContent className="sm:max-w-[425px] bg-surface-card border-none">
+      <Button variant="cta" onClick={() => setOpen(true)}>
+        <Plus className="w-4 h-4 mr-1.5" />
+        Add Reminder
+      </Button>
+      <DialogContent className="sm:max-w-[425px] bg-[#FDFAF4] border border-[#1A1A1A] rounded-[6px] shadow-[8px_8px_0px_0px_#1A1A1A] p-6">
         <DialogHeader>
-          <DialogTitle className="text-xl font-medium text-ink">New Reminder</DialogTitle>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="badge-sendlinks">NEW REMINDER</span>
+          </div>
+          <DialogTitle className="font-serif italic font-normal text-2xl text-[#1A1A1A]">Schedule Reminder</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-4">
-          {error && <div className="text-sm text-accent-coral bg-accent-coral/10 p-3 rounded-lg">{error}</div>}
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-2">
+          {error && <div className="text-sm font-mono text-[#FF4D00] bg-[#FF4D00]/10 p-2.5 rounded-[4px] border border-[#FF4D00]/30">{error}</div>}
           
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="title" className="text-ink-muted">Reminder</Label>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="title" className="text-xs font-mono uppercase tracking-wider text-[#8A7F72]">Reminder</Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Drink water"
-              className="bg-canvas border-border text-ink"
+              className="bg-[#FDFAF4] border-[#1A1A1A] text-[#1A1A1A]"
               required
             />
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="date" className="text-ink-muted">Date</Label>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="date" className="text-xs font-mono uppercase tracking-wider text-[#8A7F72]">Date</Label>
               <Input
                 id="date"
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="bg-canvas border-border text-ink"
+                className="bg-[#FDFAF4] border-[#1A1A1A] text-[#1A1A1A]"
                 required
               />
             </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="time" className="text-ink-muted">Time</Label>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="time" className="text-xs font-mono uppercase tracking-wider text-[#8A7F72]">Time</Label>
               <Input
                 id="time"
                 type="time"
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
-                className="bg-canvas border-border text-ink"
+                className="bg-[#FDFAF4] border-[#1A1A1A] text-[#1A1A1A]"
                 required
               />
             </div>
           </div>
           
-          <div className="mt-4 flex justify-end gap-2">
-            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
+          <div className="mt-4 flex justify-end gap-2.5">
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit" className="bg-accent-yellow text-white hover:bg-accent-yellow/90">
+            <Button type="submit" variant="cta">
               Save Reminder
             </Button>
           </div>

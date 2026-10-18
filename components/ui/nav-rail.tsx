@@ -44,19 +44,14 @@ export function NavRail() {
         href={item.href}
         title={item.label}
         className={cn(
-          "relative w-12 h-12 flex items-center justify-center transition-colors z-10 rounded-full",
-          isActive ? "text-accent-yellow" : "text-ink-muted hover:text-ink"
+          "relative w-11 h-11 flex items-center justify-center rounded-[4px] transition-transform duration-100 z-10",
+          isActive
+            ? "bg-[#1A1A1A] text-[#FFE14D] border border-[#1A1A1A] shadow-[2px_2px_0px_0px_#FF4D00]"
+            : "text-[#1A1A1A] hover:bg-[#EDE8DC] hover:text-[#1A1A1A] active:translate-x-[1px] active:translate-y-[1px]"
         )}
       >
-        {isActive && (
-          <motion.div
-            layoutId="nav-pill"
-            className="absolute inset-0 bg-surface-dark rounded-full z-0"
-            transition={{ type: "spring", stiffness: 300, damping: 25 }}
-          />
-        )}
         <item.icon
-          className={cn("w-[22px] h-[22px] relative z-10", isActive ? "fill-current" : "")}
+          className="w-5 h-5 relative z-10"
           strokeWidth={isActive ? 2.5 : 2}
         />
       </Link>
@@ -67,19 +62,24 @@ export function NavRail() {
     <>
       {/* Desktop Navigation */}
       <nav className="hidden md:flex fixed left-6 top-1/2 -translate-y-1/2 flex-col gap-4 z-50">
-        {/* Primary Pill */}
-        <div className="w-16 bg-surface-card rounded-[32px] py-3 flex flex-col items-center gap-3 shadow-sm border border-border/50">
+        {/* Brand Accent Top Tag */}
+        <div className="w-14 bg-[#1A1A1A] text-[#FFE14D] border border-[#1A1A1A] rounded-[4px] py-1.5 flex flex-col items-center shadow-[3px_3px_0px_0px_#FF4D00]">
+          <span className="font-serif text-sm font-bold tracking-tight">BASE</span>
+        </div>
+
+        {/* Primary Stack */}
+        <div className="w-14 bg-[#FDFAF4] rounded-[6px] py-2 flex flex-col items-center gap-2 border border-[#1A1A1A] shadow-[4px_4px_0px_0px_#1A1A1A]">
           {PRIMARY_ITEMS.map(renderDesktopItem)}
         </div>
 
-        {/* Secondary Pill */}
-        <div className="w-16 bg-surface-card rounded-[32px] py-3 flex flex-col items-center gap-3 shadow-sm border border-border/50">
+        {/* Secondary Stack */}
+        <div className="w-14 bg-[#FDFAF4] rounded-[6px] py-2 flex flex-col items-center gap-2 border border-[#1A1A1A] shadow-[4px_4px_0px_0px_#1A1A1A]">
           {SECONDARY_ITEMS.map(renderDesktopItem)}
         </div>
       </nav>
 
       {/* Mobile Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-surface-card border-t border-border/50 z-50 flex items-center justify-around px-2 py-3 pb-[calc(12px+env(safe-area-inset-bottom))]">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[#FDFAF4] border-t-2 border-[#1A1A1A] z-50 flex items-center justify-around px-2 py-2 pb-[calc(8px+env(safe-area-inset-bottom))] shadow-[0px_-3px_0px_0px_#1A1A1A]">
         {PRIMARY_ITEMS.map((item) => {
           const isActive = pathname === item.href;
           return (
@@ -88,48 +88,52 @@ export function NavRail() {
               href={item.href}
               onClick={handleNav}
               className={cn(
-                "flex flex-col items-center gap-1 p-2 rounded-xl transition-colors flex-1",
-                isActive ? "text-accent-yellow" : "text-ink-muted hover:text-ink"
+                "flex flex-col items-center gap-1 p-1.5 rounded-[4px] transition-colors flex-1 text-center",
+                isActive
+                  ? "bg-[#1A1A1A] text-[#FFE14D] border border-[#1A1A1A]"
+                  : "text-[#1A1A1A] hover:bg-[#EDE8DC]"
               )}
             >
               <item.icon
-                className={cn("w-6 h-6", isActive ? "fill-current" : "")}
+                className="w-5 h-5 mx-auto"
                 strokeWidth={isActive ? 2.5 : 2}
               />
-              <span className="text-[10px] font-medium">{item.label}</span>
+              <span className="text-[10px] font-sans font-medium">{item.label}</span>
             </Link>
           );
         })}
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className={cn(
-            "flex flex-col items-center gap-1 p-2 rounded-xl transition-colors flex-1",
-            isMobileMenuOpen ? "text-ink" : "text-ink-muted hover:text-ink"
+            "flex flex-col items-center gap-1 p-1.5 rounded-[4px] transition-colors flex-1 text-center",
+            isMobileMenuOpen ? "bg-[#FFE14D] text-[#1A1A1A] border border-[#1A1A1A]" : "text-[#1A1A1A] hover:bg-[#EDE8DC]"
           )}
         >
           {isMobileMenuOpen ? (
-            <X className="w-6 h-6" strokeWidth={2} />
+            <X className="w-5 h-5 mx-auto" strokeWidth={2} />
           ) : (
-            <Menu className="w-6 h-6" strokeWidth={2} />
+            <Menu className="w-5 h-5 mx-auto" strokeWidth={2} />
           )}
-          <span className="text-[10px] font-medium">More</span>
+          <span className="text-[10px] font-sans font-medium">More</span>
         </button>
       </nav>
 
       {/* Mobile More Drawer */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <div className="md:hidden fixed inset-0 z-40 bg-surface-dark/80 backdrop-blur-sm" onClick={handleNav}>
+          <div className="md:hidden fixed inset-0 z-40 bg-black/40" onClick={handleNav}>
             <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 20, opacity: 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="absolute bottom-[80px] left-4 right-4 bg-surface-card border border-border/50 rounded-3xl p-4 shadow-xl"
+              className="absolute bottom-[75px] left-3 right-3 bg-[#FDFAF4] border-2 border-[#1A1A1A] rounded-[6px] p-4 shadow-[6px_6px_0px_0px_#1A1A1A]"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex flex-col gap-2">
-                <h3 className="text-xs font-medium text-ink-muted uppercase tracking-wider mb-2 px-2">More Options</h3>
+                <div className="flex items-center justify-between pb-2 border-b border-[#1A1A1A]/20">
+                  <span className="badge-sendlinks">MORE DESTINATIONS</span>
+                </div>
                 {SECONDARY_ITEMS.map((item) => {
                   const isActive = pathname === item.href;
                   return (
@@ -138,12 +142,14 @@ export function NavRail() {
                       href={item.href}
                       onClick={handleNav}
                       className={cn(
-                        "flex items-center gap-4 p-4 rounded-2xl transition-colors",
-                        isActive ? "bg-surface-dark text-accent-yellow" : "text-ink hover:bg-canvas"
+                        "flex items-center gap-3 p-3 rounded-[4px] border transition-transform",
+                        isActive
+                          ? "bg-[#1A1A1A] text-[#FFE14D] border-[#1A1A1A] shadow-[2px_2px_0px_0px_#FF4D00]"
+                          : "bg-[#FDFAF4] text-[#1A1A1A] border-[#1A1A1A] hover:bg-[#EDE8DC]"
                       )}
                     >
-                      <item.icon className={cn("w-6 h-6", isActive ? "fill-current" : "")} strokeWidth={isActive ? 2.5 : 2} />
-                      <span className="font-medium">{item.label}</span>
+                      <item.icon className="w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
+                      <span className="font-sans font-medium text-sm">{item.label}</span>
                     </Link>
                   );
                 })}

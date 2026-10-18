@@ -2,11 +2,22 @@ import type { Metadata, Viewport } from "next";
 import { NavRail } from "@/components/ui/nav-rail";
 import { GlobalHooks } from "@/components/global-hooks";
 import { AuthWrapper } from "@/components/auth/auth-wrapper";
-import { Inter } from "next/font/google";
+import { Instrument_Serif, DM_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-serif",
+  weight: "400",
+  subsets: ["latin"],
+});
+
+const dmSans = DM_Sans({
   variable: "--font-sans",
+  subsets: ["latin"],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-mono",
   subsets: ["latin"],
 });
 
@@ -30,7 +41,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} font-sans h-full antialiased`}
+      className={`${dmSans.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable} font-sans h-full antialiased`}
       suppressHydrationWarning
     >
       <head>

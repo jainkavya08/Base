@@ -77,7 +77,7 @@ export function AddLinkDialog({ className, linkToEdit }: { className?: string; l
               setOpen(true);
             }}
             className={cn(
-              "absolute -top-2 -right-8 w-5 h-5 bg-surface-dark text-white rounded-full flex items-center justify-center opacity-0 group-hover/dock-item:opacity-100 transition-opacity hover:bg-accent-blue z-10",
+              "absolute -top-2 -right-8 w-5 h-5 bg-[#1A1A1A] text-[#FFE14D] border border-[#1A1A1A] rounded-[2px] flex items-center justify-center opacity-0 group-hover/dock-item:opacity-100 transition-opacity hover:bg-[#FFE14D] hover:text-[#1A1A1A] z-10 shadow-[1px_1px_0px_0px_#1A1A1A]",
               className
             )}
           >
@@ -91,58 +91,57 @@ export function AddLinkDialog({ className, linkToEdit }: { className?: string; l
               setOpen(true);
             }}
             className={cn(
-              "w-12 h-12 rounded-2xl bg-surface-card/60 backdrop-blur-sm border border-border/50 flex items-center justify-center text-ink-muted hover:text-ink hover:bg-surface-card transition-all group shrink-0",
+              "w-11 h-11 rounded-[4px] bg-[#FFE14D] text-[#1A1A1A] border border-[#1A1A1A] shadow-[2px_2px_0px_0px_#1A1A1A] flex items-center justify-center hover:bg-[#FF4D00] hover:text-white hover:shadow-[3px_3px_0px_0px_#1A1A1A] active:translate-x-[1px] active:translate-y-[1px] transition-colors group shrink-0",
               className
             )}
+            title="Add Quick Link"
           >
-            <Plus className="w-5 h-5 group-hover:scale-110 transition-transform" />
+            <Plus className="w-5 h-5" />
           </button>
         )
       } />
-      <DialogContent className="sm:max-w-[425px] bg-surface-card border-none max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="text-xl font-medium text-ink flex items-center gap-2">
+          <DialogTitle>
             {linkToEdit ? "Edit Quick Link" : "Add Quick Link"}
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-4">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="name" className="text-ink-muted">Name</Label>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-2">
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="name" className="text-xs uppercase font-medium text-[#8A7F72]">Name</Label>
             <Input 
               id="name"
               placeholder="e.g. GitHub"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="bg-canvas border-border/50 text-ink focus:border-accent-blue/50 focus:ring-accent-blue/50"
               required
             />
           </div>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="url" className="text-ink-muted">URL</Label>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="url" className="text-xs uppercase font-medium text-[#8A7F72]">URL</Label>
             <Input 
               id="url"
               placeholder="e.g. github.com"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              className="bg-canvas border-border/50 text-ink focus:border-accent-blue/50 focus:ring-accent-blue/50"
               required
             />
           </div>
           
-          <div className="flex flex-col gap-3 mt-2">
-            <Label className="text-ink-muted flex items-center justify-between">
+          <div className="flex flex-col gap-2 mt-1">
+            <Label className="text-xs uppercase font-medium text-[#8A7F72] flex items-center justify-between">
               Icon (Optional)
               {icon && (
                 <button 
                   type="button" 
                   onClick={() => setIcon(undefined)}
-                  className="text-[10px] text-accent-coral hover:underline"
+                  className="text-[11px] text-[#FF4D00] hover:underline"
                 >
                   Clear
                 </button>
               )}
             </Label>
-            <div className="grid grid-cols-5 gap-2 bg-canvas p-3 rounded-xl border border-border/50">
+            <div className="grid grid-cols-5 gap-2 bg-[#F5F0E8] p-2.5 rounded-[4px] border border-[#1A1A1A]">
               {Object.entries(AVAILABLE_ICONS).map(([iconName, IconComponent]) => (
                 <button
                   key={iconName}
@@ -150,28 +149,28 @@ export function AddLinkDialog({ className, linkToEdit }: { className?: string; l
                   onClick={() => setIcon(iconName as IconName)}
                   title={iconName}
                   className={cn(
-                    "flex items-center justify-center p-2 rounded-lg transition-all",
+                    "flex items-center justify-center p-2 rounded-[3px] border transition-transform",
                     icon === iconName 
-                      ? "bg-accent-blue text-white shadow-md ring-2 ring-accent-blue/30" 
-                      : "text-ink-muted hover:text-ink hover:bg-surface-card"
+                      ? "bg-[#FFE14D] text-[#1A1A1A] border-[#1A1A1A] shadow-[2px_2px_0px_0px_#1A1A1A]" 
+                      : "border-transparent text-[#8A7F72] hover:text-[#1A1A1A] hover:bg-[#FDFAF4]"
                   )}
                 >
-                  <IconComponent className="w-5 h-5" />
+                  <IconComponent className="w-4 h-4" />
                 </button>
               ))}
             </div>
             {!icon && (
-              <p className="text-xs text-ink-muted px-1">
+              <p className="text-xs text-[#8A7F72]">
                 If no icon is selected, the website's favicon will be used automatically.
               </p>
             )}
           </div>
           
-          <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-border/50">
-            <Button type="button" variant="ghost" onClick={() => setOpen(false)} className="text-ink-muted hover:text-ink">
+          <div className="flex justify-end gap-2 mt-3 pt-3 border-t border-[#1A1A1A]/10">
+            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit" className="bg-accent-blue text-white hover:opacity-90 font-medium">
+            <Button type="submit" variant="cta">
               {linkToEdit ? "Save Changes" : "Add Link"}
             </Button>
           </div>

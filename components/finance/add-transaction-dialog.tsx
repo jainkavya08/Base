@@ -89,34 +89,37 @@ export function AddTransactionDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <Button className="rounded-full bg-accent-yellow text-white hover:bg-accent-yellow/90" onClick={() => setOpen(true)}>
-        <Plus className="w-5 h-5 mr-1" />
+      <Button variant="cta" onClick={() => setOpen(true)}>
+        <Plus className="w-4 h-4 mr-1.5" />
         Add Transaction
       </Button>
-      <DialogContent className="sm:max-w-[425px] bg-surface-card border-none">
+      <DialogContent className="sm:max-w-[425px] bg-[#FDFAF4] border border-[#1A1A1A] rounded-[6px] shadow-[8px_8px_0px_0px_#1A1A1A] p-6">
         <DialogHeader>
-          <DialogTitle className="text-xl font-medium text-ink">New Transaction</DialogTitle>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="badge-sendlinks">TRANSACTION</span>
+          </div>
+          <DialogTitle className="font-serif italic font-normal text-2xl text-[#1A1A1A]">New Transaction</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-2">
           
           {error && (
-            <div className="bg-accent-coral/10 text-accent-coral p-3 rounded-lg text-sm">
+            <div className="bg-[#FF4D00]/10 text-[#FF4D00] p-3 rounded-[4px] text-sm font-mono border border-[#FF4D00]/30">
               {error}
             </div>
           )}
 
-          <div className="flex gap-4 mb-2 bg-canvas p-1 rounded-lg">
+          <div className="flex gap-2 bg-[#F5F0E8] p-1 rounded-[4px] border border-[#1A1A1A]">
             <button
               type="button"
               onClick={() => setType("expense")}
-              className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${type === 'expense' ? 'bg-surface-card text-ink shadow-sm' : 'text-ink-muted hover:text-ink'}`}
+              className={`flex-1 py-1.5 text-xs font-mono font-medium uppercase tracking-wider rounded-[3px] transition-all ${type === 'expense' ? 'bg-[#1A1A1A] text-[#FDFAF4] shadow-[1px_1px_0px_0px_#FF4D00]' : 'text-[#8A7F72] hover:text-[#1A1A1A]'}`}
             >
               Expense
             </button>
             <button
               type="button"
               onClick={() => setType("income")}
-              className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${type === 'income' ? 'bg-surface-card text-ink shadow-sm' : 'text-ink-muted hover:text-ink'}`}
+              className={`flex-1 py-1.5 text-xs font-mono font-medium uppercase tracking-wider rounded-[3px] transition-all ${type === 'income' ? 'bg-[#1A1A1A] text-[#FDFAF4] shadow-[1px_1px_0px_0px_#FFE14D]' : 'text-[#8A7F72] hover:text-[#1A1A1A]'}`}
             >
               Income
             </button>
@@ -197,11 +200,11 @@ export function AddTransactionDialog() {
             />
           </div>
           
-          <div className="mt-4 flex justify-end gap-3">
-            <Button type="button" variant="ghost" onClick={() => setOpen(false)} className="text-ink hover:bg-canvas">
+          <div className="mt-4 flex justify-end gap-2.5">
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit" className="bg-accent-yellow text-white hover:bg-accent-yellow/90 font-medium">
+            <Button type="submit" variant="cta">
               Save Transaction
             </Button>
           </div>

@@ -31,83 +31,88 @@ export function DebtTab() {
   const totalOwedToYou = owedToYou.reduce((acc, curr) => acc + curr.remainingAmount, 0);
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-medium text-ink">Debt & Loans</h2>
-          <p className="text-sm text-ink-muted mt-1">Track money you owe and money owed to you.</p>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="badge-sendlinks">LIABILITIES</span>
+          </div>
+          <h2 className="font-serif italic font-normal text-2xl md:text-3xl text-[#1A1A1A]">Debt & Loans</h2>
+          <p className="text-xs font-sans text-[#8A7F72] mt-0.5">Track money you owe and money owed to you.</p>
         </div>
         <AddDebtDialog />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-        <div className="bg-surface-card rounded-2xl p-4 md:p-6 border border-border/50 shadow-sm relative overflow-hidden box-border max-w-full">
-          <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-accent-coral/10 rounded-full blur-2xl" />
-          <p className="text-ink-muted text-sm font-medium mb-1">Total Owed by You</p>
-          <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-4">
-            <h2 className="text-3xl md:text-4xl font-medium text-ink truncate">{formatCurrency(totalOwedByYou)}</h2>
-            <div className="w-8 h-8 shrink-0 rounded-full bg-accent-coral/20 text-accent-coral flex items-center justify-center">
-              <ArrowDownRight className="w-4 h-4 md:w-5 md:h-5" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
+        <div className="bg-[#FDFAF4] rounded-[6px] p-5 border border-[#1A1A1A] shadow-[4px_4px_0px_0px_#1A1A1A] relative overflow-hidden box-border max-w-full">
+          <span className="badge-sendlinks mb-2">LIABILITY</span>
+          <p className="text-[#8A7F72] text-xs font-mono uppercase tracking-wider mb-1">Total Owed by You</p>
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <h2 className="font-serif italic font-normal text-3xl md:text-4xl text-[#1A1A1A] truncate">{formatCurrency(totalOwedByYou)}</h2>
+            <div className="w-8 h-8 shrink-0 rounded-[4px] bg-[#FF4D00] text-white border border-[#1A1A1A] shadow-[1px_1px_0px_0px_#1A1A1A] flex items-center justify-center">
+              <ArrowDownRight className="w-4 h-4 text-white" />
             </div>
           </div>
-          <p className="text-xs text-ink-muted">Across {owedByYou.length} active records</p>
+          <p className="text-xs font-mono text-[#8A7F72]">Across {owedByYou.length} active records</p>
         </div>
 
-        <div className="bg-surface-card rounded-2xl p-4 md:p-6 border border-border/50 shadow-sm relative overflow-hidden box-border max-w-full">
-          <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-accent-green/10 rounded-full blur-2xl" />
-          <p className="text-ink-muted text-sm font-medium mb-1">Total Owed to You</p>
-          <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-4">
-            <h2 className="text-3xl md:text-4xl font-medium text-ink truncate">{formatCurrency(totalOwedToYou)}</h2>
-            <div className="w-8 h-8 shrink-0 rounded-full bg-accent-green/20 text-accent-green flex items-center justify-center">
-              <ArrowUpRight className="w-4 h-4 md:w-5 md:h-5" />
+        <div className="bg-[#FDFAF4] rounded-[6px] p-5 border border-[#1A1A1A] shadow-[4px_4px_0px_0px_#1A1A1A] relative overflow-hidden box-border max-w-full">
+          <span className="badge-sendlinks mb-2">RECEIVABLE</span>
+          <p className="text-[#8A7F72] text-xs font-mono uppercase tracking-wider mb-1">Total Owed to You</p>
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <h2 className="font-serif italic font-normal text-3xl md:text-4xl text-[#1A1A1A] truncate">{formatCurrency(totalOwedToYou)}</h2>
+            <div className="w-8 h-8 shrink-0 rounded-[4px] bg-[#FFE14D] text-[#1A1A1A] border border-[#1A1A1A] shadow-[1px_1px_0px_0px_#1A1A1A] flex items-center justify-center">
+              <ArrowUpRight className="w-4 h-4 text-[#1A1A1A]" />
             </div>
           </div>
-          <p className="text-xs text-ink-muted">Across {owedToYou.length} active records</p>
+          <p className="text-xs font-mono text-[#8A7F72]">Across {owedToYou.length} active records</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         {/* I Owe */}
         <div>
-          <h3 className="text-lg font-medium text-ink mb-4 flex items-center gap-2">
-            <HandCoins className="w-5 h-5 text-accent-coral" /> I Owe
+          <h3 className="font-serif italic font-normal text-xl text-[#1A1A1A] mb-3 flex items-center gap-2">
+            <HandCoins className="w-4 h-4 text-[#FF4D00]" /> I Owe
           </h3>
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3">
             {owedByYou.length > 0 ? owedByYou.map(debt => {
               const progress = ((debt.originalAmount - debt.remainingAmount) / debt.originalAmount) * 100;
               return (
                 <div 
                   key={debt.id} 
-                  className="bg-surface-card p-5 rounded-xl border border-border/50 cursor-pointer hover:border-border transition-colors"
+                  className="bg-[#FDFAF4] p-4 rounded-[6px] border border-[#1A1A1A] shadow-[3px_3px_0px_0px_#1A1A1A] cursor-pointer hover:translate-x-0.5 transition-transform"
                   onClick={() => setSelectedDebt(debt)}
                 >
                   <div className="flex justify-between items-start mb-2">
                     <div>
-                      <h4 className="font-medium text-ink">{debt.title}</h4>
-                      <p className="text-sm text-ink-muted">{debt.personOrOrganization || debt.person}</p>
+                      <h4 className="font-medium text-sm text-[#1A1A1A]">{debt.title}</h4>
+                      <p className="text-xs font-mono text-[#8A7F72] mt-0.5">{debt.personOrOrganization || debt.person}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium text-ink">{formatCurrency(debt.remainingAmount)}</p>
-                      <p className="text-xs text-ink-muted">remaining of {formatCurrency(debt.originalAmount)}</p>
+                      <p className="font-serif italic font-normal text-xl text-[#1A1A1A]">{formatCurrency(debt.remainingAmount)}</p>
+                      <p className="text-[10px] font-mono text-[#8A7F72]">of {formatCurrency(debt.originalAmount)}</p>
                     </div>
                   </div>
-                  <div className="mt-4">
-                    <div className="flex justify-between text-xs text-ink-muted mb-1">
-                      <span>{progress.toFixed(0)}% Paid</span>
+                  <div className="mt-3">
+                    <div className="flex justify-between text-[10px] font-mono text-[#8A7F72] mb-1">
+                      <span>{progress.toFixed(0)}% Repaid</span>
                     </div>
-                    <Progress value={progress} className="h-1.5" />
+                    <div className="h-2 rounded-[2px] bg-[#F5F0E8] border border-[#1A1A1A] overflow-hidden">
+                      <div className="h-full bg-[#1A1A1A]" style={{ width: `${progress}%` }} />
+                    </div>
                   </div>
                   {debt.dueDate && (
-                    <div className="mt-3 text-xs text-ink-muted flex items-center gap-1">
+                    <div className="mt-2.5 text-[10px] font-mono text-[#8A7F72] flex items-center gap-1">
                       <Clock className="w-3 h-3" /> Due {format(parseISO(debt.dueDate), "MMM d, yyyy")}
                     </div>
                   )}
                 </div>
               );
             }) : (
-              <div className="p-8 text-center bg-surface-card rounded-xl border border-dashed border-border">
-                <p className="text-ink-muted text-sm">You're completely debt free! 🎉</p>
+              <div className="p-8 text-center bg-[#FDFAF4] rounded-[6px] border border-[#1A1A1A] shadow-[2px_2px_0px_0px_#1A1A1A]">
+                <p className="text-xs font-mono text-[#8A7F72]">You're completely debt free! 🎉</p>
               </div>
             )}
           </div>
@@ -115,44 +120,46 @@ export function DebtTab() {
 
         {/* Owed to Me */}
         <div>
-          <h3 className="text-lg font-medium text-ink mb-4 flex items-center gap-2">
-            <HandCoins className="w-5 h-5 text-accent-green" /> Owed to Me
+          <h3 className="font-serif italic font-normal text-xl text-[#1A1A1A] mb-3 flex items-center gap-2">
+            <HandCoins className="w-4 h-4 text-[#1A1A1A]" /> Owed to Me
           </h3>
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3">
             {owedToYou.length > 0 ? owedToYou.map(debt => {
               const progress = ((debt.originalAmount - debt.remainingAmount) / debt.originalAmount) * 100;
               return (
                 <div 
                   key={debt.id} 
-                  className="bg-surface-card p-5 rounded-xl border border-border/50 cursor-pointer hover:border-border transition-colors"
+                  className="bg-[#FDFAF4] p-4 rounded-[6px] border border-[#1A1A1A] shadow-[3px_3px_0px_0px_#1A1A1A] cursor-pointer hover:translate-x-0.5 transition-transform"
                   onClick={() => setSelectedDebt(debt)}
                 >
                   <div className="flex justify-between items-start mb-2">
                     <div>
-                      <h4 className="font-medium text-ink">{debt.title}</h4>
-                      <p className="text-sm text-ink-muted">{debt.personOrOrganization || debt.person}</p>
+                      <h4 className="font-medium text-sm text-[#1A1A1A]">{debt.title}</h4>
+                      <p className="text-xs font-mono text-[#8A7F72] mt-0.5">{debt.personOrOrganization || debt.person}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium text-ink">{formatCurrency(debt.remainingAmount)}</p>
-                      <p className="text-xs text-ink-muted">remaining of {formatCurrency(debt.originalAmount)}</p>
+                      <p className="font-serif italic font-normal text-xl text-[#1A1A1A]">{formatCurrency(debt.remainingAmount)}</p>
+                      <p className="text-[10px] font-mono text-[#8A7F72]">of {formatCurrency(debt.originalAmount)}</p>
                     </div>
                   </div>
-                  <div className="mt-4">
-                    <div className="flex justify-between text-xs text-ink-muted mb-1">
+                  <div className="mt-3">
+                    <div className="flex justify-between text-[10px] font-mono text-[#8A7F72] mb-1">
                       <span>{progress.toFixed(0)}% Received</span>
                     </div>
-                    <Progress value={progress} className="h-1.5" />
+                    <div className="h-2 rounded-[2px] bg-[#F5F0E8] border border-[#1A1A1A] overflow-hidden">
+                      <div className="h-full bg-[#FFE14D]" style={{ width: `${progress}%` }} />
+                    </div>
                   </div>
                   {debt.dueDate && (
-                    <div className="mt-3 text-xs text-ink-muted flex items-center gap-1">
+                    <div className="mt-2.5 text-[10px] font-mono text-[#8A7F72] flex items-center gap-1">
                       <Clock className="w-3 h-3" /> Due {format(parseISO(debt.dueDate), "MMM d, yyyy")}
                     </div>
                   )}
                 </div>
               );
             }) : (
-              <div className="p-8 text-center bg-surface-card rounded-xl border border-dashed border-border">
-                <p className="text-ink-muted text-sm">Nobody owes you any money.</p>
+              <div className="p-8 text-center bg-[#FDFAF4] rounded-[6px] border border-[#1A1A1A] shadow-[2px_2px_0px_0px_#1A1A1A]">
+                <p className="text-xs font-mono text-[#8A7F72]">Nobody owes you any money.</p>
               </div>
             )}
           </div>

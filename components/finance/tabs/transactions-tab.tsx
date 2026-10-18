@@ -102,33 +102,36 @@ export function TransactionsTab() {
   });
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-medium text-ink">Transactions</h2>
-          <p className="text-sm text-ink-muted mt-1">View and filter all your financial activity.</p>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="badge-sendlinks">ALL ACTIVITY</span>
+          </div>
+          <h2 className="font-serif italic font-normal text-2xl md:text-3xl text-[#1A1A1A]">Transactions</h2>
+          <p className="text-xs font-sans text-[#8A7F72] mt-0.5">View and filter all your financial activity.</p>
         </div>
       </div>
 
-      <div className="bg-surface-card rounded-2xl border border-border/50 p-4">
-        <div className="flex flex-col md:flex-row gap-4">
+      <div className="bg-[#FDFAF4] rounded-[6px] border border-[#1A1A1A] p-4 shadow-[4px_4px_0px_0px_#1A1A1A]">
+        <div className="flex flex-col md:flex-row gap-3">
           <div className="flex-1 relative">
-            <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted" />
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#8A7F72]" />
             <Input 
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               placeholder="Search by title, category, or note..." 
-              className="pl-10 bg-canvas border-border text-ink"
+              className="pl-9 bg-[#FDFAF4] border-[#1A1A1A] text-[#1A1A1A] text-xs font-mono"
             />
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-3">
             <Select value={filterType} onValueChange={(v: any) => setFilterType(v)}>
-              <SelectTrigger className="w-full sm:w-[140px] bg-canvas border-border text-ink">
-                <Filter className="w-4 h-4 mr-2 text-ink-muted" />
+              <SelectTrigger className="w-full sm:w-[130px] bg-[#FDFAF4] border-[#1A1A1A] text-[#1A1A1A] text-xs font-mono">
+                <Filter className="w-3.5 h-3.5 mr-1.5 text-[#8A7F72]" />
                 <SelectValue placeholder="Type" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-[#FDFAF4] border border-[#1A1A1A] shadow-[4px_4px_0px_0px_#1A1A1A]">
                 <SelectItem value="all">All Types</SelectItem>
                 <SelectItem value="income">Income</SelectItem>
                 <SelectItem value="expense">Expenses</SelectItem>
@@ -137,11 +140,11 @@ export function TransactionsTab() {
             </Select>
 
             <Select value={filterAccount} onValueChange={(val: any) => setFilterAccount(val)}>
-              <SelectTrigger className="w-full sm:w-[180px] bg-canvas border-border text-ink">
-                <Wallet className="w-4 h-4 mr-2 text-ink-muted" />
+              <SelectTrigger className="w-full sm:w-[160px] bg-[#FDFAF4] border-[#1A1A1A] text-[#1A1A1A] text-xs font-mono">
+                <Wallet className="w-3.5 h-3.5 mr-1.5 text-[#8A7F72]" />
                 <SelectValue placeholder="Account" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-[#FDFAF4] border border-[#1A1A1A] shadow-[4px_4px_0px_0px_#1A1A1A]">
                 <SelectItem value="all">All Accounts</SelectItem>
                 {accounts.filter(a => a.isActive).map(acc => (
                   <SelectItem key={acc.id} value={acc.id}>{acc.name}</SelectItem>
@@ -152,35 +155,30 @@ export function TransactionsTab() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2.5">
         {filteredActivity.length > 0 ? (
           filteredActivity.map((tx) => {
             const acc = accounts.find(a => a.id === tx.accountId);
             
             return (
-              <div key={tx.id} className={cn(
-                "p-4 md:p-5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-border/50 hover:border-border transition-colors group",
-                tx.type === 'income' ? 'bg-surface-card bg-gradient-to-r from-accent-green/5 to-transparent' : 
-                tx.type === 'expense' ? 'bg-surface-card bg-gradient-to-r from-accent-coral/5 to-transparent' : 
-                'bg-surface-card bg-gradient-to-r from-accent-blue/5 to-transparent'
-              )}>
-                <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+              <div key={tx.id} className="p-3.5 bg-[#FDFAF4] rounded-[4px] flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-[#1A1A1A] shadow-[2px_2px_0px_0px_#1A1A1A] hover:translate-x-0.5 transition-transform group">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
                   <div className={cn(
-                    "w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center shrink-0", 
-                    tx.type === 'income' ? 'bg-accent-green/10 text-accent-green border border-accent-green/20' : 
-                    tx.type === 'expense' ? 'bg-accent-coral/10 text-accent-coral border border-accent-coral/20' : 
-                    'bg-accent-blue/10 text-accent-blue border border-accent-blue/20'
+                    "w-8 h-8 rounded-[4px] border border-[#1A1A1A] flex items-center justify-center shrink-0 shadow-[1px_1px_0px_0px_#1A1A1A]", 
+                    tx.type === 'income' ? 'bg-[#FFE14D] text-[#1A1A1A]' : 
+                    tx.type === 'expense' ? 'bg-[#FF4D00] text-white' : 
+                    'bg-[#FDFAF4] text-[#1A1A1A]'
                   )}>
-                    {tx.type === 'income' ? <TrendingUp className="w-5 h-5 md:w-6 md:h-6" /> : 
-                     tx.type === 'expense' ? <TrendingDown className="w-5 h-5 md:w-6 md:h-6" /> : 
-                     <ArrowRightLeft className="w-5 h-5 md:w-6 md:h-6" />}
+                    {tx.type === 'income' ? <TrendingUp className="w-4 h-4" /> : 
+                     tx.type === 'expense' ? <TrendingDown className="w-4 h-4" /> : 
+                     <ArrowRightLeft className="w-4 h-4" />}
                   </div>
                   
                   <div className="min-w-0 flex-1">
-                    <h4 className="text-base md:text-lg font-medium text-ink mb-1 truncate">{tx.title || tx.category}</h4>
-                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs md:text-sm text-ink-muted">
+                    <h4 className="text-sm font-medium text-[#1A1A1A] mb-0.5 truncate">{tx.title || tx.category}</h4>
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs font-mono text-[#8A7F72]">
                       <span className="whitespace-nowrap">{format(parseISO(tx.date), "MMM d, yyyy")}</span>
-                      <span className="hidden sm:inline">•</span>
+                      <span>•</span>
                       <span className="flex items-center gap-1 truncate max-w-full">
                         <Wallet className="w-3 h-3 shrink-0" />
                         <span className="truncate">
@@ -192,49 +190,49 @@ export function TransactionsTab() {
                       </span>
                       {tx.category !== 'Transfer' && (
                         <>
-                          <span className="hidden sm:inline">•</span>
-                          <span className="bg-canvas px-2 py-0.5 rounded-md border border-border/50 text-[10px] md:text-xs shrink-0">{tx.category}</span>
+                          <span>•</span>
+                          <span className="bg-[#F5F0E8] px-1.5 py-0.2 rounded-[2px] border border-[#1A1A1A]/30 text-[10px] shrink-0 text-[#1A1A1A]">{tx.category}</span>
                         </>
                       )}
                     </div>
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-2 sm:gap-4 pl-2 sm:pl-0 shrink-0">
-                  <div className="flex flex-col items-end">
-                    <span className={cn("text-base md:text-lg font-medium", 
-                      tx.type === 'income' ? 'text-accent-green' : 
-                      tx.type === 'expense' ? 'text-ink' : 
-                      'text-ink-muted'
+                <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
+                  <div className="flex flex-col sm:items-end">
+                    <span className={cn("text-sm font-mono font-medium", 
+                      tx.type === 'income' ? 'text-[#1A1A1A]' : 
+                      tx.type === 'expense' ? 'text-[#FF4D00]' : 
+                      'text-[#8A7F72]'
                     )}>
                       {tx.type === 'income' ? '+' : tx.type === 'expense' ? '-' : ''}{formatCurrency(tx.amount)}
                     </span>
                     {tx.notes && (
-                      <span className="text-xs md:text-sm text-ink-muted mt-1 max-w-[120px] sm:max-w-[200px] truncate">{tx.notes}</span>
+                      <span className="text-xs text-[#8A7F72] max-w-[150px] sm:max-w-[200px] truncate">{tx.notes}</span>
                     )}
                   </div>
                   {!tx.isTransfer && (
                     <DropdownMenu>
                       <DropdownMenuTrigger>
-                        <button className="p-2 -mr-2 rounded-lg hover:bg-canvas text-ink-muted hover:text-ink transition-colors opacity-100 md:opacity-0 md:group-hover:opacity-100">
+                        <button className="p-1.5 rounded-[3px] border border-[#1A1A1A]/20 hover:border-[#1A1A1A] text-[#8A7F72] hover:text-[#1A1A1A] transition-colors">
                           <span className="sr-only">Open menu</span>
-                          <div className="w-5 h-5 flex items-center justify-center">
+                          <div className="w-4 h-4 flex items-center justify-center">
                             <span className="w-1 h-1 bg-current rounded-full mx-[1px]" />
                             <span className="w-1 h-1 bg-current rounded-full mx-[1px]" />
                             <span className="w-1 h-1 bg-current rounded-full mx-[1px]" />
                           </div>
                         </button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-40 bg-surface-card border-border">
+                      <DropdownMenuContent align="end" className="w-36 bg-[#FDFAF4] border border-[#1A1A1A] shadow-[4px_4px_0px_0px_#1A1A1A] rounded-[4px] p-1 font-mono text-xs">
                         <DropdownMenuItem 
                           onClick={() => setTransactionToEdit(tx)}
-                          className="cursor-pointer text-ink hover:text-ink hover:bg-canvas focus:bg-canvas"
+                          className="cursor-pointer text-[#1A1A1A] hover:bg-[#FFE14D] focus:bg-[#FFE14D]"
                         >
                           Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem 
                           onClick={() => handleDeleteTransaction(tx.id)}
-                          className="cursor-pointer text-accent-coral hover:text-accent-coral hover:bg-accent-coral/10 focus:bg-accent-coral/10 focus:text-accent-coral"
+                          className="cursor-pointer text-[#FF4D00] hover:bg-[#FF4D00]/10 focus:bg-[#FF4D00]/10 focus:text-[#FF4D00]"
                         >
                           Delete
                         </DropdownMenuItem>
@@ -246,12 +244,12 @@ export function TransactionsTab() {
             );
           })
         ) : (
-          <div className="text-center py-20 bg-surface-card rounded-2xl border border-dashed border-border">
-            <div className="w-16 h-16 rounded-full bg-canvas flex items-center justify-center mx-auto mb-4">
-              <Search className="w-8 h-8 text-ink-muted" />
+          <div className="text-center py-16 bg-[#FDFAF4] rounded-[6px] border border-[#1A1A1A] shadow-[4px_4px_0px_0px_#1A1A1A]">
+            <div className="w-12 h-12 rounded-[4px] bg-[#F5F0E8] border border-[#1A1A1A] flex items-center justify-center mx-auto mb-3">
+              <Search className="w-6 h-6 text-[#8A7F72]" />
             </div>
-            <h3 className="text-lg font-medium text-ink">No transactions found</h3>
-            <p className="text-ink-muted mt-1 max-w-sm mx-auto">
+            <h3 className="font-serif italic font-normal text-xl text-[#1A1A1A]">No transactions found</h3>
+            <p className="text-xs text-[#8A7F72] mt-1 max-w-sm mx-auto">
               Try adjusting your filters or search terms, or add a new transaction.
             </p>
           </div>

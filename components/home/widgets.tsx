@@ -20,37 +20,40 @@ export function WidgetHabits({ size }: { size: 'small' | 'large' }) {
 
   return (
     <div className="flex flex-col h-full justify-between">
-      <div className="flex items-center gap-2 mb-4">
-        <div className="w-8 h-8 rounded-full bg-canvas text-accent-yellow flex items-center justify-center">
-          <CheckCircle className="w-4 h-4" />
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-[3px] bg-[#FFE14D] text-[#1A1A1A] border border-[#1A1A1A] shadow-[1px_1px_0px_0px_#1A1A1A] flex items-center justify-center">
+            <CheckCircle className="w-4 h-4" />
+          </div>
+          <h3 className="font-serif text-lg font-normal text-[#1A1A1A]">Daily Habits</h3>
         </div>
-        <h3 className="font-medium text-ink">Habits Today</h3>
+        <span className="badge-sendlinks">GOALS</span>
       </div>
       
       <div className="flex-1 flex flex-col justify-center items-center">
         <div className="relative w-24 h-24 flex items-center justify-center mb-2">
           <svg className="w-full h-full -rotate-90 absolute top-0 left-0" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="40" stroke="var(--color-canvas)" strokeWidth="8" fill="transparent" />
+            <circle cx="50" cy="50" r="40" stroke="#EDE8DC" strokeWidth="8" fill="transparent" />
             <circle 
               cx="50" 
               cy="50" 
               r="40" 
-              stroke="var(--color-accent-yellow)" 
+              stroke="#FF4D00" 
               strokeWidth="8" 
               fill="transparent" 
-              strokeLinecap="round"
+              strokeLinecap="butt"
               strokeDasharray={2 * Math.PI * 40}
               strokeDashoffset={(2 * Math.PI * 40) * (1 - (totalCount === 0 ? 0 : completedCount / totalCount))}
             />
           </svg>
           <div className="text-center">
-            <span className="text-xl font-medium text-ink">{completedCount}</span>
-            <span className="text-ink-muted">/{totalCount}</span>
+            <span className="font-serif text-2xl font-normal text-[#1A1A1A]">{completedCount}</span>
+            <span className="font-sans text-xs text-[#544C40]">/{totalCount}</span>
           </div>
         </div>
         {size === 'large' && (
-          <p className="text-sm text-ink-muted text-center max-w-[200px]">
-            Keep up the good work! You are on track today.
+          <p className="text-xs text-[#544C40] text-center max-w-[200px] mt-1 font-sans">
+            Consistent rhythm builds lifelong progress.
           </p>
         )}
       </div>
@@ -67,21 +70,25 @@ export function WidgetPomodoro({ size }: { size: 'small' | 'large' }) {
 
   return (
     <div className="flex flex-col h-full justify-between">
-      <div className="flex items-center gap-2 mb-4">
-        <div className="w-8 h-8 rounded-full bg-canvas text-accent-coral flex items-center justify-center">
-          <Timer className="w-4 h-4" />
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-[3px] bg-[#FF4D00] text-white border border-[#1A1A1A] shadow-[1px_1px_0px_0px_#1A1A1A] flex items-center justify-center">
+            <Timer className="w-4 h-4" />
+          </div>
+          <h3 className="font-serif text-lg font-normal text-[#1A1A1A]">Focus Timer</h3>
         </div>
-        <h3 className="font-medium text-ink">Pomodoro</h3>
+        <span className="badge-sendlinks">{mode.toUpperCase()}</span>
       </div>
       
-      <div className="flex-1 flex flex-col justify-center items-center gap-4">
-        <div className="text-4xl font-mono tracking-tight text-ink">
+      <div className="flex-1 flex flex-col justify-center items-center gap-3">
+        <div className="text-4xl font-mono tracking-tight font-normal text-[#1A1A1A]">
           {minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
         </div>
         
         <div className="flex gap-2">
           <Button 
             size="sm"
+            variant={isRunning ? "outline" : "default"}
             onClick={(e) => {
               e.stopPropagation();
               setPomodoroState({ 
@@ -89,10 +96,9 @@ export function WidgetPomodoro({ size }: { size: 'small' | 'large' }) {
                 targetEndTime: !isRunning ? Date.now() + timeLeft * 1000 : undefined 
               });
             }}
-            className={`rounded-full ${mode === 'focus' ? 'bg-accent-yellow text-white hover:bg-accent-yellow/90' : 'bg-accent-coral text-white hover:bg-accent-coral/90'}`}
           >
-            {isRunning ? <Pause className="w-4 h-4 mr-1" /> : <Play className="w-4 h-4 mr-1" />}
-            {isRunning ? 'Pause' : 'Start'}
+            {isRunning ? <Pause className="w-3.5 h-3.5 mr-1" /> : <Play className="w-3.5 h-3.5 mr-1" />}
+            {isRunning ? 'Pause' : 'Start Session'}
           </Button>
         </div>
       </div>
@@ -110,28 +116,31 @@ export function WidgetTodos({ size }: { size: 'small' | 'large' }) {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center gap-2 mb-4">
-        <div className="w-8 h-8 rounded-full bg-canvas text-ink flex items-center justify-center">
-          <ListTodo className="w-4 h-4" />
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-[3px] bg-[#FDFAF4] text-[#1A1A1A] border border-[#1A1A1A] shadow-[1px_1px_0px_0px_#1A1A1A] flex items-center justify-center">
+            <ListTodo className="w-4 h-4" />
+          </div>
+          <h3 className="font-serif text-lg font-normal text-[#1A1A1A]">Active Tasks</h3>
         </div>
-        <h3 className="font-medium text-ink">Tasks</h3>
+        <span className="badge-sendlinks">TODO</span>
       </div>
       
       <div className="flex flex-col gap-2 flex-1">
         {incompleteTodos.slice(0, displayCount).map((todo: any) => (
-          <div key={todo.id} className="flex items-start gap-2 bg-canvas/50 p-2 rounded-lg">
-            <div className="w-4 h-4 mt-0.5 rounded-sm border border-ink-muted/50" />
-            <p className="text-sm text-ink truncate flex-1">{todo.title}</p>
+          <div key={todo.id} className="flex items-start gap-2 bg-[#F5F0E8] p-2 rounded-[3px] border border-[#1A1A1A]/30">
+            <div className="w-3.5 h-3.5 mt-0.5 rounded-[2px] border border-[#1A1A1A] bg-white shrink-0" />
+            <p className="text-xs text-[#1A1A1A] truncate flex-1 font-sans">{todo.title}</p>
           </div>
         ))}
         {incompleteTodos.length === 0 && (
-          <div className="flex-1 flex items-center justify-center text-sm text-ink-muted">
-            All caught up!
+          <div className="flex-1 flex items-center justify-center text-xs text-[#544C40] font-sans">
+            All tasks clear for today
           </div>
         )}
         {incompleteTodos.length > displayCount && (
-          <p className="text-xs text-ink-muted text-center mt-1">
-            +{incompleteTodos.length - displayCount} more
+          <p className="text-[11px] text-[#544C40] text-center mt-1 font-sans">
+            +{incompleteTodos.length - displayCount} more items
           </p>
         )}
       </div>
@@ -153,22 +162,25 @@ export function WidgetReminders({ size }: { size: 'small' | 'large' }) {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center gap-2 mb-4">
-        <div className="w-8 h-8 rounded-full bg-canvas text-accent-yellow flex items-center justify-center">
-          <Bell className="w-4 h-4" />
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-[3px] bg-[#FFE14D] text-[#1A1A1A] border border-[#1A1A1A] shadow-[1px_1px_0px_0px_#1A1A1A] flex items-center justify-center">
+            <Bell className="w-4 h-4" />
+          </div>
+          <h3 className="font-serif text-lg font-normal text-[#1A1A1A]">Upcoming</h3>
         </div>
-        <h3 className="font-medium text-ink">Next Up</h3>
+        <span className="badge-sendlinks">ALERTS</span>
       </div>
       
-      <div className="flex flex-col gap-3 flex-1">
+      <div className="flex flex-col gap-2 flex-1">
         {upcoming.slice(0, displayCount).map((reminder: any) => (
-          <div key={reminder.id} className="flex flex-col gap-0.5">
-            <p className="text-sm font-medium text-ink truncate">{reminder.title}</p>
-            <p className="text-xs text-ink-muted">{format(new Date(reminder.fireAt), "MMM d, h:mm a")}</p>
+          <div key={reminder.id} className="flex flex-col gap-0.5 bg-[#F5F0E8] p-2 rounded-[3px] border border-[#1A1A1A]/30">
+            <p className="text-xs font-medium text-[#1A1A1A] truncate font-sans">{reminder.title}</p>
+            <p className="text-[11px] text-[#544C40] font-mono">{format(new Date(reminder.fireAt), "MMM d, h:mm a")}</p>
           </div>
         ))}
         {upcoming.length === 0 && (
-          <div className="flex-1 flex items-center justify-center text-sm text-ink-muted">
+          <div className="flex-1 flex items-center justify-center text-xs text-[#544C40] font-sans">
             No upcoming reminders
           </div>
         )}
@@ -197,26 +209,29 @@ export function WidgetFinance({ size }: { size: 'small' | 'large' }) {
 
   return (
     <div className="flex flex-col h-full justify-between">
-      <div className="flex items-center gap-2 mb-4">
-        <div className="w-8 h-8 rounded-full bg-canvas text-accent-coral flex items-center justify-center">
-          <Wallet className="w-4 h-4" />
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-[3px] bg-[#FDFAF4] text-[#1A1A1A] border border-[#1A1A1A] shadow-[1px_1px_0px_0px_#1A1A1A] flex items-center justify-center">
+            <Wallet className="w-4 h-4" />
+          </div>
+          <h3 className="font-serif text-lg font-normal text-[#1A1A1A]">Monthly Ledger</h3>
         </div>
-        <h3 className="font-medium text-ink">This Month</h3>
+        <span className="badge-sendlinks">CASH</span>
       </div>
       
       <div className="flex-1 flex flex-col justify-center gap-1">
-        <p className="text-xs text-ink-muted uppercase tracking-wider">Net Balance</p>
-        <h4 className="text-2xl font-medium text-ink">{formatCurrency(net, false)}</h4>
+        <p className="text-[11px] text-[#544C40] uppercase font-mono tracking-wider">Net Balance</p>
+        <h4 className="font-serif text-2xl md:text-3xl font-normal text-[#1A1A1A]">{formatCurrency(net, false)}</h4>
         
         {size === 'large' && (
-          <div className="flex gap-4 mt-4">
+          <div className="flex gap-4 mt-3 pt-2 border-t border-[#1A1A1A]/10">
             <div>
-              <p className="text-xs text-ink-muted">In</p>
-              <p className="text-sm font-medium text-ink">{formatCurrency(income, true)}</p>
+              <p className="text-[10px] text-[#544C40] uppercase font-mono">Inflow</p>
+              <p className="text-xs font-mono font-medium text-[#1A1A1A]">{formatCurrency(income, true)}</p>
             </div>
             <div>
-              <p className="text-xs text-ink-muted">Out</p>
-              <p className="text-sm font-medium text-ink">{formatCurrency(expense, true)}</p>
+              <p className="text-[10px] text-[#544C40] uppercase font-mono">Outflow</p>
+              <p className="text-xs font-mono font-medium text-[#FF4D00]">{formatCurrency(expense, true)}</p>
             </div>
           </div>
         )}

@@ -4,10 +4,14 @@ import { AddReminderDialog } from "@/components/reminders/add-reminder-dialog";
 export default function RemindersPage() {
   return (
     <div className="p-8 max-w-3xl mx-auto h-full flex flex-col gap-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#1A1A1A]/10">
         <div>
-          <h1 className="text-3xl font-medium text-ink">Reminders</h1>
-          <p className="text-ink-muted mt-1">Get notified for important events.</p>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="badge-sendlinks">SCHEDULE</span>
+            <span className="text-xs font-mono text-[#8A7F72]">NOTIFICATIONS</span>
+          </div>
+          <h1 className="font-serif italic font-normal text-3xl sm:text-4xl text-[#1A1A1A] tracking-tight">Reminders</h1>
+          <p className="text-sm font-sans text-[#8A7F72] mt-0.5">Get notified for important events.</p>
         </div>
         <AddReminderDialog />
       </div>

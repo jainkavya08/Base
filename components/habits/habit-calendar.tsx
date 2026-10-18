@@ -5,7 +5,7 @@ import useSWR, { useSWRConfig } from "swr";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, isFuture, startOfDay, addDays } from "date-fns";
 import { fetchApi, fetcher } from "@/lib/api";
 import type { Habit } from "@/lib/db";
-import { ChevronLeft, ChevronRight, CheckCircle, Circle } from "lucide-react";
+import { CheckCircle, Circle } from "lucide-react";
 import { getHabitStatusForDate } from "@/lib/habits-logic";
 import {
   Popover,
@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/popover";
 import { HabitIcon } from "@/components/ui/habit-icon";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 
 export function HabitCalendar() {
   const { data: habitsData, isLoading: habitsLoading } = useSWR('/api/habits/habits.php', fetcher);
@@ -60,9 +59,9 @@ export function HabitCalendar() {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       {/* Month Selector Pills */}
-      <div className="flex justify-between gap-2 overflow-x-auto scrollbar-hide">
+      <div className="flex justify-between gap-1.5 overflow-x-auto scrollbar-hide pb-1">
         {monthsList.map(m => {
           const isSelected = m.getMonth() === currentMonth.getMonth() && m.getFullYear() === currentMonth.getFullYear();
           return (
@@ -70,19 +69,26 @@ export function HabitCalendar() {
               key={m.toISOString()}
               onClick={() => setCurrentMonth(m)}
               className={cn(
-                "px-6 py-2 rounded-full font-medium transition-colors min-w-[80px]",
-                isSelected ? "bg-accent-blue text-white shadow-md" : "bg-surface-card text-ink hover:bg-canvas"
+                "px-4 py-1.5 rounded-[4px] text-xs font-sans font-medium transition-all min-w-[70px]",
+                isSelected 
+                  ? "bg-[#1A1A1A] text-[#FFE14D] border border-[#1A1A1A] shadow-[2px_2px_0px_0px_#FF4D00]" 
+                  : "bg-[#FDFAF4] text-[#1A1A1A] border border-[#1A1A1A] shadow-[1px_1px_0px_0px_#1A1A1A] hover:bg-[#FFE14D]"
               )}
             >
-              {format(m, "MMM")}
+              {format(m, "MMM yyyy")}
             </button>
           );
         })}
       </div>
 
       {/* Calendar Card */}
-      <div className="bg-surface-card rounded-[32px] p-4 md:p-6 shadow-sm border border-border/50">
-        <div className="grid grid-cols-7 gap-y-4 text-center text-xs md:text-sm">
+      <div className="bg-[#FDFAF4] rounded-[6px] p-4 md:p-5 border border-[#1A1A1A] shadow-[4px_4px_0px_0px_#1A1A1A]">
+        <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#1A1A1A]/10">
+          <span className="badge-sendlinks">MONTHLY OVERVIEW</span>
+          <span className="text-xs font-mono text-[#8A7F72]">{format(currentMonth, "MMMM yyyy")}</span>
+        </div>
+
+        <div className="grid grid-cols-7 gap-y-2 text-center text-xs">
           {/* Days Header */}
           {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => {
             const isTodayDay = today.getDay() === i;
@@ -90,8 +96,8 @@ export function HabitCalendar() {
               <div 
                 key={`header-${i}`} 
                 className={cn(
-                  "font-bold pb-2 md:pb-4",
-                  isTodayDay ? "text-accent-blue" : "text-ink"
+                  "font-mono font-medium pb-2",
+                  isTodayDay ? "text-[#FF4D00] font-bold" : "text-[#8A7F72]"
                 )}
               >
                 {day}
@@ -105,7 +111,7 @@ export function HabitCalendar() {
           ))}
 
           {/* Days */}
-          {daysInMonth.map((date, idx) => {
+          {daysInMonth.map((date) => {
             const isToday = isSameDay(date, today);
             const isFutureDate = isFuture(date) && !isToday;
             
@@ -127,103 +133,68 @@ export function HabitCalendar() {
             const isMissed = dayTotal > 0 && dayCompleted === 0 && !isSameDay(date, today);
             const isPartial = dayTotal > 0 && dayCompleted > 0 && dayCompleted < dayTotal;
 
-            // Check if adjacent days are also completed to show a continuous background (streak)
-            let prevCompleted = false;
-            let nextCompleted = false;
-            
-            if (isAllCompleted) {
-              const prevDate = addDays(date, -1);
-              const nextDate = addDays(date, 1);
-              
-              if (prevDate.getMonth() === currentMonth.getMonth()) {
-                let prevTotal = 0, prevComp = 0;
-                habits.forEach((habit: any) => {
-                  if (habit.paused) return;
-                  const st = getHabitStatusForDate(habit, completions, prevDate);
-                  if (st !== 'inactive' && st !== 'future') { prevTotal++; if (st === 'completed') prevComp++; }
-                });
-                if (prevTotal > 0 && prevComp === prevTotal) prevCompleted = true;
-              }
-              
-              if (nextDate.getMonth() === currentMonth.getMonth() && (!isFuture(nextDate) || isSameDay(nextDate, today))) {
-                let nextTotal = 0, nextComp = 0;
-                habits.forEach((habit: any) => {
-                  if (habit.paused) return;
-                  const st = getHabitStatusForDate(habit, completions, nextDate);
-                  if (st !== 'inactive' && st !== 'future') { nextTotal++; if (st === 'completed') nextComp++; }
-                });
-                if (nextTotal > 0 && nextComp === nextTotal) nextCompleted = true;
-              }
-            }
-
             return (
               <Popover key={date.toString()} open={selectedDate && isSameDay(selectedDate, date) ? true : false} onOpenChange={(v) => !v && setSelectedDate(null)}>
                 <PopoverTrigger render={
                   <div 
-                    className="relative flex justify-center items-center h-8 sm:h-10 w-full group cursor-pointer"
+                    className="relative flex justify-center items-center h-8 sm:h-9 w-full group cursor-pointer"
                     onClick={() => !isFutureDate && setSelectedDate(date)}
                   >
-                    {/* Connecting background for streaks */}
-                    {isAllCompleted && (prevCompleted || nextCompleted) && (
-                      <div className={cn(
-                        "absolute top-1/2 -translate-y-1/2 h-6 sm:h-8 bg-accent-blue/15 z-0",
-                        prevCompleted && nextCompleted ? "w-full left-0" : 
-                        prevCompleted ? "w-1/2 left-0" : 
-                        nextCompleted ? "w-1/2 right-0" : ""
-                      )} />
-                    )}
-
                     <button 
                       disabled={isFutureDate}
                       className={cn(
-                        "w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors text-xs sm:text-sm font-medium z-10 relative",
-                        isAllCompleted ? 'bg-accent-blue text-white' : 
-                        isMissed ? 'bg-[repeating-linear-gradient(45deg,var(--color-border),var(--color-border)_2px,transparent_2px,transparent_6px)] text-transparent border border-border/50' :
-                        isPartial ? 'bg-accent-blue/20 text-accent-blue' :
-                        isFutureDate ? 'text-ink-muted/60 cursor-default bg-canvas/30' : 
-                        isToday ? 'border-2 border-accent-blue text-accent-blue' :
-                        'bg-canvas/50 text-ink hover:bg-canvas'
+                        "w-7 h-7 sm:w-8 sm:h-8 rounded-[3px] border flex items-center justify-center transition-transform text-xs font-mono font-medium z-10 relative",
+                        isAllCompleted 
+                          ? "bg-[#FFE14D] text-[#1A1A1A] border-[#1A1A1A] shadow-[1px_1px_0px_0px_#1A1A1A] font-bold" 
+                          : isToday 
+                          ? "bg-[#1A1A1A] text-white border-2 border-[#1A1A1A] shadow-[2px_2px_0px_0px_#FF4D00]" 
+                          : isPartial 
+                          ? "bg-[#C8E6C9] text-[#1A1A1A] border-[#1A1A1A]" 
+                          : isMissed 
+                          ? "bg-[#EDE8DC] text-[#8A7F72] border-[#1A1A1A]/30" 
+                          : isFutureDate 
+                          ? "text-[#8A7F72]/40 border-transparent bg-transparent cursor-default" 
+                          : "bg-[#F5F0E8] text-[#1A1A1A] border-[#1A1A1A]/40 hover:bg-[#FFE14D]"
                       )}
                     >
-                      {/* For missed days with stripes, we want the text invisible but maybe show it slightly or not at all. The image shows no text for stripes, but let's just make it transparent above */}
-                      <span className={isMissed ? 'invisible' : ''}>{format(date, "d")}</span>
+                      <span>{format(date, "d")}</span>
                     </button>
                   </div>
                 } />
-                <PopoverContent side="left" align="start" className="w-64 bg-surface-card border-none shadow-xl p-4 z-50">
-                  <div className="flex justify-between items-center mb-4">
-                    <h4 className="font-medium text-ink">{format(date, 'MMMM d')}</h4>
-                    <span className="text-xs text-ink-muted">{dayCompleted} / {dayTotal} completed</span>
+                <PopoverContent side="left" align="start" className="w-64 bg-[#FDFAF4] border border-[#1A1A1A] shadow-[6px_6px_0px_0px_#1A1A1A] rounded-[6px] p-4 z-50">
+                  <div className="flex justify-between items-center mb-3 pb-2 border-b border-[#1A1A1A]/10">
+                    <h4 className="font-serif text-lg font-normal text-[#1A1A1A]">{format(date, 'MMMM d')}</h4>
+                    <span className="badge-sendlinks">{dayCompleted}/{dayTotal}</span>
                   </div>
                   
                   {dayTotal === 0 ? (
-                    <p className="text-sm text-ink-muted">No habits scheduled for this day.</p>
+                    <p className="text-xs text-[#8A7F72] font-sans">No habits scheduled for this day.</p>
                   ) : (
-                    <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-2">
                       {habits.filter((h: any) => !h.paused && getHabitStatusForDate(h, completions, date) !== 'inactive' && getHabitStatusForDate(h, completions, date) !== 'future').map((habit: any) => {
                         const status = getHabitStatusForDate(habit, completions, date);
                         const isCompleted = status === 'completed';
                         return (
-                          <div key={habit.id} className="flex items-center justify-between">
+                          <div key={habit.id} className="flex items-center justify-between p-1.5 bg-[#F5F0E8] rounded-[3px] border border-[#1A1A1A]/20">
                             <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 flex items-center justify-center shrink-0">
-                                <HabitIcon icon={habit.icon} className="w-4 h-4 text-ink" />
+                              <div className="w-5 h-5 flex items-center justify-center shrink-0">
+                                <HabitIcon icon={habit.icon} className="w-3.5 h-3.5 text-[#1A1A1A]" />
                               </div>
-                              <span className="text-sm font-medium text-ink">{habit.title}</span>
+                              <span className="text-xs font-sans font-medium text-[#1A1A1A]">{habit.title}</span>
                             </div>
                             {(habit.type === 'daily' || habit.type === 'avoid' || habit.type === 'weekly') ? (
                               <button 
                                 onClick={() => toggleHistoricalCompletion(habit, date)}
                                 className={cn(
-                                  "w-6 h-6 rounded-full flex items-center justify-center transition-colors",
-                                  isCompleted ? "text-accent-blue" : "text-ink-muted hover:text-ink hover:bg-canvas"
+                                  "w-5 h-5 rounded-[2px] border border-[#1A1A1A] flex items-center justify-center transition-colors",
+                                  isCompleted ? "bg-[#FFE14D] text-[#1A1A1A]" : "bg-white text-[#8A7F72] hover:bg-[#FFE14D]"
                                 )}
                               >
-                                {isCompleted ? <CheckCircle className="w-5 h-5" /> : <Circle className="w-5 h-5" />}
+                                {isCompleted ? <CheckCircle className="w-3.5 h-3.5" /> : <Circle className="w-3.5 h-3.5" />}
                               </button>
                             ) : (
-                               <span className="text-xs text-ink-muted font-medium bg-canvas px-2 py-0.5 rounded-md">
-                                 {isCompleted ? 'Completed' : 'Pending'}
+                               <span className="text-[10px] font-mono text-[#8A7F72]">
+                                 {isCompleted ? 'Done' : 'Pending'}
                                </span>
                             )}
                           </div>

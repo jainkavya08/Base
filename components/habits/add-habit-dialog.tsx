@@ -106,9 +106,9 @@ export function AddHabitDialog() {
   return (
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if(!v) resetForm(); }}>
       <DialogTrigger render={
-        <Button className="rounded-full bg-accent-blue text-white hover:bg-accent-blue/90 transition-transform active:scale-95">
-          <Plus className="w-5 h-5 mr-1" />
-          Add New
+        <Button variant="cta" className="h-[38px] px-4 font-sans font-medium text-sm">
+          <Plus className="w-4 h-4 mr-1.5" />
+          New Habit
         </Button>
       } />
       <DialogContent className="sm:max-w-[450px] bg-surface-card border-none shadow-xl max-h-[90vh] overflow-y-auto">
@@ -342,7 +342,7 @@ export function AddHabitDialog() {
             <Button type="button" variant="ghost" onClick={() => setOpen(false)} className="text-ink-muted hover:text-ink hover:bg-canvas">
               Cancel
             </Button>
-            <Button type="submit" className="bg-accent-blue text-white hover:bg-accent-blue/90">
+            <Button type="submit" variant="cta">
               Create Habit
             </Button>
           </div>

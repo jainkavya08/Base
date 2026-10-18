@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { useDockStore, QuickLink } from "@/lib/dock-store";
+import { useDockStore } from "@/lib/dock-store";
 import { AddLinkDialog, AVAILABLE_ICONS, IconName } from "./add-link-dialog";
 import { Trash2, Home, CheckCircle, Timer, ListTodo, Wallet } from "lucide-react";
 import Link from "next/link";
@@ -15,6 +15,7 @@ const SYSTEM_LINKS = [
   { id: "sys-todos", type: "system", name: "Todos", url: "/todos", icon: ListTodo },
   { id: "sys-finance", type: "system", name: "Finance", url: "/finance", icon: Wallet },
 ];
+
 function DockItem({ 
   link, 
   mouseX 
@@ -31,8 +32,8 @@ function DockItem({
   });
 
   // Calculate width/scale based on distance to mouse
-  const widthSync = useTransform(distance, [-150, 0, 150], [48, 80, 48]);
-  const width = useSpring(widthSync, { mass: 0.1, stiffness: 150, damping: 12 });
+  const widthSync = useTransform(distance, [-120, 0, 120], [44, 62, 44]);
+  const width = useSpring(widthSync, { mass: 0.1, stiffness: 200, damping: 15 });
 
   const getFaviconUrl = (url: string) => {
     try {
@@ -56,24 +57,26 @@ function DockItem({
         <motion.div
           ref={ref}
           style={{ width, height: width }}
-          className="rounded-2xl bg-surface-card/80 backdrop-blur-md border border-border/50 flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow relative cursor-pointer overflow-hidden group"
+          className={cn(
+            "rounded-[4px] bg-[#FDFAF4] border border-[#1A1A1A] shadow-[2px_2px_0px_0px_#1A1A1A] flex items-center justify-center relative cursor-pointer overflow-hidden transition-colors hover:bg-[#FFE14D] hover:shadow-[3px_3px_0px_0px_#1A1A1A] active:translate-x-[1px] active:translate-y-[1px]"
+          )}
         >
           {link.type === 'system' && link.icon ? (
-            <link.icon className="w-6 h-6 text-ink relative z-10" strokeWidth={2} />
+            <link.icon className="w-5 h-5 text-[#1A1A1A] relative z-10" strokeWidth={2} />
           ) : link.icon && AVAILABLE_ICONS[link.icon as IconName] ? (
             (() => {
               const Icon = AVAILABLE_ICONS[link.icon as IconName];
-              return <Icon className="w-6 h-6 text-ink relative z-10" strokeWidth={2} />;
+              return <Icon className="w-5 h-5 text-[#1A1A1A] relative z-10" strokeWidth={2} />;
             })()
           ) : favicon ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={favicon} alt={link.name} className="w-2/3 h-2/3 object-contain pointer-events-none rounded-lg" />
+            <img src={favicon} alt={link.name} className="w-2/3 h-2/3 object-contain pointer-events-none rounded-[2px]" />
           ) : (
-            <span className="text-xl font-medium text-ink pointer-events-none">{link.name.charAt(0).toUpperCase()}</span>
+            <span className="text-sm font-serif font-bold text-[#1A1A1A] pointer-events-none">{link.name.charAt(0).toUpperCase()}</span>
           )}
           
           {/* Tooltip */}
-          <div className="absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none px-3 py-1.5 bg-surface-dark/90 backdrop-blur-sm text-white text-xs rounded-lg shadow-lg whitespace-nowrap">
+          <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none px-2.5 py-1 bg-[#1A1A1A] text-white text-[11px] font-sans font-medium rounded-[2px] border border-[#1A1A1A] shadow-[2px_2px_0px_0px_#FF4D00] whitespace-nowrap z-50">
             {link.name}
           </div>
         </motion.div>
@@ -89,7 +92,7 @@ function DockItem({
               e.stopPropagation();
               removeQuickLink(link.id);
             }}
-            className="absolute -top-2 -right-2 w-5 h-5 bg-surface-dark text-white rounded-full flex items-center justify-center opacity-0 group-hover/dock-item:opacity-100 transition-opacity hover:bg-accent-coral z-10"
+            className="absolute -top-2 -right-2 w-5 h-5 bg-[#FF4D00] text-white border border-[#1A1A1A] rounded-[2px] flex items-center justify-center opacity-0 group-hover/dock-item:opacity-100 transition-opacity hover:bg-[#1A1A1A] z-10 shadow-[1px_1px_0px_0px_#1A1A1A]"
           >
             <Trash2 className="w-3 h-3" />
           </button>
@@ -111,7 +114,7 @@ export function QuickDock() {
       <motion.div
         onMouseMove={(e) => mouseX.set(e.pageX)}
         onMouseLeave={() => mouseX.set(Infinity)}
-        className="flex items-end gap-3 px-4 py-3 rounded-3xl bg-canvas/30 backdrop-blur-xl border border-border/30 shadow-2xl"
+        className="flex items-end gap-2.5 px-4 py-2.5 rounded-[6px] bg-[#FDFAF4] border-2 border-[#1A1A1A] shadow-[5px_5px_0px_0px_#1A1A1A]"
       >
         {displayLinks.map((link) => (
           <DockItem key={link.id} link={link} mouseX={mouseX} />
@@ -119,7 +122,7 @@ export function QuickDock() {
         
         {/* Divider if we have custom links */}
         {quickLinks.length > 0 && hasHydrated && (
-          <div className="w-px h-10 bg-border/50 mx-1 self-center" />
+          <div className="w-[1px] h-8 bg-[#1A1A1A]/30 mx-1 self-center" />
         )}
         
         <AddLinkDialog />

@@ -62,19 +62,20 @@ function SortableWidget({ id, size }: { id: string, size: 'small' | 'large' }) {
       ref={setNodeRef} 
       style={style} 
       className={cn(
-        "bg-surface-card rounded-2xl p-6 shadow-sm border border-transparent transition-colors group relative cursor-grab active:cursor-grabbing",
-        size === 'large' ? 'col-span-1 md:col-span-2 row-span-2' : 'col-span-1 row-span-1',
-        isDragging && 'opacity-50 z-50 border-border scale-105 shadow-xl'
+        "bg-[#FDFAF4] rounded-[6px] p-5 border border-[#1A1A1A] shadow-[4px_4px_0px_0px_#1A1A1A] transition-all duration-150 group relative cursor-grab active:cursor-grabbing hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[6px_6px_0px_0px_#1A1A1A]",
+        size === 'large' ? 'col-span-1 md:col-span-2 min-h-[220px] sm:row-span-2' : 'col-span-1 min-h-[180px] row-span-1',
+        isDragging && 'opacity-60 z-50 scale-105 shadow-[8px_8px_0px_0px_#1A1A1A]'
       )}
       {...attributes} 
       {...listeners}
     >
-      <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 z-20">
+      <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 z-20">
         <button
           onClick={(e) => { e.stopPropagation(); toggleWidgetSize(id); }}
-          className="w-8 h-8 rounded-full bg-canvas flex items-center justify-center text-ink-muted hover:text-ink transition-colors"
+          className="w-7 h-7 rounded-[3px] bg-[#FDFAF4] border border-[#1A1A1A] shadow-[2px_2px_0px_0px_#1A1A1A] flex items-center justify-center text-[#1A1A1A] hover:bg-[#FFE14D] transition-colors"
+          title={size === 'large' ? "Minimize" : "Maximize"}
         >
-          {size === 'large' ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+          {size === 'large' ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
         </button>
       </div>
       
